@@ -1,0 +1,82 @@
+# jan/02/2026 10:33:21 by RouterOS 6.49.10
+# software id = WXYZ-9876
+#
+# model = RB750Gr3
+# serial number = 9F8E7D6C5B4A
+/interface bridge
+add comment=defconf name=bridge-lan protocol-mode=rstp
+/interface ethernet
+set [ find default-name=ether1 ] comment="WAN vers operateur" name=ether1-wan
+set [ find default-name=ether3 ] mtu=1500 name=ether3
+/interface vlan
+add interface=bridge-lan name=vlan30-voip vlan-id=30
+/interface list
+add name=WAN
+add name=LAN
+/interface list member
+add interface=ether1-wan list=WAN
+add interface=bridge-lan list=LAN
+add interface=vlan30-voip list=LAN
+/interface bridge port
+add bridge=bridge-lan comment=defconf interface=ether2
+add bridge=bridge-lan comment=defconf interface=ether3
+/ip pool
+add name=dhcp-lan-pool ranges=10.20.30.100-10.20.30.200
+/ip dhcp-server
+add address-pool=dhcp-lan-pool disabled=no interface=bridge-lan lease-time=10m name=dhcp-lan
+/ip address
+add address=10.20.30.1/24 comment=defconf interface=bridge-lan network=10.20.30.0
+add address=192.0.2.10/30 interface=ether1-wan network=192.0.2.8
+add address=10.30.30.1/24 interface=vlan30-voip network=10.30.30.0
+/ip dhcp-server lease
+add address=10.20.30.50 comment=imprimante mac-address=AA:BB:CC:DD:EE:01 server=dhcp-lan
+add address=10.20.30.51 mac-address=AA:BB:CC:DD:EE:02 server=dhcp-lan
+/ip dhcp-server network
+add address=10.20.30.0/24 dns-server=10.20.30.1,9.9.9.9 domain=site01.obliwan.test gateway=10.20.30.1
+/ip firewall address-list
+add address=10.255.0.0/24 list=mgmt
+/ip firewall filter
+add action=accept chain=input comment="obliwan:mgmt-established" connection-state=established,related
+add action=accept chain=input comment="obliwan:mgmt-from-chr" dst-port=22,8291 protocol=tcp src-address-list=mgmt
+add action=drop chain=input comment="defconf: drop invalid" connection-state=invalid
+add action=accept chain=input comment="defconf: accept ICMP" protocol=icmp
+add action=accept chain=input comment="dns depuis le LAN" dst-port=53 in-interface-list=LAN protocol=udp
+add action=accept chain=input comment="dns tcp depuis le LAN" dst-port=53 in-interface-list=LAN protocol=tcp
+add action=drop chain=input comment="defconf: drop all not coming from LAN" in-interface-list=!LAN
+add action=accept chain=forward comment="defconf: accept established,related" connection-state=established,related
+add action=drop chain=forward comment="defconf: drop invalid" connection-state=invalid
+add action=drop chain=forward comment="defconf: drop all from WAN not DSTNATed" connection-nat-state=!dstnat connection-state=new in-interface-list=WAN
+add action=accept chain=forward comment="voip vers internet" out-interface-list=WAN src-address=10.30.30.0/24
+/ip firewall nat
+add action=masquerade chain=srcnat comment="defconf: masquerade" out-interface-list=WAN
+add action=dst-nat chain=dstnat comment="web interne" dst-port=443 in-interface-list=WAN protocol=tcp to-addresses=10.20.30.20 to-ports=443
+/ip route
+add distance=1 dst-address=0.0.0.0/0 gateway=192.0.2.9
+add distance=1 dst-address=10.9.0.0/24 gateway=10.255.0.1
+/ip service
+set telnet disabled=yes
+set ftp disabled=yes
+set www disabled=yes
+set ssh address=10.255.0.0/24 port=22
+set www-ssl disabled=yes
+set api disabled=yes
+set winbox address=10.255.0.0/24
+set api-ssl disabled=yes
+/queue simple
+add max-limit=2M/10M name=voip-limit target=10.30.30.0/24
+add max-limit=20M/100M name=lan-limit target=10.20.30.0/24
+/snmp
+set enabled=yes
+/snmp community
+set [ find default=yes ] addresses=10.255.0.0/24 name=obliwan-ro
+/system identity
+set name=CPE-SITE-01
+/system scheduler
+add name=nightly-backup on-event="/system backup save name=auto" start-time=03:00:00
+/tool netwatch
+add host=9.9.9.9 interval=30s
+/user
+add address=10.255.0.0/24 group=full name=obliwan-svc
+set [ find name=admin ] address=10.255.0.0/24 group=full
+/user group
+add name=readonly policy=read,test,winbox

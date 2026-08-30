@@ -1,0 +1,103 @@
+{
+  "_note": "ObliWAN import template (M1). Fill in the sections you need and delete the rest. UUIDs are optional; omit them to always create new records. Sites, devices, templates, revisions and variables join this template when the inventory (M2) and the template engine (M5) land.",
+  "version": 1,
+  "sections": ["deviceGroups", "settings", "notificationChannels", "teams"],
+
+  "deviceGroups": [
+    {
+      "_note": "A top-level group. 'uuid' is optional — set one to allow idempotent re-imports.",
+      "uuid": "aaaaaaaa-0000-0000-0000-000000000001",
+      "name": "Retail",
+      "description": "All retail branch sites",
+      "parentUuid": null,
+      "sortOrder": 0,
+      "groupNotifications": false
+    },
+    {
+      "uuid": "aaaaaaaa-0000-0000-0000-000000000002",
+      "name": "Retail / North",
+      "description": "Northern region branches",
+      "parentUuid": "aaaaaaaa-0000-0000-0000-000000000001",
+      "sortOrder": 0,
+      "groupNotifications": true
+    }
+  ],
+
+  "settings": [
+    {
+      "_note": "Global setting. Keys and bounds are defined in shared/src/settings.ts (e.g. presence_grace_period, device_timeout, snmp_poll_interval, drift_interval, audit_retention_days). Values are numeric.",
+      "scope": "global",
+      "scopeUuid": null,
+      "key": "presence_grace_period",
+      "value": "60"
+    },
+    {
+      "_note": "Group-level override — scopeUuid must match a deviceGroup uuid in this file.",
+      "scope": "group",
+      "scopeUuid": "aaaaaaaa-0000-0000-0000-000000000002",
+      "key": "snmp_poll_interval",
+      "value": "30"
+    }
+  ],
+
+  "notificationChannels": [
+    {
+      "_note": "Notification channel plus its bindings. 'type' must be one of: webhook, slack, discord, telegram, email, gotify, ntfy, pushover, matrix.",
+      "uuid": "cccccccc-0000-0000-0000-000000000001",
+      "name": "Slack #noc",
+      "type": "slack",
+      "isEnabled": true,
+      "config": {
+        "webhookUrl": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+      },
+      "bindings": [
+        {
+          "_note": "Global binding — this channel receives everything. overrideMode: 'merge' (add to inherited) or 'replace' (replace inherited).",
+          "scope": "global",
+          "scopeUuid": null,
+          "overrideMode": "merge"
+        }
+      ]
+    },
+    {
+      "uuid": "cccccccc-0000-0000-0000-000000000002",
+      "name": "Email — on-call",
+      "type": "email",
+      "isEnabled": true,
+      "config": {
+        "host": "smtp.example.com",
+        "port": 587,
+        "secure": false,
+        "user": "alerts@example.com",
+        "pass": "your-smtp-password",
+        "from": "alerts@example.com",
+        "to": "oncall@example.com"
+      },
+      "bindings": [
+        {
+          "_note": "Group-scoped binding — only fires for this group and its descendants.",
+          "scope": "group",
+          "scopeUuid": "aaaaaaaa-0000-0000-0000-000000000001",
+          "overrideMode": "merge"
+        }
+      ]
+    }
+  ],
+
+  "teams": [
+    {
+      "_note": "A team plus its scoped permissions. 'scope' is 'group' or 'device'; device scope becomes usable once the inventory lands (M2). 'level' is 'ro' or 'rw'.",
+      "uuid": "dddddddd-0000-0000-0000-000000000001",
+      "name": "Field technicians",
+      "description": "Read-only on the whole retail tree",
+      "canCreate": false,
+      "permissions": [
+        {
+          "scope": "group",
+          "scopeUuid": "aaaaaaaa-0000-0000-0000-000000000001",
+          "level": "ro"
+        }
+      ]
+    }
+  ]
+}

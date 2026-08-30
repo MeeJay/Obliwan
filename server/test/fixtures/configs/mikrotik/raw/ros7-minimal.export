@@ -1,0 +1,8 @@
+# 2026-01-02 10:33:21 by RouterOS 7.14
+# software id = MNOP-5555
+#
+# model = CCR2004-1G-12S+2XS
+/interface bridge
+/ip firewall nat
+/ip address add address=192.0.2.30/24 interface=ether1
+/system identity set name=CPE-MINIMAL

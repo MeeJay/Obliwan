@@ -1,0 +1,1371 @@
+{
+  "ncmHash": "afc4b2b753943db874eb1a021e622fdb94c09f4c2e2d25476c165a9a8a5a6a76",
+  "ncm": {
+    "ncmVersion": 1,
+    "semKeyGeneration": 1,
+    "normalizationEpoch": "4bddc609ea3464ae",
+    "capturedAt": "2026-01-02T10:33:21.000Z",
+    "device": {
+      "deviceId": 1,
+      "brand": "mikrotik",
+      "family": "mikrotik_routeros7",
+      "model": "RB5009UG+S+",
+      "serial": "A1B2C3D4E5F6",
+      "systemIdentity": "CPE-SITE-01",
+      "pppUsername": null,
+      "osVersion": "7.14"
+    },
+    "coverage": {
+      "interface": {
+        "state": "partial",
+        "via": "ssh",
+        "reason": "/export omits an interface left at its factory settings; the list is what was modified plus what carries an address, a bridge port or an interface-list membership.",
+        "recordCount": 5
+      },
+      "vlan": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 1
+      },
+      "route": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 2
+      },
+      "firewallRule": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 13
+      },
+      "natRule": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 2
+      },
+      "dhcpScope": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 1
+      },
+      "ipsecPeer": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "localUser": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 2
+      },
+      "service": {
+        "state": "partial",
+        "via": "ssh",
+        "reason": "/ip/service at its factory value is omitted by /export, and the factory value differs by model and by defconf generation. Learn the defaults (`/export terse verbose`, N09) to make this complete.",
+        "recordCount": 10
+      },
+      "qosRule": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 2
+      }
+    },
+    "orderAnalysis": "full",
+    "resources": {
+      "interfaces": [
+        {
+          "semKey": "if.v1:ether1-wan",
+          "keyQuality": "strong",
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "WAN vers operateur",
+          "disabled": false,
+          "via": "ssh",
+          "kind": "interface",
+          "name": "ether1-wan",
+          "type": "ethernet",
+          "alias": null,
+          "parent": null,
+          "mtu": null,
+          "addresses": [
+            {
+              "cidr": "192.0.2.10/30",
+              "originUnknown": false
+            }
+          ],
+          "lists": [
+            "WAN"
+          ],
+          "zone": null
+        },
+        {
+          "semKey": "if.v1:ether2",
+          "keyQuality": "strong",
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "kind": "interface",
+          "name": "ether2",
+          "type": "ethernet",
+          "alias": null,
+          "parent": "bridge-lan",
+          "mtu": null,
+          "addresses": [],
+          "lists": [],
+          "zone": null
+        },
+        {
+          "semKey": "if.v1:ether3",
+          "keyQuality": "strong",
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "kind": "interface",
+          "name": "ether3",
+          "type": "ethernet",
+          "alias": null,
+          "parent": "bridge-lan",
+          "mtu": 1500,
+          "addresses": [],
+          "lists": [],
+          "zone": null
+        },
+        {
+          "semKey": "if.v1:bridge-lan",
+          "keyQuality": "strong",
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "defconf",
+          "disabled": false,
+          "via": "ssh",
+          "kind": "interface",
+          "name": "bridge-lan",
+          "type": "bridge",
+          "alias": null,
+          "parent": null,
+          "mtu": null,
+          "addresses": [
+            {
+              "cidr": "10.20.30.1/24",
+              "originUnknown": false
+            }
+          ],
+          "lists": [
+            "LAN"
+          ],
+          "zone": null
+        },
+        {
+          "semKey": "if.v1:vlan30-voip",
+          "keyQuality": "strong",
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "kind": "interface",
+          "name": "vlan30-voip",
+          "type": "vlan",
+          "alias": null,
+          "parent": "bridge-lan",
+          "mtu": null,
+          "addresses": [
+            {
+              "cidr": "10.30.30.1/24",
+              "originUnknown": false
+            }
+          ],
+          "lists": [
+            "LAN"
+          ],
+          "zone": null
+        }
+      ],
+      "vlans": [
+        {
+          "semKey": "vlan.v1:bridge-lan:30",
+          "keyQuality": "strong",
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "kind": "vlan",
+          "vlanId": 30,
+          "name": "vlan30-voip",
+          "parent": "bridge-lan",
+          "taggedPorts": [],
+          "untaggedPorts": []
+        }
+      ],
+      "routes": [
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "route.v1:main:0.0.0.0/0:ip:192.0.2.9",
+          "keyQuality": "strong",
+          "kind": "route",
+          "dst": "0.0.0.0/0",
+          "gateway": "ip:192.0.2.9",
+          "distance": 1,
+          "scope": null,
+          "targetScope": null,
+          "table": "main",
+          "checkGateway": null,
+          "vrf": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "route.v1:main:10.9.0.0/24:ip:10.255.0.1",
+          "keyQuality": "strong",
+          "kind": "route",
+          "dst": "10.9.0.0/24",
+          "gateway": "ip:10.255.0.1",
+          "distance": 1,
+          "scope": null,
+          "targetScope": null,
+          "table": "main",
+          "checkGateway": null,
+          "vrf": null
+        }
+      ],
+      "firewallRules": [
+        {
+          "managedBy": "obliwan",
+          "managedSlug": "mgmt-established",
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:input:mk:mgmt-established",
+          "keyQuality": "strong",
+          "kind": "firewallRule",
+          "chain": "input",
+          "chainName": null,
+          "match": {
+            "protocol": null,
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [
+              "established",
+              "related"
+            ],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "b3a536930fdde2c3"
+        },
+        {
+          "managedBy": "obliwan",
+          "managedSlug": "mgmt-from-chr",
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:input:mk:mgmt-from-chr",
+          "keyQuality": "strong",
+          "kind": "firewallRule",
+          "chain": "input",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "ref:mgmt"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                22,
+                22
+              ],
+              [
+                8291,
+                8291
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "68aa7923de9e4731"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "defconf: drop invalid",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:input:b8f7cdf6c7d23b8b#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "input",
+          "chainName": null,
+          "match": {
+            "protocol": null,
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [
+              "invalid"
+            ],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "drop",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "b8f7cdf6c7d23b8b"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "defconf: accept ICMP",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:input:49d5b1728b512435#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "input",
+          "chainName": null,
+          "match": {
+            "protocol": "icmp",
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "49d5b1728b512435"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "dns depuis le LAN",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:input:0d59728b4e54c3c9#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "input",
+          "chainName": null,
+          "match": {
+            "protocol": "udp",
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                53,
+                53
+              ]
+            ],
+            "inInterface": [
+              "ifaceList:LAN"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "0d59728b4e54c3c9"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "dns tcp depuis le LAN",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:input:b00a88f206e1ef01#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "input",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                53,
+                53
+              ]
+            ],
+            "inInterface": [
+              "ifaceList:LAN"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "b00a88f206e1ef01"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "defconf: drop all not coming from LAN",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:input:6a29a46c8cc74d06#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "input",
+          "chainName": null,
+          "match": {
+            "protocol": null,
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "ifaceList:!LAN"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "drop",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "6a29a46c8cc74d06"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "defconf: accept established,related, untracked",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:f10f43b8db5de5ef#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": null,
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [
+              "established",
+              "related",
+              "untracked"
+            ],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "f10f43b8db5de5ef"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "defconf: drop invalid",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:852b14d4e38de968#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": null,
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [
+              "invalid"
+            ],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "drop",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "852b14d4e38de968"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "defconf: drop all from WAN not DSTNATed",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:1e6c6713f0095d60#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": null,
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "ifaceList:WAN"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [
+              "new"
+            ],
+            "connectionNat": [
+              "!dstnat"
+            ],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "drop",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "1e6c6713f0095d60"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "voip vers internet",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:67e61479e77b9e3f#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": null,
+            "srcAddress": [
+              "cidr:10.30.30.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "ifaceList:WAN"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "67e61479e77b9e3f"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "trace voip",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:fa47e3e2aa42d1c6#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": null,
+            "srcAddress": [
+              "cidr:10.30.30.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "log",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": "voip",
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "fa47e3e2aa42d1c6"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "voip via wan2",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:prerouting:mangle:c6506f547256109e#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "prerouting",
+          "chainName": "mangle",
+          "match": {
+            "protocol": null,
+            "srcAddress": [
+              "cidr:10.30.30.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": [
+              "action:new-routing-mark=to-wan2"
+            ]
+          },
+          "action": "passthrough",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "c6506f547256109e"
+        }
+      ],
+      "natRules": [
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "defconf: masquerade",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "nat.v1:postrouting:6863816ca842b198#0",
+          "keyQuality": "derived",
+          "kind": "natRule",
+          "chain": "postrouting",
+          "chainName": null,
+          "match": {
+            "protocol": null,
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": null,
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "ifaceList:WAN"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "masquerade",
+          "toAddresses": null,
+          "toPorts": null,
+          "ordinal": 0,
+          "matchHash": "6863816ca842b198"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "web interne",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "nat.v1:prerouting:67ed01bb669e5f54#0",
+          "keyQuality": "derived",
+          "kind": "natRule",
+          "chain": "prerouting",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "any"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                443,
+                443
+              ]
+            ],
+            "inInterface": [
+              "ifaceList:WAN"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "dstnat",
+          "toAddresses": [
+            "ip:10.20.30.20"
+          ],
+          "toPorts": [
+            [
+              443,
+              443
+            ]
+          ],
+          "ordinal": 0,
+          "matchHash": "67ed01bb669e5f54"
+        }
+      ],
+      "dhcpScopes": [
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "dhcp.v1:dhcp-lan",
+          "keyQuality": "strong",
+          "kind": "dhcpScope",
+          "name": "dhcp-lan",
+          "onInterface": "iface:bridge-lan",
+          "subnet": "10.20.30.0/24",
+          "poolFrom": "10.20.30.100",
+          "poolTo": "10.20.30.200",
+          "gateway": "10.20.30.1",
+          "dnsServers": [
+            "10.20.30.1",
+            "9.9.9.9"
+          ],
+          "ntpServers": [],
+          "domain": "site01.obliwan.test",
+          "leaseSeconds": 600,
+          "reservations": [
+            {
+              "semKey": "dhcp.v1:dhcp-lan:res:aa:bb:cc:dd:ee:01",
+              "mac": "aa:bb:cc:dd:ee:01",
+              "address": "10.20.30.50",
+              "hostname": null,
+              "comment": "imprimante"
+            },
+            {
+              "semKey": "dhcp.v1:dhcp-lan:res:aa:bb:cc:dd:ee:02",
+              "mac": "aa:bb:cc:dd:ee:02",
+              "address": "10.20.30.51",
+              "hostname": null,
+              "comment": null
+            }
+          ],
+          "options": []
+        }
+      ],
+      "ipsecPeers": [],
+      "localUsers": [
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "user.v1:obliwan-svc",
+          "keyQuality": "strong",
+          "kind": "localUser",
+          "username": "obliwan-svc",
+          "group": "full",
+          "permissions": [],
+          "allowedFrom": [
+            "cidr:10.255.0.0/24"
+          ],
+          "passwordFingerprint": {
+            "algo": "hmac-sha256/v1",
+            "fp": null,
+            "unavailable": true
+          },
+          "isVendorDefault": false,
+          "sshKeyFingerprints": [],
+          "twoFactor": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "user.v1:admin",
+          "keyQuality": "strong",
+          "kind": "localUser",
+          "username": "admin",
+          "group": "full",
+          "permissions": [],
+          "allowedFrom": [
+            "cidr:10.255.0.0/24"
+          ],
+          "passwordFingerprint": {
+            "algo": "hmac-sha256/v1",
+            "fp": null,
+            "unavailable": true
+          },
+          "isVendorDefault": true,
+          "sshKeyFingerprints": [],
+          "twoFactor": null
+        }
+      ],
+      "services": [
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": true,
+          "via": "ssh",
+          "semKey": "svc.v1:telnet",
+          "keyQuality": "strong",
+          "kind": "service",
+          "service": "telnet",
+          "rawName": null,
+          "enabled": false,
+          "port": null,
+          "allowedFrom": [
+            "any"
+          ],
+          "tlsRequired": null,
+          "certificate": null,
+          "version": null,
+          "communityFingerprint": null,
+          "communityIsWellKnown": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": true,
+          "via": "ssh",
+          "semKey": "svc.v1:ftp",
+          "keyQuality": "strong",
+          "kind": "service",
+          "service": "ftp",
+          "rawName": null,
+          "enabled": false,
+          "port": null,
+          "allowedFrom": [
+            "any"
+          ],
+          "tlsRequired": null,
+          "certificate": null,
+          "version": null,
+          "communityFingerprint": null,
+          "communityIsWellKnown": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": true,
+          "via": "ssh",
+          "semKey": "svc.v1:http",
+          "keyQuality": "strong",
+          "kind": "service",
+          "service": "http",
+          "rawName": null,
+          "enabled": false,
+          "port": null,
+          "allowedFrom": [
+            "any"
+          ],
+          "tlsRequired": null,
+          "certificate": null,
+          "version": null,
+          "communityFingerprint": null,
+          "communityIsWellKnown": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "svc.v1:ssh",
+          "keyQuality": "strong",
+          "kind": "service",
+          "service": "ssh",
+          "rawName": null,
+          "enabled": true,
+          "port": 22,
+          "allowedFrom": [
+            "cidr:10.255.0.0/24"
+          ],
+          "tlsRequired": null,
+          "certificate": null,
+          "version": null,
+          "communityFingerprint": null,
+          "communityIsWellKnown": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": true,
+          "via": "ssh",
+          "semKey": "svc.v1:https",
+          "keyQuality": "strong",
+          "kind": "service",
+          "service": "https",
+          "rawName": null,
+          "enabled": false,
+          "port": null,
+          "allowedFrom": [
+            "any"
+          ],
+          "tlsRequired": true,
+          "certificate": null,
+          "version": null,
+          "communityFingerprint": null,
+          "communityIsWellKnown": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": true,
+          "via": "ssh",
+          "semKey": "svc.v1:api",
+          "keyQuality": "strong",
+          "kind": "service",
+          "service": "api",
+          "rawName": null,
+          "enabled": false,
+          "port": null,
+          "allowedFrom": [
+            "any"
+          ],
+          "tlsRequired": null,
+          "certificate": null,
+          "version": null,
+          "communityFingerprint": null,
+          "communityIsWellKnown": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "svc.v1:winbox",
+          "keyQuality": "strong",
+          "kind": "service",
+          "service": "winbox",
+          "rawName": null,
+          "enabled": true,
+          "port": null,
+          "allowedFrom": [
+            "cidr:10.255.0.0/24"
+          ],
+          "tlsRequired": null,
+          "certificate": null,
+          "version": null,
+          "communityFingerprint": null,
+          "communityIsWellKnown": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": true,
+          "via": "ssh",
+          "semKey": "svc.v1:api-ssl",
+          "keyQuality": "strong",
+          "kind": "service",
+          "service": "api-ssl",
+          "rawName": null,
+          "enabled": false,
+          "port": null,
+          "allowedFrom": [
+            "any"
+          ],
+          "tlsRequired": true,
+          "certificate": null,
+          "version": null,
+          "communityFingerprint": null,
+          "communityIsWellKnown": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "svc.v1:snmp",
+          "keyQuality": "strong",
+          "kind": "service",
+          "service": "snmp",
+          "rawName": null,
+          "enabled": true,
+          "port": null,
+          "allowedFrom": [
+            "any"
+          ],
+          "tlsRequired": null,
+          "certificate": null,
+          "version": null,
+          "communityFingerprint": null,
+          "communityIsWellKnown": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "svc.v1:other:snmp-community:obliwan-ro",
+          "keyQuality": "strong",
+          "kind": "service",
+          "service": "other",
+          "rawName": "snmp-community:obliwan-ro",
+          "enabled": true,
+          "port": null,
+          "allowedFrom": [
+            "cidr:10.255.0.0/24"
+          ],
+          "tlsRequired": null,
+          "certificate": null,
+          "version": "v2c",
+          "communityFingerprint": null,
+          "communityIsWellKnown": false
+        }
+      ],
+      "qosRules": [
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "qos.v1:simple:voip-limit",
+          "keyQuality": "strong",
+          "kind": "qosRule",
+          "queueClass": "simple",
+          "name": "voip-limit",
+          "target": [
+            "cidr:10.30.30.0/24"
+          ],
+          "match": null,
+          "parent": null,
+          "priority": null,
+          "maxLimitUpBps": 2000000,
+          "maxLimitDownBps": 10000000,
+          "limitAtUpBps": null,
+          "limitAtDownBps": null,
+          "queueType": null,
+          "ordinal": 0,
+          "matchHash": null
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "qos.v1:simple:lan-limit",
+          "keyQuality": "strong",
+          "kind": "qosRule",
+          "queueClass": "simple",
+          "name": "lan-limit",
+          "target": [
+            "cidr:10.20.30.0/24"
+          ],
+          "match": null,
+          "parent": null,
+          "priority": null,
+          "maxLimitUpBps": 20000000,
+          "maxLimitDownBps": 100000000,
+          "limitAtUpBps": null,
+          "limitAtDownBps": null,
+          "queueType": null,
+          "ordinal": 0,
+          "matchHash": null
+        }
+      ]
+    },
+    "unmodeled": [
+      {
+        "section": "/ip/firewall/address-list",
+        "lineCount": 1,
+        "forwardingRelevant": false
+      },
+      {
+        "section": "/system/scheduler",
+        "lineCount": 1,
+        "forwardingRelevant": true
+      },
+      {
+        "section": "/tool/netwatch",
+        "lineCount": 1,
+        "forwardingRelevant": true
+      }
+    ],
+    "extensions": {}
+  }
+}

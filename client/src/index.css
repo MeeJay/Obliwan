@@ -1,0 +1,327 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Theme CSS custom properties
+   Values are space-separated RGB triplets so Tailwind's opacity modifier syntax
+   (e.g. bg-accent/30) works: Tailwind emits  rgb(var(--c-X) / 0.3)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Obli Operator (default) — Obli design system v1, teinte bleu nuit + accent orange ObliWAN.
+       Spec: D:\Mockup\obli-design-system.md §2 + §10. ─────────────────────── */
+:root,
+[data-theme="obli-operator"] {
+  --c-bg-primary:            11 13 26;
+  --c-bg-secondary:          19 23 40;
+  --c-bg-tertiary:           24 28 48;
+  --c-bg-hover:              29 34 56;
+  --c-bg-active:             34 39 64;
+
+  /* Borders kept subtle on a dark base — Tailwind's `border-border` resolves
+     to `rgb(var(--c-border))` (no automatic alpha), so the value here MUST
+     be a near-bg shade rather than 255/255/255. */
+  --c-border:                42 48 72;
+  --c-border-light:          62 70 100;
+
+  --c-text-primary:          240 244 252;
+  --c-text-secondary:        180 188 215;
+  --c-text-muted:            130 140 175;
+
+  --c-status-up:             30 221 138;
+  --c-status-up-bg:          12 40 26;
+  --c-status-down:           107 115 153;
+  --c-status-down-bg:        24 28 48;
+  --c-status-pending:        79 123 255;
+  --c-status-pending-bg:     16 24 56;
+  --c-status-maintenance:    140 147 182;
+  --c-status-maintenance-bg: 19 23 40;
+  --c-status-paused:         75 82 115;
+  --c-status-paused-bg:      19 23 40;
+  --c-status-ssl-warning:    245 166 35;
+  --c-status-ssl-warning-bg: 46 33 17;
+  --c-status-ssl-expired:    224 58 58;
+  --c-status-ssl-expired-bg: 39 26 69;
+
+  /* ObliWAN accent — orange #f5a623 (highlight #ffb84a) per design system §1 */
+  --c-accent:                245 166 35;
+  --c-accent-hover:          255 184 74;
+  --c-accent-dark:           184 124 24;
+  --c-primary:               245 166 35;
+}
+
+/* ── Modern UI (legacy) — neutral dark, barely-warm orange accent ─────────── */
+[data-theme="modern"] {
+  --c-bg-primary:            13 13 12;
+  --c-bg-secondary:          21 21 19;
+  --c-bg-tertiary:           29 28 27;
+  --c-bg-hover:              37 36 34;
+  --c-bg-active:             46 45 42;
+
+  --c-border:                55 54 51;
+  --c-border-light:          69 67 63;
+
+  --c-text-primary:          229 227 224;
+  --c-text-secondary:        140 137 133;
+  --c-text-muted:            107 104 100;
+
+  --c-status-up:             46 160 67;
+  --c-status-up-bg:          13 40 24;
+  --c-status-down:           248 81 73;
+  --c-status-down-bg:        61 20 24;
+  --c-status-pending:        210 153 34;
+  --c-status-pending-bg:     46 33 17;
+  --c-status-maintenance:    88 166 255;
+  --c-status-maintenance-bg: 13 37 70;
+  --c-status-paused:         140 120 92;
+  --c-status-paused-bg:      30 25 19;
+  --c-status-ssl-warning:    210 153 34;
+  --c-status-ssl-warning-bg: 46 33 17;
+  --c-status-ssl-expired:    163 113 247;
+  --c-status-ssl-expired-bg: 39 26 69;
+
+  /* ObliWAN orange accent — #f59e0b (amber-500) */
+  --c-accent:       245 158 11;
+  --c-accent-hover: 251 191 36;
+  --c-accent-dark:  180 108 6;
+  --c-primary:      245 158 11;
+}
+
+/* ── Neon UI — deep dark with orange neon glow ────────────────────────────── */
+[data-theme="neon"] {
+  --c-bg-primary:            7 8 10;
+  --c-bg-secondary:          13 14 17;
+  --c-bg-tertiary:           19 20 24;
+  --c-bg-hover:              27 27 32;
+  --c-bg-active:             36 36 42;
+
+  --c-border:                50 51 57;
+  --c-border-light:          65 66 73;
+
+  --c-text-primary:          240 234 226;
+  --c-text-secondary:        152 138 118;
+  --c-text-muted:            106 94 78;
+
+  --c-status-up:             0 195 95;
+  --c-status-up-bg:          0 28 14;
+  --c-status-down:           255 56 96;
+  --c-status-down-bg:        42 0 16;
+  --c-status-pending:        255 190 0;
+  --c-status-pending-bg:     36 22 0;
+  --c-status-maintenance:    80 170 255;
+  --c-status-maintenance-bg: 0 25 52;
+  --c-status-paused:         114 88 52;
+  --c-status-paused-bg:      20 13 6;
+  --c-status-ssl-warning:    255 190 0;
+  --c-status-ssl-warning-bg: 36 22 0;
+  --c-status-ssl-expired:    180 100 255;
+  --c-status-ssl-expired-bg: 28 0 60;
+
+  /* Bright neon orange */
+  --c-accent:       255 165 20;
+  --c-accent-hover: 255 198 70;
+  --c-accent-dark:  200 120 0;
+  --c-primary:      255 165 20;
+}
+
+/* ── Obli Daylight — light companion to Obli Operator. "Nordic Mist" (Nord Snow
+       Storm) surface: cushioned blue-gray page, Polar Night text, depth via soft
+       shadow. Surfaces only — the accent is NOT redefined here, so it inherits
+       the app's Obli Operator amber from :root (Daylight changes surfaces, not
+       brand identity). Spec: D:\Obligate\docs\obli-daylight-theme.md. ────────── */
+[data-theme="obli-daylight"] {
+  --c-bg-primary:            229 233 240;   /* #e5e9f0  Snow Storm page bg */
+  --c-bg-secondary:          236 239 244;   /* #eceff4  cards */
+  --c-bg-tertiary:           216 222 233;   /* #d8dee9  inputs / pill container */
+
+  /* CRITICAL: hover/active/border MUST be plain RGB triplets — no embedded alpha.
+     Tailwind always emits rgb(var(--x) / <alpha-value>); a stored "R G B / A"
+     produces invalid CSS, the rule is dropped, and the app falls back to thick
+     black borders. Use near-surface tones instead. */
+  --c-bg-hover:              222 227 236;
+  --c-bg-active:             210 217 229;
+
+  --c-border:                212 220 231;
+  --c-border-light:          224 230 240;
+
+  --c-text-primary:          46 52 64;       /* #2e3440  Polar Night */
+  --c-text-secondary:        76 86 106;      /* #4c566a */
+  --c-text-muted:            129 141 161;    /* #818da1 */
+
+  --c-status-up:             16 163 96;
+  --c-status-up-bg:          220 252 231;
+  --c-status-down:           148 163 184;
+  --c-status-down-bg:        216 222 233;
+  --c-status-pending:        37 99 235;
+  --c-status-pending-bg:     219 234 254;
+  --c-status-maintenance:    100 116 139;
+  --c-status-maintenance-bg: 216 222 233;
+  --c-status-paused:         148 163 184;
+  --c-status-paused-bg:      216 222 233;
+  --c-status-ssl-warning:    217 119 6;
+  --c-status-ssl-warning-bg: 254 243 199;
+  --c-status-ssl-expired:    220 38 38;
+  --c-status-ssl-expired-bg: 254 226 226;
+
+  /* --c-accent / -hover / -dark / -text / --c-primary intentionally NOT set:
+     they inherit the Obli Operator amber from :root. */
+
+  --shadow-card: 0 1px 2px 0 rgba(46,52,64,0.03), 0 6px 24px -12px rgba(46,52,64,0.08);
+  --shadow-glow: 0 0 0 1px rgb(var(--c-accent) / 0.18) inset, 0 8px 32px -12px rgb(var(--c-accent) / 0.22);
+}
+
+[data-theme="obli-daylight"] body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #e5e9f0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Utility — hide scrollbar
+   ───────────────────────────────────────────────────────────────────────────── */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Base styles
+   ───────────────────────────────────────────────────────────────────────────── */
+@layer base {
+  body {
+    @apply bg-bg-primary text-text-primary antialiased;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-bg-primary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-border-light;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Neon UI — orange glow effects
+   All selectors are flat (not nested) for PostCSS compatibility.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Header bottom accent line — orange radial gradient ─────────────────────── */
+[data-theme="neon"] header {
+  position: relative;
+  border-bottom-color: transparent;
+}
+[data-theme="neon"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: radial-gradient(
+    ellipse 70% 100% at 50% 100%,
+    rgb(255 165 20 / 0.9) 0%,
+    rgb(255 165 20 / 0.4) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* ── Active nav item — orange flash ─────────────────────────────────────────── */
+[data-theme="neon"] .bg-bg-active {
+  background-color: rgb(255 165 20 / 0.08) !important;
+  box-shadow: inset 3px 0 0 rgb(255 165 20 / 1);
+}
+[data-theme="neon"] .bg-bg-active .text-text-primary {
+  color: rgb(255 165 20 / 1) !important;
+  text-shadow: 0 0 10px rgb(255 165 20 / 0.6);
+}
+[data-theme="neon"] .bg-bg-active svg {
+  color: rgb(255 165 20 / 1) !important;
+  filter: drop-shadow(0 0 4px rgb(255 165 20 / 0.65));
+}
+
+/* ── Accent & primary text glow ─────────────────────────────────────────────── */
+[data-theme="neon"] .text-accent {
+  text-shadow: 0 0 12px rgb(var(--c-accent) / 0.5);
+}
+[data-theme="neon"] .text-primary {
+  text-shadow: 0 0 12px rgb(var(--c-accent) / 0.5);
+}
+
+/* ── Status text glows ──────────────────────────────────────────────────────── */
+[data-theme="neon"] .text-status-up {
+  text-shadow: 0 0 10px rgb(var(--c-status-up) / 0.6);
+}
+[data-theme="neon"] .text-status-down {
+  text-shadow: 0 0 10px rgb(var(--c-status-down) / 0.5);
+}
+
+/* ── Card status borders + glows — driven by [data-status] attribute ────────── */
+[data-theme="neon"] [data-status="up"] {
+  border-color: rgb(0 195 95 / 0.45) !important;
+}
+[data-theme="neon"] [data-status="down"] {
+  border-color: rgb(255 56 96 / 0.75) !important;
+  box-shadow: 0 0 8px rgb(255 56 96 / 0.4);
+}
+[data-theme="neon"] [data-status="alert"] {
+  border-color: rgb(255 165 20 / 0.85) !important;
+  box-shadow: 0 0 10px rgb(255 165 20 / 0.45);
+}
+[data-theme="neon"] [data-status="pending"] {
+  border-color: rgb(255 190 0 / 0.55) !important;
+}
+[data-theme="neon"] [data-status="banned"] {
+  border-color: rgb(255 56 96 / 0.75) !important;
+  box-shadow: 0 0 8px rgb(255 56 96 / 0.4);
+}
+[data-theme="neon"] [data-status="events"] {
+  border-color: rgb(168 85 247 / 0.65) !important;
+  box-shadow: 0 0 10px rgb(168 85 247 / 0.35);
+}
+
+
+/* ── Accent border / ring glow ──────────────────────────────────────────────── */
+[data-theme="neon"] .border-accent {
+  box-shadow: 0 0 0 1px rgb(var(--c-accent) / 0.4), 0 0 12px rgb(var(--c-accent) / 0.2);
+}
+[data-theme="neon"] .ring-accent {
+  box-shadow: 0 0 0 1px rgb(var(--c-accent) / 0.4), 0 0 12px rgb(var(--c-accent) / 0.2);
+}
+
+/* ── Primary button glow ────────────────────────────────────────────────────── */
+[data-theme="neon"] button.bg-accent {
+  box-shadow: 0 0 14px rgb(var(--c-accent) / 0.45), 0 2px 8px rgb(0 0 0 / 0.4);
+}
+[data-theme="neon"] a.bg-accent {
+  box-shadow: 0 0 14px rgb(var(--c-accent) / 0.45), 0 2px 8px rgb(0 0 0 / 0.4);
+}
+[data-theme="neon"] button.bg-primary {
+  box-shadow: 0 0 14px rgb(var(--c-primary) / 0.45), 0 2px 8px rgb(0 0 0 / 0.4);
+}
+
+/* ── Status badge / dot glow ─────────────────────────────────────────────────── */
+[data-theme="neon"] .bg-status-up {
+  box-shadow: 0 0 8px rgb(var(--c-status-up) / 0.65);
+}
+[data-theme="neon"] .bg-status-down {
+  box-shadow: 0 0 8px rgb(var(--c-status-down) / 0.6);
+}
+
+/* ── Card secondary bg border ───────────────────────────────────────────────── */
+[data-theme="neon"] .bg-bg-secondary {
+  border-color: rgb(var(--c-border) / 1);
+}

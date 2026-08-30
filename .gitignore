@@ -1,0 +1,41 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+Thumbs.db
+coverage/
+.vscode/
+.idea/
+*.tsbuildinfo
+
+# Release tooling kept out of the public repo: it hard-codes the internal build
+# host (docker -H tcp://10.0.0.152:2375) and local paths.
+*.bat
+start.ps1
+
+# Claude Code internal files (conversation history, memory, etc.)
+.claude/
+CLAUDE.md
+
+# Local dev / planning notes and architecture drafts
+PLAN.md
+.draft/
+custom/
+
+# Audit reports and design studies. Kept OUT of a public repository on purpose:
+# the eleven audit-*.md and verif-*.md files carry step-by-step reproduction
+# scenarios for the 24 critical findings this product has had — the empty-body
+# POST that handed back a vault secret, the config injection into a rendered
+# artefact, the fleet's L2TP passwords in a jsonb column served to a screen.
+# Every one of them is fixed, so the risk is low; publishing the recipe anyway
+# is a decision, not an oversight, and the decision is not to.
+#
+# ARCHITECTURE.md stays IN the repository: it is the specification, it carries
+# the arbitrations and the reasoning, and it names no exploitable path.
+docs/
+
+# Throwaway patch/probe scripts written during a session (hard-coded absolute
+# paths, no place in the product). Four of them reached the first staging area.
+/__*.cjs
+/.*.cjs

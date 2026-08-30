@@ -1,0 +1,65 @@
+# 2026-01-02 10:38:47 by RouterOS 7.14
+# software id = ABCD-1234
+#
+# model = RB5009UG+S+
+# serial number = A1B2C3D4E5F6
+/interface bridge add name=bridge-lan protocol-mode=rstp comment=defconf port-cost-mode=long vlan-filtering=no auto-mac=no admin-mac=48:A9:8A:00:00:01
+/interface ethernet set [ find default-name=ether1 ] name=ether1-wan comment="WAN vers operateur"
+/interface ethernet set [ find default-name=ether3 ] name=ether3 mtu=1500
+/interface ethernet set [ find default-name=ether2 ] name=ether2
+/interface vlan add name=vlan30-voip vlan-id=30 interface=bridge-lan
+/interface list add name=LAN
+/interface list add name=WAN
+/interface list member add list=LAN interface=vlan30-voip
+/interface list member add list=WAN interface=ether1-wan
+/interface list member add list=LAN interface=bridge-lan
+/interface bridge port add interface=ether3 bridge=bridge-lan comment=defconf
+/interface bridge port add interface=ether2 bridge=bridge-lan comment=defconf
+/ip pool add ranges=10.20.30.100-10.20.30.200 name=dhcp-lan-pool
+/ip dhcp-server add name=dhcp-lan interface=bridge-lan address-pool=dhcp-lan-pool lease-time=10m
+/ip address add address=192.0.2.10/30 network=192.0.2.8 interface=ether1-wan
+/ip address add address=10.30.30.1/24 network=10.30.30.0 interface=vlan30-voip
+/ip address add address=10.20.30.1/24 network=10.20.30.0 interface=bridge-lan comment=defconf
+/ip address add address=100.64.7.19/32 interface=ether1-wan network=100.64.7.19 dynamic=yes
+/ip dhcp-server lease add server=dhcp-lan mac-address=aa:bb:cc:dd:ee:02 address=10.20.30.51
+/ip dhcp-server lease add server=dhcp-lan mac-address=aa:bb:cc:dd:ee:01 address=10.20.30.50 comment=imprimante
+/ip dhcp-server network add gateway=10.20.30.1 address=10.20.30.0/24 domain=site01.obliwan.test dns-server=10.20.30.1,9.9.9.9
+/ip firewall address-list add list=mgmt address=10.255.0.0/24
+/ip firewall address-list add list=blocked address=198.51.100.221 timeout=1h
+/ip firewall filter add chain=input action=accept connection-state=related,established comment="obliwan:mgmt-established"
+/ip firewall filter add chain=input action=accept protocol=tcp dst-port=8291,22 src-address-list=mgmt comment="obliwan:mgmt-from-chr"
+/ip firewall filter add chain=input action=drop connection-state=invalid comment="defconf: drop invalid"
+/ip firewall filter add chain=input action=accept protocol=1 comment="defconf: accept ICMP"
+/ip firewall filter add chain=input action=accept protocol=udp dst-port=53 \
+    in-interface-list=LAN comment="dns depuis le LAN"
+/ip firewall filter add chain=input action=accept protocol=tcp dst-port=53 in-interface-list=LAN comment="dns tcp depuis le LAN"
+/ip firewall filter add chain=input action=drop in-interface-list=!LAN comment="defconf: drop all not coming from LAN"
+/ip firewall filter add chain=forward action=accept connection-state=untracked,established,related comment="defconf: accept established,related, untracked"
+/ip firewall filter add chain=forward action=drop connection-state=invalid comment="defconf: drop invalid"
+/ip firewall filter add chain=forward action=drop connection-state=new connection-nat-state=!dstnat in-interface-list=WAN comment="defconf: drop all from WAN not DSTNATed"
+/ip firewall filter add chain=forward action=accept src-address=10.30.30.0/24 out-interface-list=WAN comment="voip vers internet"
+/ip firewall filter add chain=forward action=log src-address=10.30.30.0/24 log-prefix=voip comment="trace voip - checked 2026-01-03 03:15"
+/ip firewall nat add chain=srcnat action=masquerade out-interface-list=WAN comment="defconf: masquerade"
+/ip firewall nat add chain=dstnat action=dst-nat protocol=tcp dst-port=443 in-interface-list=WAN to-addresses=10.20.30.20 to-ports=443 comment="web interne"
+/ip firewall mangle add chain=prerouting action=mark-routing new-routing-mark=to-wan2 passthrough=yes src-address=10.30.30.0/24 comment="voip via wan2"
+/ip route add gateway=192.0.2.9 dst-address=0.0.0.0/0 distance=1
+/ip route add gateway=10.255.0.1 dst-address=10.9.0.0/24 distance=1
+/ip route add dst-address=0.0.0.0/0 gateway=100.64.7.1 distance=1 dynamic=yes
+/ip service set www disabled=yes
+/ip service set telnet disabled=yes
+/ip service set winbox address=10.255.0.0/24
+/ip service set ftp disabled=yes
+/ip service set api disabled=yes
+/ip service set ssh port=22 address=10.255.0.0/24
+/ip service set api-ssl disabled=yes
+/ip service set www-ssl disabled=yes
+/queue simple add name=voip-limit target=10.30.30.0/24 max-limit=2M/10M
+/queue simple add name=lan-limit target=10.20.30.0/24 max-limit=20M/100M
+/snmp set enabled=yes
+/snmp community set [ find default=yes ] name=obliwan-ro addresses=10.255.0.0/24 security=none
+/system identity set name="CPE-SITE-01"
+/system scheduler add on-event="/system backup save name=auto" name=nightly-backup start-time=03:00:00
+/tool netwatch add interval=30s host=9.9.9.9
+/user set [ find name=admin ] group=full address=10.255.0.0/24
+/user add name=obliwan-svc group=full address=10.255.0.0/24
+/user group add policy=winbox,test,read name=readonly

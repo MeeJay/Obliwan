@@ -1,0 +1,2137 @@
+{
+  "ncmHash": "8949b9540530bba1eed2eed859b372dad60c141dac8de1bc4db2cb89361be4d8",
+  "ncm": {
+    "ncmVersion": 1,
+    "semKeyGeneration": 1,
+    "normalizationEpoch": "4bddc609ea3464ae",
+    "capturedAt": "2026-01-02T10:33:21.000Z",
+    "device": {
+      "deviceId": 1,
+      "brand": "mikrotik",
+      "family": "mikrotik_routeros7",
+      "model": "RB5009UG+S+",
+      "serial": "A1B2C3D4E5F6",
+      "systemIdentity": null,
+      "pppUsername": null,
+      "osVersion": "7.14"
+    },
+    "coverage": {
+      "interface": {
+        "state": "partial",
+        "via": "ssh",
+        "reason": "/export omits an interface left at its factory settings; the list is what was modified plus what carries an address, a bridge port or an interface-list membership.",
+        "recordCount": 0
+      },
+      "vlan": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "route": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "firewallRule": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 40
+      },
+      "natRule": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "dhcpScope": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "ipsecPeer": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "localUser": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "service": {
+        "state": "partial",
+        "via": "ssh",
+        "reason": "/ip/service at its factory value is omitted by /export, and the factory value differs by model and by defconf generation. Learn the defaults (`/export terse verbose`, N09) to make this complete.",
+        "recordCount": 0
+      },
+      "qosRule": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      }
+    },
+    "orderAnalysis": "full",
+    "resources": {
+      "interfaces": [],
+      "vlans": [],
+      "routes": [],
+      "firewallRules": [
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-00",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:b63adfe49f8d0639#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.100.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10000,
+                10000
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "b63adfe49f8d0639"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-01",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:480f88b88e251eba#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.101.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10001,
+                10001
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "480f88b88e251eba"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-02",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:870bcfbeeef54a5e#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.102.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10002,
+                10002
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "870bcfbeeef54a5e"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-03",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:7e413b89251e6686#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.103.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10003,
+                10003
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "7e413b89251e6686"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-04",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:18f9d158404a31b5#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.104.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10004,
+                10004
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "18f9d158404a31b5"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-05",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:34f45c15cd6bdaeb#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.105.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10005,
+                10005
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "34f45c15cd6bdaeb"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-06",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:bbba7b9ac80637b3#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.106.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10006,
+                10006
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "bbba7b9ac80637b3"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-07",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:8396eee68b2ae7ce#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.107.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10007,
+                10007
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "8396eee68b2ae7ce"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-08",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:9f0ae6f77a13f3b1#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.108.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10008,
+                10008
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "9f0ae6f77a13f3b1"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-09",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:d3ec6a51bee9d28e#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.109.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10009,
+                10009
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "d3ec6a51bee9d28e"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-10",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:bf6e35ade3f41a85#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.110.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10010,
+                10010
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "bf6e35ade3f41a85"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-11",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:bd481802b725adc9#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.111.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10011,
+                10011
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "bd481802b725adc9"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-12",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:3d3cb5094a02932f#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.112.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10012,
+                10012
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "3d3cb5094a02932f"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-13",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:c4b23bed1d9caf49#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.113.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10013,
+                10013
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "c4b23bed1d9caf49"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-14",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:fee9a06b7a4713a6#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.114.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10014,
+                10014
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "fee9a06b7a4713a6"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-15",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:26b23cc3442e5169#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.115.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10015,
+                10015
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "26b23cc3442e5169"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-16",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:6c781bc653a85d00#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.116.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10016,
+                10016
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "6c781bc653a85d00"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-17",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:2b698bf8b0d65730#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.117.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10017,
+                10017
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "2b698bf8b0d65730"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-18",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:514b529dfe82063e#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.118.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10018,
+                10018
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "514b529dfe82063e"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-19",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:737759982dfb19ba#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.119.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10019,
+                10019
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "737759982dfb19ba"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-20",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:b068478322841e7d#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.120.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10020,
+                10020
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "b068478322841e7d"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-21",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:3a67640a58b6b7a4#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.121.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10021,
+                10021
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "3a67640a58b6b7a4"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-22",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:1f434a7a1758599b#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.122.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10022,
+                10022
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "1f434a7a1758599b"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-23",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:2996cbeeabdcd765#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.123.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10023,
+                10023
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "2996cbeeabdcd765"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-24",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:9b5db62b7b4ebcce#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.124.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10024,
+                10024
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "9b5db62b7b4ebcce"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-25",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:5fc2628a31bd7216#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.125.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10025,
+                10025
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "5fc2628a31bd7216"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-26",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:e97c9dc76314e392#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.126.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10026,
+                10026
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "e97c9dc76314e392"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-27",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:e43e0bb66315682c#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.127.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10027,
+                10027
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "e43e0bb66315682c"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-28",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:77212fbe0676a05d#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.128.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10028,
+                10028
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "77212fbe0676a05d"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-29",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:46c7743e592f94b3#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.129.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10029,
+                10029
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "46c7743e592f94b3"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-30",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:9b3c74f890d081ac#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.130.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10030,
+                10030
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "9b3c74f890d081ac"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-31",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:882c2a3a0aa732bb#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.131.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10031,
+                10031
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "882c2a3a0aa732bb"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-32",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:4e5d0f615213ad96#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.132.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10032,
+                10032
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "4e5d0f615213ad96"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-33",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:74b9efc9daa2deb6#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.133.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10033,
+                10033
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "74b9efc9daa2deb6"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-34",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:ba74ad92b55eedde#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.134.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10034,
+                10034
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "ba74ad92b55eedde"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-35",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:c04e3f0b4146c06d#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.135.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10035,
+                10035
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "c04e3f0b4146c06d"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-36",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:913f314051b972f4#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.136.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10036,
+                10036
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "913f314051b972f4"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-37",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:66b0258b17d29433#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.137.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10037,
+                10037
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "66b0258b17d29433"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-38",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:78d830d3229f705c#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.138.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10038,
+                10038
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "78d830d3229f705c"
+        },
+        {
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": "tenant-39",
+          "disabled": false,
+          "via": "ssh",
+          "semKey": "fw.v1:forward:6a2cecf24d5eceba#0",
+          "keyQuality": "derived",
+          "kind": "firewallRule",
+          "chain": "forward",
+          "chainName": null,
+          "match": {
+            "protocol": "tcp",
+            "srcAddress": [
+              "cidr:10.139.0.0/24"
+            ],
+            "dstAddress": [
+              "any"
+            ],
+            "srcPort": null,
+            "dstPort": [
+              [
+                10039,
+                10039
+              ]
+            ],
+            "inInterface": [
+              "any"
+            ],
+            "outInterface": [
+              "any"
+            ],
+            "srcZone": null,
+            "dstZone": null,
+            "connectionState": [],
+            "connectionNat": [],
+            "tcpFlags": [],
+            "icmpType": null,
+            "ipsecPolicy": null,
+            "unmodeledMatch": []
+          },
+          "action": "accept",
+          "jumpTarget": null,
+          "rejectWith": null,
+          "log": false,
+          "logPrefix": null,
+          "addToList": null,
+          "addToListTimeout": null,
+          "ordinal": 0,
+          "matchHash": "6a2cecf24d5eceba"
+        }
+      ],
+      "natRules": [],
+      "dhcpScopes": [],
+      "ipsecPeers": [],
+      "localUsers": [],
+      "services": [],
+      "qosRules": []
+    },
+    "unmodeled": [],
+    "extensions": {}
+  }
+}

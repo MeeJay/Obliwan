@@ -1,0 +1,51 @@
+# ObliWAN — stack without the bundled PostgreSQL.
+# Use this if you already run PostgreSQL elsewhere (Unraid, a managed instance,
+# a database shared with the rest of the Obli* suite).
+#
+#   docker compose -f docker-compose.external-db.yml up -d
+#
+# Required .env variables:
+#   DATABASE_URL=postgres://obliwan:<password>@<host>:5432/obliwan
+#   SESSION_SECRET=<random-string>
+#   OBLIWAN_ENCRYPTION_KEY=<64 hex chars>   # see .env.example — risk R8
+#
+# Read the header of docker-compose.yml for the host route to the L2TP tunnel
+# subnet and for why `server` publishes ports here and nowhere else in the suite.
+
+services:
+  server:
+    image: meejay/obliwan-server:${OBLIWAN_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: ${DATABASE_URL}
+      SESSION_SECRET: ${SESSION_SECRET}
+      OBLIWAN_ENCRYPTION_KEY: ${OBLIWAN_ENCRYPTION_KEY:-}
+      OBLIWAN_ROLE: ${OBLIWAN_ROLE:-all}
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:3004}
+      DEFAULT_ADMIN_USERNAME: ${DEFAULT_ADMIN_USERNAME:-admin}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-admin123}
+      CWMP_PORT: ${CWMP_PORT:-7547}
+      SNMP_TRAP_PORT: ${SNMP_TRAP_PORT:-162}
+      SYSLOG_PORT: ${SYSLOG_PORT:-514}
+    ports:
+      # Inbound device traffic — the documented exception to the suite topology.
+      - "${CWMP_PORT:-7547}:7547/tcp"
+      #- "${CWMP_TLS_PORT:-7548}:7548/tcp"
+      - "${SNMP_TRAP_PORT:-162}:162/udp"
+      - "${SYSLOG_PORT:-514}:514/udp"
+      - "${SYSLOG_PORT:-514}:514/tcp"
+    volumes:
+      # Persistent custom directory: scripts, SSH keys, etc.
+      # SSH keys: chmod 700 custom/.ssh && chmod 600 custom/.ssh/id_*
+      - ${CUSTOM_DIR:-./custom}:/custom
+
+  client:
+    image: meejay/obliwan-client:${OBLIWAN_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    ports:
+      - "${LISTEN_PORT:-3004}:80"

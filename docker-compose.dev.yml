@@ -1,0 +1,63 @@
+# ObliWAN — development overlay.
+#
+#   docker compose -f docker-compose.build.yml -f docker-compose.dev.yml up --build
+#   (this is what `npm run dev` runs)
+#
+# Differences with the production stack:
+#   - postgres is published on 5432 so you can run knex / psql / pgAdmin from
+#     the host;
+#   - server and client run from the `builder` stage with live reload and their
+#     sources bind-mounted;
+#   - the client is served by Vite on 5173 instead of nginx on 3004;
+#   - depends_on is relaxed to service_started: the builder stages carry no
+#     HEALTHCHECK, so service_healthy would deadlock.
+#
+# The inbound device listeners (7547 / 162 / 514) declared in
+# docker-compose.build.yml stay published in dev — a lab CPE or a lab CHR can
+# therefore talk to your dev instance.
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: builder
+    command: npx tsx watch src/index.ts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./server/src:/app/server/src
+      - ./shared/src:/app/shared/src
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgres://obliwan:${DB_PASSWORD:-changeme}@postgres:5432/obliwan
+      SESSION_SECRET: dev-secret
+      # Dev-only fixed key. NEVER reuse this value in production (risk R8).
+      OBLIWAN_ENCRYPTION_KEY: ${OBLIWAN_ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+      OBLIWAN_ROLE: all
+      CLIENT_ORIGIN: http://localhost:5173
+      DEFAULT_ADMIN_USERNAME: admin
+      DEFAULT_ADMIN_PASSWORD: admin123
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      target: builder
+    command: npx vite --host 0.0.0.0
+    depends_on:
+      server:
+        condition: service_started
+    volumes:
+      - ./client/src:/app/client/src
+      - ./shared/src:/app/shared/src
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3001

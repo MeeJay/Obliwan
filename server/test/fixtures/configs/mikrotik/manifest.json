@@ -1,0 +1,109 @@
+{
+  "$comment": [
+    "EVERY FIXTURE IN raw/ IS SYNTHETIC. None was captured from a MikroTik: no device was",
+    "available to this workstream. They were written by hand from knowledge of RouterOS and they",
+    "test the parser against that knowledge — not against reality. The six open questions of",
+    "section 7.4 of docs/M4-normalisation-routeros.md (does `/export terse verbose` exist and what",
+    "does it return on 6.49 and 7.14; at which exact release the header date format flips and where",
+    "`model` / `serial number` appear; whether `show-sensitive=no` omits a prop or blanks it, menu by",
+    "menu; the real per-section list of props each version omits; whether the API terse reply carries",
+    "the `D` flag or only `dynamic=true`; whether `/export terse` without a pty really never wraps)",
+    "CANNOT be answered by a fixture I wrote myself. They stay open, and the corpus must be replaced",
+    "with real captures as soon as one router is reachable.",
+    "",
+    "SANITISATION: addresses are documentation ranges (192.0.2.0/24, 198.51.100.0/24,",
+    "203.0.113.0/24) or RFC1918; names are pseudonyms; no secret value appears anywhere, and",
+    "`assertNoSensitiveMaterial` in drivers/mikrotik/driver.ts is run over every fixture by",
+    "goldenCheck.ts so a future fixture cannot smuggle one in."
+  ],
+  "fixtures": [
+    {
+      "key": "ros7-cpe-typical",
+      "file": "raw/ros7-cpe-typical.export",
+      "family": "mikrotik_routeros7",
+      "osVersion": "7.14",
+      "model": "RB5009UG+S+",
+      "role": "cpe",
+      "form": "flat (terse)",
+      "features": ["bridge", "vlan", "interface-list", "dhcp-server", "static-lease", "nat-masquerade", "dstnat", "mangle-mark-routing", "address-list", "simple-queue", "snmp", "ip-service", "local-users", "obliwan-marker"],
+      "tests": "the nominal case; the baseline every mutation is diffed against"
+    },
+    {
+      "key": "ros7-cpe-typical.bis",
+      "file": "raw/ros7-cpe-typical.bis.export",
+      "sameStateAs": "ros7-cpe-typical",
+      "tests": "A/A — THE most important fixture of the set. Same functional state five minutes later, rendered differently on purpose: different header timestamp, props reordered on every line, unordered sections emitted in a different order, one quoted value that was bare, one wrapped continuation line, a DHCP-learned address and a learned default route (dynamic), a rotated address-list entry with a timeout, a lowercase MAC, `protocol=1` instead of `protocol=icmp`, `dst-port=8291,22` instead of `22,8291`, `connection-state` in a different order, and a dated comment suffix bumped by one day. Expected: identical ncm_hash, zero findings."
+    },
+    {
+      "key": "ros7-cpe-typical.api-flavoured",
+      "file": "raw/ros7-cpe-typical.api-flavoured.export",
+      "sameStateAs": "ros7-cpe-typical",
+      "tests": "N03/N04/N05/N06 — the same state as read through the API complement: every line carries a `.id`, byte and packet counters, `running`, `actual-mtu`, `l2mtu`, an inherited `mac-address`, lease `status`/`expires-after`, `last-logged-in`, `run-count`, netwatch `status`, plus a dynamic lease, a dynamic address-list entry and a connected route. Expected: identical ncm_hash to the clean export, zero findings."
+    },
+    {
+      "key": "ros7-chain40",
+      "file": "raw/ros7-chain40.export",
+      "tests": "40 pairwise-disjoint accept rules in chain=forward (each selects its own /24 and its own destination port). The baseline for the two order experiments."
+    },
+    {
+      "key": "ros7-chain40.swap-disjoint",
+      "file": "raw/ros7-chain40.swap-disjoint.export",
+      "tests": "N07/§4.2 — rules 7 and 23 swapped. No packet in the world changes fate. Expected: 0 findings (the ncm_hash DOES change, because firewallRules is an ordered collection: the reordering is recorded and auditable, it is simply not a finding)."
+    },
+    {
+      "key": "ros7-chain40.insert-head",
+      "file": "raw/ros7-chain40.insert-head.export",
+      "tests": "§4.2 — one `drop 10.0.0.0/8` inserted at the head, overlapping all 40. Expected: exactly 1 finding (the insertion), not 40 `moved`."
+    },
+    {
+      "key": "ros7-cpe-typical.m01-accept-to-drop",
+      "file": "raw/ros7-cpe-typical.m01-accept-to-drop.export",
+      "mutation": "M01",
+      "tests": "N1 — the DNS input rule flips accept -> drop. Expected: ONE `changed` of severity critical on `action`, never a missing + an extra."
+    },
+    {
+      "key": "ros7-cpe-typical.m06-disable-drop",
+      "file": "raw/ros7-cpe-typical.m06-disable-drop.export",
+      "mutation": "M06",
+      "tests": "`disabled=yes` on the input drop-all rule. Expected: 1 `changed`. Proves `disabled` is configuration and was not swept up with the state props."
+    },
+    {
+      "key": "ros7-cpe-typical.m07-new-user",
+      "file": "raw/ros7-cpe-typical.m07-new-user.export",
+      "mutation": "M07",
+      "tests": "a `/user` appears with group=full and address=0.0.0.0/0. Expected: 1 `extra`, severity critical."
+    },
+    {
+      "key": "ros7-cpe-typical.m09-telnet-on",
+      "file": "raw/ros7-cpe-typical.m09-telnet-on.export",
+      "mutation": "M09",
+      "tests": "telnet goes from disabled to enabled. Expected: 1 `changed`, severity critical."
+    },
+    {
+      "key": "ros6-cpe-typical",
+      "file": "raw/ros6-cpe-typical.export",
+      "family": "mikrotik_routeros6",
+      "osVersion": "6.49.10",
+      "model": "RB750Gr3",
+      "form": "sectioned",
+      "tests": "N15(a) + the SECTIONED rendering (`/ip firewall filter` on its own line, then bare `add` lines) and the RouterOS 6 `mmm/dd/yyyy` header. Deliberately NOT diffed against the ROS7 fixture: the study is explicit that two devices on two branches are each compared to their own rendered template, never to each other."
+    },
+    {
+      "key": "ros7-defaults-7.13 / ros7-defaults-7.14",
+      "file": "raw/ros7-defaults-7.13.export",
+      "tests": "N09 — the same intent on two minor versions. 7.13 emits `distance=1` on a static route and 7.14 omits it; 7.14 emits `port-cost-mode=long` on the bridge and `routing-table=main` on the route. Expected: 1 finding without a learned default dictionary, 0 with it."
+    },
+    {
+      "key": "ros7-minimal",
+      "file": "raw/ros7-minimal.export",
+      "tests": "N02 — a near-empty box with two bare section headers and no entries under them. Expected: no resource, no finding, no crash."
+    }
+  ],
+  "notMeasured": [
+    "The reboot fixture (`.reboot`) the study asks for. It would exercise the same props as the API-flavoured one (counters reset, `running` flapping, dynamics recreated) and adding a synthetic one would only re-test what that fixture already covers. A REAL post-reboot capture would test something else and is still needed.",
+    "The verbose oracle (`/export terse verbose`). Writing a synthetic one would encode my guess about what verbose emits as if it were the answer to open question 1.",
+    "A real 6.49 -> 7.x upgrade of the SAME device (`ros.version.rebaseline`).",
+    "`ros7-large` (> 2000 lines) for the O(n^2) order-analysis budget, and `ros7-noisy-addresslist` beyond the single timed-out entry already present.",
+    "IPsec, wireless/wifi, PPP and multi-WAN fixtures: NCM v1 models ipsecPeer but the sections that feed it are not exercised by any fixture here."
+  ]
+}

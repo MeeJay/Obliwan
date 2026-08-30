@@ -1,0 +1,64 @@
+# 2026-01-02 10:44:02 by RouterOS 7.14
+# software id = ABCD-1234
+#
+# model = RB5009UG+S+
+# serial number = A1B2C3D4E5F6
+/interface bridge add .id=*1 admin-mac=48:A9:8A:00:00:01 auto-mac=no comment=defconf l2mtu=1596 mac-address=48:A9:8A:00:00:01 name=bridge-lan port-cost-mode=long protocol-mode=rstp running=yes vlan-filtering=no
+/interface ethernet set [ find default-name=ether1 ] .id=*2 actual-mtu=1500 comment="WAN vers operateur" l2mtu=1592 name=ether1-wan running=yes rx-byte=88123991 tx-byte=41200913
+/interface ethernet set [ find default-name=ether2 ] .id=*3 name=ether2 running=no rx-byte=0 tx-byte=0
+/interface ethernet set [ find default-name=ether3 ] .id=*4 actual-mtu=1500 mtu=1500 name=ether3 running=yes rx-byte=771 tx-byte=9021
+/interface vlan add .id=*5 interface=bridge-lan mac-address=48:A9:8A:00:00:01 name=vlan30-voip running=yes vlan-id=30
+/interface list add .id=*6 name=WAN
+/interface list add .id=*7 name=LAN
+/interface list member add .id=*8 interface=ether1-wan list=WAN
+/interface list member add .id=*9 interface=bridge-lan list=LAN
+/interface list member add .id=*A interface=vlan30-voip list=LAN
+/interface bridge port add .id=*B bridge=bridge-lan comment=defconf inactive=no interface=ether2 role=designated-port
+/interface bridge port add .id=*C bridge=bridge-lan comment=defconf inactive=no interface=ether3 role=designated-port
+/ip pool add .id=*D name=dhcp-lan-pool ranges=10.20.30.100-10.20.30.200
+/ip dhcp-server add .id=*E address-pool=dhcp-lan-pool interface=bridge-lan lease-time=10m leases-taken=7 name=dhcp-lan
+/ip address add .id=*F actual-interface=bridge-lan address=10.20.30.1/24 comment=defconf dynamic=no interface=bridge-lan invalid=no network=10.20.30.0
+/ip address add .id=*10 address=192.0.2.10/30 dynamic=no interface=ether1-wan network=192.0.2.8
+/ip address add .id=*11 address=10.30.30.1/24 dynamic=no interface=vlan30-voip network=10.30.30.0
+/ip dhcp-server lease add .id=*12 active-address=10.20.30.50 address=10.20.30.50 comment=imprimante dynamic=no expires-after=4m12s last-seen=48s mac-address=AA:BB:CC:DD:EE:01 server=dhcp-lan status=bound
+/ip dhcp-server lease add .id=*13 address=10.20.30.51 dynamic=no mac-address=AA:BB:CC:DD:EE:02 server=dhcp-lan status=waiting
+/ip dhcp-server lease add .id=*14 active-address=10.20.30.133 address=10.20.30.133 dynamic=yes expires-after=8m01s mac-address=BB:BB:CC:DD:EE:99 server=dhcp-lan status=bound
+/ip dhcp-server network add .id=*15 address=10.20.30.0/24 dns-server=10.20.30.1,9.9.9.9 domain=site01.obliwan.test gateway=10.20.30.1
+/ip firewall address-list add .id=*16 address=10.255.0.0/24 creation-time=2025-11-04 dynamic=no list=mgmt
+/ip firewall address-list add .id=*17 address=203.0.113.7 creation-time=2026-01-02 dynamic=yes list=blocked timeout=1h
+/ip firewall filter add .id=*18 action=accept bytes=99128371 chain=input comment="obliwan:mgmt-established" connection-state=established,related dynamic=no invalid=no packets=812331
+/ip firewall filter add .id=*19 action=accept bytes=41221 chain=input comment="obliwan:mgmt-from-chr" dst-port=22,8291 dynamic=no packets=703 protocol=tcp src-address-list=mgmt
+/ip firewall filter add .id=*1A action=drop bytes=0 chain=input comment="defconf: drop invalid" connection-state=invalid dynamic=no packets=0
+/ip firewall filter add .id=*1B action=accept bytes=8812 chain=input comment="defconf: accept ICMP" dynamic=no packets=91 protocol=icmp
+/ip firewall filter add .id=*1C action=accept bytes=112 chain=input comment="dns depuis le LAN" dst-port=53 dynamic=no in-interface-list=LAN packets=2 protocol=udp
+/ip firewall filter add .id=*1D action=accept bytes=0 chain=input comment="dns tcp depuis le LAN" dst-port=53 dynamic=no in-interface-list=LAN packets=0 protocol=tcp
+/ip firewall filter add .id=*1E action=drop bytes=51 chain=input comment="defconf: drop all not coming from LAN" dynamic=no in-interface-list=!LAN packets=1
+/ip firewall filter add .id=*1F action=accept bytes=99128371 chain=forward comment="defconf: accept established,related, untracked" connection-state=established,related,untracked dynamic=no packets=812331
+/ip firewall filter add .id=*20 action=drop bytes=0 chain=forward comment="defconf: drop invalid" connection-state=invalid dynamic=no packets=0
+/ip firewall filter add .id=*21 action=drop bytes=44 chain=forward comment="defconf: drop all from WAN not DSTNATed" connection-nat-state=!dstnat connection-state=new dynamic=no in-interface-list=WAN packets=1
+/ip firewall filter add .id=*22 action=accept bytes=771 chain=forward comment="voip vers internet" dynamic=no out-interface-list=WAN packets=9 src-address=10.30.30.0/24
+/ip firewall filter add .id=*23 action=log bytes=771 chain=forward comment="trace voip - checked 2026-01-02 03:15" dynamic=no log-prefix=voip packets=9 src-address=10.30.30.0/24
+/ip firewall nat add .id=*24 action=masquerade bytes=88123991 chain=srcnat comment="defconf: masquerade" dynamic=no out-interface-list=WAN packets=771221
+/ip firewall nat add .id=*25 action=dst-nat bytes=41 chain=dstnat comment="web interne" dst-port=443 dynamic=no in-interface-list=WAN packets=1 protocol=tcp to-addresses=10.20.30.20 to-ports=443
+/ip firewall mangle add .id=*26 action=mark-routing bytes=0 chain=prerouting comment="voip via wan2" dynamic=no new-routing-mark=to-wan2 packets=0 passthrough=yes src-address=10.30.30.0/24
+/ip route add .id=*27 active=yes distance=1 dst-address=0.0.0.0/0 dynamic=no gateway=192.0.2.9 gateway-status="192.0.2.9 reachable via ether1-wan" static=yes
+/ip route add .id=*28 active=yes distance=1 dst-address=10.9.0.0/24 dynamic=no gateway=10.255.0.1 static=yes
+/ip route add .id=*29 active=yes connect=yes distance=0 dst-address=10.20.30.0/24 dynamic=yes gateway=bridge-lan
+/ip service set telnet .id=*2A disabled=yes invalid=no
+/ip service set ftp .id=*2B disabled=yes
+/ip service set www .id=*2C disabled=yes
+/ip service set ssh .id=*2D address=10.255.0.0/24 port=22
+/ip service set www-ssl .id=*2E disabled=yes
+/ip service set api .id=*2F disabled=yes
+/ip service set winbox .id=*30 address=10.255.0.0/24
+/ip service set api-ssl .id=*31 disabled=yes
+/queue simple add .id=*32 bytes=8812/771 max-limit=2M/10M name=voip-limit packets=91/9 rate=0/0 target=10.30.30.0/24 total-bytes=9583
+/queue simple add .id=*33 bytes=99128371/41200913 max-limit=20M/100M name=lan-limit packets=812331/771221 rate=1200/9100 target=10.20.30.0/24
+/snmp set enabled=yes
+/snmp community set [ find default=yes ] .id=*34 addresses=10.255.0.0/24 name=obliwan-ro security=none
+/system identity set name=CPE-SITE-01
+/system scheduler add .id=*35 name=nightly-backup next-run="jan/03/2026 03:00:00" on-event="/system backup save name=auto" run-count=41 start-time=03:00:00
+/tool netwatch add .id=*36 host=9.9.9.9 interval=30s since="jan/02/2026 09:00:11" status=up
+/user add .id=*37 address=10.255.0.0/24 group=full last-logged-in="jan/02/2026 09:41:02" name=obliwan-svc
+/user set [ find name=admin ] .id=*38 address=10.255.0.0/24 group=full last-logged-in="dec/28/2025 18:02:44"
+/user group add .id=*39 name=readonly policy=read,test,winbox

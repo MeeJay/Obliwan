@@ -1,0 +1,95 @@
+# ObliWAN — FALLBACK stack, server on the host network.
+#
+#   docker compose -f docker-compose.host.yml up -d
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# WHY THIS FILE EXISTS
+# ─────────────────────────────────────────────────────────────────────────────
+# The default deployment (docker-compose.yml, arbitrage A6) puts the server on a
+# Docker bridge and publishes 7547/162/514. That bridge does SNAT on inbound
+# traffic: by the time a packet reaches the container, its source address has
+# been rewritten to the bridge gateway (e.g. 172.18.0.1). Every SNMP trap and
+# every syslog datagram from every device in the fleet therefore appears to come
+# from the same IP.
+#
+# ObliWAN is designed so that this does not matter: devices are identified by
+# ppp_username + system_identity + serial (decision D5), never by the source IP
+# of a trap. But some deployments genuinely need the real source address —
+# a third-party collector correlating on it, a firewall audit, a brand whose
+# trap payload carries no usable identifier.
+#
+# In that case, and ONLY in that case, use this file: the server joins the host
+# network directly, so no NAT happens and the true source IP is visible.
+#
+# COST OF THIS MODE — accept it knowingly:
+#   * Linux only. `network_mode: host` is a no-op on Docker Desktop
+#     (Windows/macOS) and will NOT give you the real source IP there.
+#   * The server binds the HOST's 3001, 7547, 162 and 514 directly. Anything
+#     else already listening on those ports (an existing snmptrapd, rsyslog,
+#     or another Obli* product on 3001) will collide.
+#   * 3001 is now reachable from the host's network. Firewall it.
+#   * PostgreSQL must be reachable from the host namespace, so it is published
+#     on 127.0.0.1:5432 (loopback only).
+#   * The nginx client stays on the bridge and reaches the server through
+#     host-gateway, which is why no nginx.conf change is needed.
+#
+# The host route to the L2TP tunnel subnet documented in docker-compose.yml is
+# still required.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: obliwan
+      POSTGRES_USER: obliwan
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      # Loopback only — the host-networked server connects through 127.0.0.1.
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U obliwan"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  server:
+    image: meejay/obliwan-server:${OBLIWAN_VERSION:-latest}
+    restart: unless-stopped
+    # No `ports:` here — host networking cannot publish, it already IS the host.
+    network_mode: host
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgres://obliwan:${DB_PASSWORD:-changeme}@127.0.0.1:5432/obliwan
+      SESSION_SECRET: ${SESSION_SECRET:-change-this-in-production}
+      OBLIWAN_ENCRYPTION_KEY: ${OBLIWAN_ENCRYPTION_KEY:-}
+      OBLIWAN_ROLE: ${OBLIWAN_ROLE:-all}
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:3004}
+      DEFAULT_ADMIN_USERNAME: ${DEFAULT_ADMIN_USERNAME:-admin}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-admin123}
+      CWMP_PORT: ${CWMP_PORT:-7547}
+      SNMP_TRAP_PORT: ${SNMP_TRAP_PORT:-162}
+      SYSLOG_PORT: ${SYSLOG_PORT:-514}
+    volumes:
+      - ${CUSTOM_DIR:-./custom}:/custom
+
+  client:
+    image: meejay/obliwan-client:${OBLIWAN_VERSION:-latest}
+    restart: unless-stopped
+    # Stays on the bridge. `server` is mapped to the host gateway so the stock
+    # nginx.conf (proxy_pass http://server:3001) keeps working unchanged.
+    extra_hosts:
+      - "server:host-gateway"
+    ports:
+      - "${LISTEN_PORT:-3004}:80"
+
+volumes:
+  postgres_data:

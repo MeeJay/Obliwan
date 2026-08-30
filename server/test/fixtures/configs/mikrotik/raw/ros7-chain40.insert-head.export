@@ -1,0 +1,46 @@
+# 2026-01-02 10:33:21 by RouterOS 7.14
+# software id = ABCD-1234
+#
+# model = RB5009UG+S+
+# serial number = A1B2C3D4E5F6
+/ip firewall filter add action=drop chain=forward comment="quarantaine" src-address=10.0.0.0/8
+/ip firewall filter add action=accept chain=forward comment="tenant-00" dst-port=10000 protocol=tcp src-address=10.100.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-01" dst-port=10001 protocol=tcp src-address=10.101.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-02" dst-port=10002 protocol=tcp src-address=10.102.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-03" dst-port=10003 protocol=tcp src-address=10.103.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-04" dst-port=10004 protocol=tcp src-address=10.104.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-05" dst-port=10005 protocol=tcp src-address=10.105.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-06" dst-port=10006 protocol=tcp src-address=10.106.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-07" dst-port=10007 protocol=tcp src-address=10.107.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-08" dst-port=10008 protocol=tcp src-address=10.108.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-09" dst-port=10009 protocol=tcp src-address=10.109.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-10" dst-port=10010 protocol=tcp src-address=10.110.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-11" dst-port=10011 protocol=tcp src-address=10.111.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-12" dst-port=10012 protocol=tcp src-address=10.112.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-13" dst-port=10013 protocol=tcp src-address=10.113.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-14" dst-port=10014 protocol=tcp src-address=10.114.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-15" dst-port=10015 protocol=tcp src-address=10.115.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-16" dst-port=10016 protocol=tcp src-address=10.116.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-17" dst-port=10017 protocol=tcp src-address=10.117.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-18" dst-port=10018 protocol=tcp src-address=10.118.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-19" dst-port=10019 protocol=tcp src-address=10.119.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-20" dst-port=10020 protocol=tcp src-address=10.120.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-21" dst-port=10021 protocol=tcp src-address=10.121.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-22" dst-port=10022 protocol=tcp src-address=10.122.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-23" dst-port=10023 protocol=tcp src-address=10.123.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-24" dst-port=10024 protocol=tcp src-address=10.124.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-25" dst-port=10025 protocol=tcp src-address=10.125.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-26" dst-port=10026 protocol=tcp src-address=10.126.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-27" dst-port=10027 protocol=tcp src-address=10.127.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-28" dst-port=10028 protocol=tcp src-address=10.128.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-29" dst-port=10029 protocol=tcp src-address=10.129.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-30" dst-port=10030 protocol=tcp src-address=10.130.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-31" dst-port=10031 protocol=tcp src-address=10.131.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-32" dst-port=10032 protocol=tcp src-address=10.132.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-33" dst-port=10033 protocol=tcp src-address=10.133.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-34" dst-port=10034 protocol=tcp src-address=10.134.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-35" dst-port=10035 protocol=tcp src-address=10.135.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-36" dst-port=10036 protocol=tcp src-address=10.136.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-37" dst-port=10037 protocol=tcp src-address=10.137.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-38" dst-port=10038 protocol=tcp src-address=10.138.0.0/24
+/ip firewall filter add action=accept chain=forward comment="tenant-39" dst-port=10039 protocol=tcp src-address=10.139.0.0/24

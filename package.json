@@ -1,0 +1,28 @@
+{
+  "name": "obliwan",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Multi-vendor WAN fleet manager and ACS — config templates, drift detection, TR-069, SNMP (MikroTik, DrayTek, Zyxel, SonicWall)",
+  "scripts": {
+    "dev": "docker compose -f docker-compose.build.yml -f docker-compose.dev.yml up --build",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "npm run build:shared && npm run build:server && npm run build:client",
+    "build:shared": "cd shared && npm run build",
+    "build:server": "cd server && npm run build",
+    "build:client": "cd client && npm run build",
+    "typecheck": "npm run build:shared && cd server && npx tsc --noEmit && cd ../client && npx tsc --noEmit",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:build": "docker compose -f docker-compose.build.yml up -d --build"
+  },
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "dependencies": {
+    "lucide-react": "^0.577.0"
+  }
+}

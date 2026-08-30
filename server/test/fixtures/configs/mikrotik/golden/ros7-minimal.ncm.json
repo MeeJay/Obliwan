@@ -1,0 +1,120 @@
+{
+  "ncmHash": "0bc683d508748a57fd1688687d9f4cb7ff062f117403ae0dff6924782078372a",
+  "ncm": {
+    "ncmVersion": 1,
+    "semKeyGeneration": 1,
+    "normalizationEpoch": "4bddc609ea3464ae",
+    "capturedAt": "2026-01-02T10:33:21.000Z",
+    "device": {
+      "deviceId": 1,
+      "brand": "mikrotik",
+      "family": "mikrotik_routeros7",
+      "model": "CCR2004-1G-12S+2XS",
+      "serial": null,
+      "systemIdentity": "CPE-MINIMAL",
+      "pppUsername": null,
+      "osVersion": "7.14"
+    },
+    "coverage": {
+      "interface": {
+        "state": "partial",
+        "via": "ssh",
+        "reason": "/export omits an interface left at its factory settings; the list is what was modified plus what carries an address, a bridge port or an interface-list membership.",
+        "recordCount": 1
+      },
+      "vlan": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "route": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "firewallRule": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "natRule": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "dhcpScope": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "ipsecPeer": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "localUser": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      },
+      "service": {
+        "state": "partial",
+        "via": "ssh",
+        "reason": "/ip/service at its factory value is omitted by /export, and the factory value differs by model and by defconf generation. Learn the defaults (`/export terse verbose`, N09) to make this complete.",
+        "recordCount": 0
+      },
+      "qosRule": {
+        "state": "complete",
+        "via": "ssh",
+        "reason": null,
+        "recordCount": 0
+      }
+    },
+    "orderAnalysis": "full",
+    "resources": {
+      "interfaces": [
+        {
+          "semKey": "if.v1:ether1",
+          "keyQuality": "strong",
+          "managedBy": "unknown",
+          "managedSlug": null,
+          "comment": null,
+          "disabled": false,
+          "via": "ssh",
+          "kind": "interface",
+          "name": "ether1",
+          "type": "ethernet",
+          "alias": null,
+          "parent": null,
+          "mtu": null,
+          "addresses": [
+            {
+              "cidr": "192.0.2.30/24",
+              "originUnknown": false
+            }
+          ],
+          "lists": [],
+          "zone": null
+        }
+      ],
+      "vlans": [],
+      "routes": [],
+      "firewallRules": [],
+      "natRules": [],
+      "dhcpScopes": [],
+      "ipsecPeers": [],
+      "localUsers": [],
+      "services": [],
+      "qosRules": []
+    },
+    "unmodeled": [],
+    "extensions": {}
+  }
+}

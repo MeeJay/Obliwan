@@ -1,0 +1,113 @@
+# ObliWAN — production stack (prebuilt images from Docker Hub)
+#
+#   docker compose up -d
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# NETWORK PREREQUISITE — READ THIS BEFORE DEPLOYING
+# ─────────────────────────────────────────────────────────────────────────────
+# ObliWAN administers the fleet *through the L2TP tunnel* terminated on the CHR
+# concentrator. Outbound traffic (RouterOS API 8728/8729, SSH 22, SNMP 161,
+# SonicOS HTTPS 443, CPE Connection Request 7547) leaves the containers through
+# the Docker bridge and is routed by the HOST.
+#
+#   => The Docker host MUST have a route to the tunnel subnet.
+#      If the tunnel terminates on this host, nothing to do.
+#      If it terminates elsewhere (a separate CHR / router), add a static route:
+#         ip route add 10.255.0.0/16 via <tunnel-gateway-ip>
+#      Without it the whole fleet is simply unreachable and every device shows
+#      UNREACHABLE with no useful error.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# DELIBERATE DEVIATION FROM THE Obli* SUITE TOPOLOGY
+# ─────────────────────────────────────────────────────────────────────────────
+# Everywhere else in the suite, ONLY the nginx client publishes a port and the
+# API stays private on the compose network. ObliWAN is the single exception:
+# the `server` service publishes ports, because devices in the field must be
+# able to reach it INBOUND:
+#     7547/tcp  CWMP / TR-069 ACS  (dedicated Express listener, NOT behind
+#                                   nginx — Digest auth + long-lived sessions)
+#     7548/tcp  CWMP over permissive TLS, optional, for legacy CPE
+#     162/udp   SNMP traps
+#     514/udp   syslog from devices
+#     514/tcp   syslog from devices (TCP framing)
+# The HTTP API itself (3001) is still NEVER published — nginx proxies it.
+#
+# NAT CAVEAT (arbitrage A6): the bridge SNATs inbound UDP, so the source IP of
+# an SNMP trap becomes the bridge gateway address. Device identification must
+# NEVER rely on a trap's source IP. If you truly need the real source IP, use
+# docker-compose.host.yml instead (see that file).
+#
+# STATUS: milestone M1 only. The 7547/162/514 listeners land in M3/M8/M10 —
+# the ports are published now so the deployment contract never changes later.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: obliwan
+      POSTGRES_USER: obliwan
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Not published. Uncomment (or use docker-compose.dev.yml) only if you need
+    # pgAdmin / psql from outside the host.
+    #ports:
+    #  - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U obliwan"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  server:
+    image: meejay/obliwan-server:${OBLIWAN_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      # HTTP API + Socket.io. Internal to the compose network — never published.
+      PORT: 3001
+      DATABASE_URL: postgres://obliwan:${DB_PASSWORD:-changeme}@postgres:5432/obliwan
+      SESSION_SECRET: ${SESSION_SECRET:-change-this-in-production}
+      # Credential vault key — see .env.example, risk R8. Losing it makes every
+      # stored device credential permanently unreadable.
+      OBLIWAN_ENCRYPTION_KEY: ${OBLIWAN_ENCRYPTION_KEY:-}
+      # web | worker | all   (A5 — leader election via Postgres advisory lock)
+      OBLIWAN_ROLE: ${OBLIWAN_ROLE:-all}
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:3004}
+      DEFAULT_ADMIN_USERNAME: ${DEFAULT_ADMIN_USERNAME:-admin}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-admin123}
+      # Listener ports — implemented in later milestones, published now.
+      CWMP_PORT: ${CWMP_PORT:-7547}
+      SNMP_TRAP_PORT: ${SNMP_TRAP_PORT:-162}
+      SYSLOG_PORT: ${SYSLOG_PORT:-514}
+    ports:
+      # See the "DELIBERATE DEVIATION" block above before touching these.
+      - "${CWMP_PORT:-7547}:7547/tcp"      # TR-069 ACS
+      #- "${CWMP_TLS_PORT:-7548}:7548/tcp" # TR-069 over permissive TLS (optional)
+      - "${SNMP_TRAP_PORT:-162}:162/udp"   # SNMP traps
+      - "${SYSLOG_PORT:-514}:514/udp"      # syslog
+      - "${SYSLOG_PORT:-514}:514/tcp"      # syslog (TCP)
+    volumes:
+      # Persistent custom directory: scripts, SSH keys, etc.
+      # SSH keys: chmod 700 custom/.ssh && chmod 600 custom/.ssh/id_*
+      - ${CUSTOM_DIR:-./custom}:/custom
+
+  client:
+    image: meejay/obliwan-client:${OBLIWAN_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    ports:
+      # 3004: 3000/3001/3002/3003/3020/3100 are already taken by the other
+      # Obli* products on a shared host.
+      - "${LISTEN_PORT:-3004}:80"
+
+volumes:
+  postgres_data:

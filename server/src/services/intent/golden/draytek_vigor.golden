@@ -1,0 +1,119 @@
+# ObliWAN golden file — draytek_vigor
+# intent: lyon-nord (schema v1), compiler v1
+# ncm-hash: 56cc11cb25d14b0d679ef545f612bd53c8166b13012dd9786545247dbcc28479
+# artifact-sha256: 7f30a49901ac9dafe6720962d56c1263e97cd0ceaac2a878f9ed33f79878c2ef
+# artifact-format: draytek_cli
+# ---------------------------------------------------------------------------
+
+# ObliWAN — compiled from site intent "lyon-nord" (Lyon Nord)
+# family: draytek_vigor · intent schema v1 · compiler v1
+# UNVERIFIED AGAINST HARDWARE — no draytek appliance exists to test this rendering against (§8.3).
+# Secrets appear as <<secret:label>> and are substituted from the vault, in memory, on the push path only (§8.2).
+# Nothing here is applied outside a change_jobs row (D3).
+
+# --- WAN ------------------------------------------------------------------
+# obliwan:lyon-nord.wan-w0 wan1
+wan vlan 1 enable 1 tag 832    # WAN1.832
+wan interface WAN1 mode pppoe username "lyon-nord@isp.example" password "<<secret:lyon-nord-pppoe>>"
+wan mtu 1 1492
+# obliwan:lyon-nord.wan-w1 wan2
+wan interface WAN2 mode static ip 192.0.2.10/29 gateway 192.0.2.9
+wan failover 2 backup enable
+
+# --- LAN subnets ----------------------------------------------------------
+# obliwan:lyon-nord.lan-s0 Office
+ip lan LAN1 ipaddr 10.20.0.1 netmask /24 enable 1
+vlan port P1 subnet LAN1 untagged
+vlan port P2 subnet LAN1 untagged
+ip lan LAN1 interlan block
+# obliwan:lyon-nord.lan-s1 Guest
+ip lan LAN2 ipaddr 10.20.30.1 netmask /24 enable 1
+vlan tag LAN2 enable 1 vid 30
+vlan port P3 subnet LAN2 untagged
+ip lan LAN2 interlan block
+
+# --- DHCP -----------------------------------------------------------------
+# obliwan:lyon-nord.dhcp-s0 Office scope  (dhcp-office)
+srv dhcp LAN1 enable start 10.20.0.100 end 10.20.0.200 gateway 10.20.0.1 lease 28800
+srv dhcp LAN1 dns1 10.20.0.1
+srv dhcp LAN1 domain lyon-nord.example
+srv dhcp fixip add 1 10.20.0.10 aa:bb:cc:dd:ee:01 nas
+# obliwan:lyon-nord.dhcp-s1 Guest scope  (dhcp-guest)
+srv dhcp LAN2 enable start 10.20.30.100 end 10.20.30.200 gateway 10.20.30.1 lease 3600
+srv dhcp LAN2 dns1 9.9.9.9
+
+# --- routes ---------------------------------------------------------------
+# obliwan:lyon-nord.route-w1 default route via wan2
+ip route add 0.0.0.0/0 gateway 192.0.2.9 idx 1 rtype static
+
+# --- filter rules ---------------------------------------------------------
+# obliwan:lyon-nord.in-estab established and related
+ip filter rule mgmt 1 -e 1 -a pass -s any -d any -k established,related
+# obliwan:lyon-nord.in-invalid invalid connections
+ip filter rule mgmt 2 -e 1 -a block -s any -d any -k invalid
+# obliwan:lyon-nord.in-svc0-0 ssh from 10.255.0.0/24
+ip filter rule mgmt 3 -e 1 -a pass -p tcp -s 10.255.0.0/24 -d any -P 22
+# obliwan:lyon-nord.in-svc1-0 https from 10.255.0.0/24
+ip filter rule mgmt 4 -e 1 -a pass -p tcp -s 10.255.0.0/24 -d any -P 443
+# obliwan:lyon-nord.in-dns-s0 DNS/DHCP from Office
+ip filter rule mgmt 5 -e 1 -a pass -p udp -s any -d any -P 53,67 -i LAN1
+# obliwan:lyon-nord.in-dns-s1 DNS/DHCP from Guest
+ip filter rule mgmt 6 -e 1 -a pass -p udp -s any -d any -P 53,67 -i LAN2
+# obliwan:lyon-nord.in-default default inbound policy
+ip filter rule mgmt 7 -e 1 -a block -s any -d any -l 1
+# obliwan:lyon-nord.fwd-estab established and related
+ip filter rule data 8 -e 1 -a pass -s any -d any -k established,related
+# obliwan:lyon-nord.fwd-invalid invalid connections
+ip filter rule data 9 -e 1 -a block -s any -d any -k invalid
+# obliwan:lyon-nord.fwd-p0-0 NAS web console
+ip filter rule data 10 -e 1 -a pass -p tcp -s 203.0.113.0/24 -d 10.20.0.10 -P 8443 -o LAN1
+# obliwan:lyon-nord.fwd-x-s0-s1 Office -> Guest denied
+ip filter rule data 11 -e 1 -a block -s any -d any -i LAN1 -o LAN2
+# obliwan:lyon-nord.fwd-x-s1-s0 Guest -> Office denied
+ip filter rule data 12 -e 1 -a block -s any -d any -i LAN2 -o LAN1
+# obliwan:lyon-nord.fwd-n-s0-w0 Office to wan1
+ip filter rule data 13 -e 1 -a pass -s any -d any -i LAN1 -o WAN1.832
+# obliwan:lyon-nord.fwd-n-s0-w1 Office to wan2
+ip filter rule data 14 -e 1 -a pass -s any -d any -i LAN1 -o WAN2
+# obliwan:lyon-nord.fwd-n-s1-w0 Guest to wan1
+ip filter rule data 15 -e 1 -a pass -s any -d any -i LAN2 -o WAN1.832
+# obliwan:lyon-nord.fwd-n-s1-w1 Guest to wan2
+ip filter rule data 16 -e 1 -a pass -s any -d any -i LAN2 -o WAN2
+# obliwan:lyon-nord.fwd-default default forward policy
+ip filter rule data 17 -e 1 -a block -s any -d any -l 1
+
+# --- NAT ------------------------------------------------------------------
+# obliwan:lyon-nord.nat-p0-0 NAS web console
+srv nat portmap 1 lyon-nord.nat-p0-0 tcp 443 10.20.0.10 8443
+# obliwan:lyon-nord.nat-m-s0-w0 Office out wan1
+srv nat masquerade WAN1.832 source 10.20.0.0/24 enable
+# obliwan:lyon-nord.nat-m-s0-w1 Office out wan2
+srv nat masquerade WAN2 source 10.20.0.0/24 enable
+# obliwan:lyon-nord.nat-m-s1-w0 Guest out wan1
+srv nat masquerade WAN1.832 source 10.20.30.0/24 enable
+# obliwan:lyon-nord.nat-m-s1-w1 Guest out wan2
+srv nat masquerade WAN2 source 10.20.30.0/24 enable
+
+# --- VPN ------------------------------------------------------------------
+# obliwan:lyon-nord.ipsec-v0 tunnel hq
+vpn profile 1 name hq type ipsec remote vpn.example.net ike v2 psk "<<secret:lyon-nord-hq-psk>>"
+vpn profile 1 phase2 enc aes-256-cbc auth sha256 pfs modp2048 local 10.20.0.0/24 remote 10.10.0.0/16
+
+# --- management -----------------------------------------------------------
+# obliwan:lyon-nord.svc-0 ssh
+sys mngt ssh enable 1 port 22 acl 10.255.0.0/24
+# obliwan:lyon-nord.svc-1 https
+sys mngt https enable 1 port 443 acl 10.255.0.0/24
+# obliwan:lyon-nord.svc-snmp SNMP v2c
+srv snmp enable 1 version v2c community "<<secret:lyon-nord-snmp>>" manager 10.255.0.0/24
+# obliwan:lyon-nord.user-u0 account obliwan-svc
+sys admin add obliwan-svc password "<<secret:lyon-nord-admin>>" level full acl 10.255.0.0/24
+
+# --- bandwidth ------------------------------------------------------------
+# obliwan:lyon-nord.qos-wan wan1 shaper
+qos class 1 name qos-w-wan1 target WAN1.832 up 400000000 down 1000000000 priority 4
+# obliwan:lyon-nord.qos-s0 Guest queue
+qos class 2 name qos-guest target 10.20.30.0/24 up 20000000 down 100000000 priority 6
+
+# The Vigor keeps the running configuration in memory until it is written.
+sys commit

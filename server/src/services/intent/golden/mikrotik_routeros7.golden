@@ -1,0 +1,89 @@
+# ObliWAN golden file — mikrotik_routeros7
+# intent: lyon-nord (schema v1), compiler v1
+# ncm-hash: 6587e7f0cde6ec6ef1ae93f06fd8a614765f9eae0844bf38850e6b51b4d85a87
+# artifact-sha256: e44d1645434fbb9eef0f4dc94b0063615afaf1b024cd24d4b118aaf8fa3f67ac
+# artifact-format: routeros_script
+# ---------------------------------------------------------------------------
+
+# ObliWAN — compiled from site intent "lyon-nord" (Lyon Nord)
+# family: mikrotik_routeros7 · intent schema v1 · compiler v1
+# UNVERIFIED AGAINST HARDWARE — no mikrotik appliance exists to test this rendering against (§8.3).
+# Secrets appear as <<secret:label>> and are substituted from the vault, in memory, on the push path only (§8.2).
+# Nothing here is applied outside a change_jobs row (D3).
+
+# --- interfaces -----------------------------------------------------------
+/interface ethernet set [ find default-name=ether1 ] comment="obliwan:lyon-nord.wan-w0-phy wan1 physical uplink"
+/interface set [ find name=ether1 ] mtu=1492
+/interface list member add list=WAN interface=ether1 comment="obliwan:lyon-nord.wan-w0-phy wan1 physical uplink"
+/interface pppoe-client add name=vlan832-wan1 interface=ether1 user="lyon-nord@isp.example" password="<<secret:lyon-nord-pppoe>>" add-default-route=yes use-peer-dns=no comment="obliwan:lyon-nord.wan-w0 wan1 uplink"
+/interface set [ find name=vlan832-wan1 ] mtu=1492
+/interface list member add list=WAN interface=vlan832-wan1 comment="obliwan:lyon-nord.wan-w0 wan1 uplink"
+/interface ethernet set [ find default-name=ether2 ] comment="obliwan:lyon-nord.wan-w1 wan2 uplink"
+/ip address add address=192.0.2.10/29 interface=ether2 comment="obliwan:lyon-nord.wan-w1 wan2 uplink"
+/interface list member add list=WAN interface=ether2 comment="obliwan:lyon-nord.wan-w1 wan2 uplink"
+/interface bridge add name=bridge-lan comment="obliwan:lyon-nord.lan-s0 Office"
+/ip address add address=10.20.0.1/24 interface=bridge-lan comment="obliwan:lyon-nord.lan-s0 Office"
+/interface list member add list=LAN interface=bridge-lan comment="obliwan:lyon-nord.lan-s0 Office"
+/interface vlan add name=vlan30-guest vlan-id=30 interface=bridge-lan comment="obliwan:lyon-nord.lan-s1 Guest"
+/ip address add address=10.20.30.1/24 interface=vlan30-guest comment="obliwan:lyon-nord.lan-s1 Guest"
+/interface list member add list=LAN interface=vlan30-guest comment="obliwan:lyon-nord.lan-s1 Guest"
+/interface list member add list=GUEST interface=vlan30-guest comment="obliwan:lyon-nord.lan-s1 Guest"
+/interface bridge port add bridge=bridge-lan interface=ether3 comment="obliwan:lyon-nord.lan-s0-p0 Office access port"
+/interface list member add list=LAN interface=ether3 comment="obliwan:lyon-nord.lan-s0-p0 Office access port"
+/interface bridge port add bridge=bridge-lan interface=ether4 comment="obliwan:lyon-nord.lan-s0-p1 Office access port"
+/interface list member add list=LAN interface=ether4 comment="obliwan:lyon-nord.lan-s0-p1 Office access port"
+/interface bridge port add bridge=bridge-lan interface=ether5 comment="obliwan:lyon-nord.lan-s1-p0 Guest access port"
+/interface list member add list=LAN interface=ether5 comment="obliwan:lyon-nord.lan-s1-p0 Guest access port"
+
+# --- routes ---------------------------------------------------------------
+/ip route add dst-address=0.0.0.0/0 gateway=192.0.2.9 distance=10 check-gateway=ping comment="obliwan:lyon-nord.route-w1 default route via wan2"
+
+# --- dhcp -----------------------------------------------------------------
+/ip pool add name=pool-dhcp-office ranges=10.20.0.100-10.20.0.200
+/ip dhcp-server add name=dhcp-office interface=bridge-lan address-pool=pool-dhcp-office lease-time=28800s disabled=no comment="obliwan:lyon-nord.dhcp-s0 Office scope"
+/ip dhcp-server network add address=10.20.0.0/24 gateway=10.20.0.1 dns-server=10.20.0.1 domain=lyon-nord.example comment="obliwan:lyon-nord.dhcp-s0 Office scope"
+/ip dhcp-server lease add server=dhcp-office mac-address=AA:BB:CC:DD:EE:01 address=10.20.0.10 comment="obliwan:lyon-nord.dhcp-s0-ee01 nas"
+/ip pool add name=pool-dhcp-guest ranges=10.20.30.100-10.20.30.200
+/ip dhcp-server add name=dhcp-guest interface=vlan30-guest address-pool=pool-dhcp-guest lease-time=3600s disabled=no comment="obliwan:lyon-nord.dhcp-s1 Guest scope"
+/ip dhcp-server network add address=10.20.30.0/24 gateway=10.20.30.1 dns-server=9.9.9.9 comment="obliwan:lyon-nord.dhcp-s1 Guest scope"
+
+# --- firewall -------------------------------------------------------------
+/ip firewall filter add chain=input action=accept connection-state=established,related comment="obliwan:lyon-nord.in-estab established and related"
+/ip firewall filter add chain=input action=drop connection-state=invalid comment="obliwan:lyon-nord.in-invalid invalid connections"
+/ip firewall filter add chain=input action=accept protocol=tcp src-address=10.255.0.0/24 dst-port=22 comment="obliwan:lyon-nord.in-svc0-0 ssh from 10.255.0.0/24"
+/ip firewall filter add chain=input action=accept protocol=tcp src-address=10.255.0.0/24 dst-port=443 comment="obliwan:lyon-nord.in-svc1-0 https from 10.255.0.0/24"
+/ip firewall filter add chain=input action=accept protocol=udp dst-port=53,67 in-interface=bridge-lan comment="obliwan:lyon-nord.in-dns-s0 DNS/DHCP from Office"
+/ip firewall filter add chain=input action=accept protocol=udp dst-port=53,67 in-interface=vlan30-guest comment="obliwan:lyon-nord.in-dns-s1 DNS/DHCP from Guest"
+/ip firewall filter add chain=input action=drop log=yes log-prefix=obliwan-in comment="obliwan:lyon-nord.in-default default inbound policy"
+/ip firewall filter add chain=forward action=accept connection-state=established,related comment="obliwan:lyon-nord.fwd-estab established and related"
+/ip firewall filter add chain=forward action=drop connection-state=invalid comment="obliwan:lyon-nord.fwd-invalid invalid connections"
+/ip firewall filter add chain=forward action=accept protocol=tcp src-address=203.0.113.0/24 dst-address=10.20.0.10 dst-port=8443 out-interface=bridge-lan connection-nat-state=dstnat comment="obliwan:lyon-nord.fwd-p0-0 NAS web console"
+/ip firewall filter add chain=forward action=drop in-interface=bridge-lan out-interface=vlan30-guest comment="obliwan:lyon-nord.fwd-x-s0-s1 Office -> Guest denied"
+/ip firewall filter add chain=forward action=drop in-interface=vlan30-guest out-interface=bridge-lan comment="obliwan:lyon-nord.fwd-x-s1-s0 Guest -> Office denied"
+/ip firewall filter add chain=forward action=accept in-interface=bridge-lan out-interface=vlan832-wan1 comment="obliwan:lyon-nord.fwd-n-s0-w0 Office to wan1"
+/ip firewall filter add chain=forward action=accept in-interface=bridge-lan out-interface=ether2 comment="obliwan:lyon-nord.fwd-n-s0-w1 Office to wan2"
+/ip firewall filter add chain=forward action=accept in-interface=vlan30-guest out-interface=vlan832-wan1 comment="obliwan:lyon-nord.fwd-n-s1-w0 Guest to wan1"
+/ip firewall filter add chain=forward action=accept in-interface=vlan30-guest out-interface=ether2 comment="obliwan:lyon-nord.fwd-n-s1-w1 Guest to wan2"
+/ip firewall filter add chain=forward action=drop log=yes log-prefix=obliwan-fwd comment="obliwan:lyon-nord.fwd-default default forward policy"
+/ip firewall nat add chain=dstnat action=dst-nat protocol=tcp src-address=203.0.113.0/24 dst-port=443 in-interface=vlan832-wan1 to-addresses=10.20.0.10 to-ports=8443 comment="obliwan:lyon-nord.nat-p0-0 NAS web console"
+/ip firewall nat add chain=srcnat action=masquerade src-address=10.20.0.0/24 out-interface=vlan832-wan1 comment="obliwan:lyon-nord.nat-m-s0-w0 Office out wan1"
+/ip firewall nat add chain=srcnat action=masquerade src-address=10.20.0.0/24 out-interface=ether2 comment="obliwan:lyon-nord.nat-m-s0-w1 Office out wan2"
+/ip firewall nat add chain=srcnat action=masquerade src-address=10.20.30.0/24 out-interface=vlan832-wan1 comment="obliwan:lyon-nord.nat-m-s1-w0 Guest out wan1"
+/ip firewall nat add chain=srcnat action=masquerade src-address=10.20.30.0/24 out-interface=ether2 comment="obliwan:lyon-nord.nat-m-s1-w1 Guest out wan2"
+
+# --- ipsec ----------------------------------------------------------------
+/ip ipsec profile add name=prof-hq enc-algorithm=aes-256-cbc hash-algorithm=sha256 dh-group=modp2048 dpd-interval=30s
+/ip ipsec peer add name=hq address=vpn.example.net exchange-mode=ike2 profile=prof-hq comment="obliwan:lyon-nord.ipsec-v0 tunnel hq"
+/ip ipsec identity add peer=hq auth-method=pre-shared-key secret="<<secret:lyon-nord-hq-psk>>"
+/ip ipsec policy add peer=hq src-address=10.20.0.0/24 dst-address=10.10.0.0/16 tunnel=yes action=encrypt comment="obliwan:lyon-nord.ipsec-v0 tunnel hq"
+
+# --- management -----------------------------------------------------------
+/ip service set ssh disabled=no port=22 address=10.255.0.0/24
+/ip service set https disabled=no port=443 address=10.255.0.0/24
+/snmp set enabled=yes contact="obliwan"
+/snmp community set [ find default=yes ] name="<<secret:lyon-nord-snmp>>" addresses=10.255.0.0/24
+/user add name=obliwan-svc group=full password="<<secret:lyon-nord-admin>>" address=10.255.0.0/24 comment="obliwan:lyon-nord.user-u0 account obliwan-svc"
+
+# --- queues ---------------------------------------------------------------
+/queue simple add name=qos-w-wan1 target=vlan832-wan1 max-limit=400000000/1000000000 comment="obliwan:lyon-nord.qos-wan wan1 shaper"
+/queue simple add name=qos-guest target=10.20.30.0/24 max-limit=20000000/100000000 parent=qos-w-wan1 priority=6 comment="obliwan:lyon-nord.qos-s0 Guest queue"

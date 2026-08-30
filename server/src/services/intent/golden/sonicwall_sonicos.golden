@@ -1,0 +1,1123 @@
+# ObliWAN golden file — sonicwall_sonicos
+# intent: lyon-nord (schema v1), compiler v1
+# ncm-hash: 5e6dbc2f9823c02658bb205375878f0d2f3bd0d36c71303d77a857ebf7da9fd3
+# artifact-sha256: 7e75366693125e9c8780019c54580de9ce1dbb25300f16be1733ce035ba6615e
+# artifact-format: sonicos_rest
+# ---------------------------------------------------------------------------
+
+{
+  "$comment": [
+    "ObliWAN — compiled from site intent \"lyon-nord\" (Lyon Nord)",
+    "family: sonicwall_sonicos · intent schema v1 · compiler v1",
+    "UNVERIFIED AGAINST HARDWARE — no sonicwall appliance exists to test this rendering against (§8.3).",
+    "Secrets appear as <<secret:label>> and are substituted from the vault, in memory, on the push path only (§8.2).",
+    "Nothing here is applied outside a change_jobs row (D3)."
+  ],
+  "compilerVersion": 1,
+  "intentSlug": "lyon-nord",
+  "ops": [
+    {
+      "method": "POST",
+      "path": "/interfaces/ipv4",
+      "body": {
+        "interface": {
+          "name": "X1",
+          "zone": "WAN",
+          "comment": "obliwan:lyon-nord.wan-w0-phy wan1 physical uplink",
+          "mtu": 1492,
+          "ip_assignment": {
+            "mode": "unassigned"
+          }
+        }
+      },
+      "description": "interface X1"
+    },
+    {
+      "method": "POST",
+      "path": "/interfaces/ipv4",
+      "body": {
+        "interface": {
+          "name": "X1:V832",
+          "zone": "WAN",
+          "comment": "obliwan:lyon-nord.wan-w0 wan1 uplink",
+          "vlan": {
+            "tag": 832,
+            "parent": "X1"
+          },
+          "mtu": 1492,
+          "ip_assignment": {
+            "mode": "pppoe",
+            "pppoe": {
+              "username": "lyon-nord@isp.example",
+              "password": "<<secret:lyon-nord-pppoe>>"
+            }
+          }
+        }
+      },
+      "description": "interface X1:V832"
+    },
+    {
+      "method": "POST",
+      "path": "/interfaces/ipv4",
+      "body": {
+        "interface": {
+          "name": "X2",
+          "zone": "WAN",
+          "comment": "obliwan:lyon-nord.wan-w1 wan2 uplink",
+          "ip_assignment": {
+            "mode": "static",
+            "static": {
+              "ip": "192.0.2.10",
+              "prefix": 29
+            }
+          }
+        }
+      },
+      "description": "interface X2"
+    },
+    {
+      "method": "POST",
+      "path": "/interfaces/ipv4",
+      "body": {
+        "interface": {
+          "name": "X0",
+          "zone": "LAN",
+          "comment": "obliwan:lyon-nord.lan-s0 Office",
+          "ip_assignment": {
+            "mode": "static",
+            "static": {
+              "ip": "10.20.0.1",
+              "prefix": 24
+            }
+          }
+        }
+      },
+      "description": "interface X0"
+    },
+    {
+      "method": "POST",
+      "path": "/interfaces/ipv4",
+      "body": {
+        "interface": {
+          "name": "X0:V30",
+          "zone": "GUEST",
+          "comment": "obliwan:lyon-nord.lan-s1 Guest",
+          "vlan": {
+            "tag": 30,
+            "parent": "X0"
+          },
+          "ip_assignment": {
+            "mode": "static",
+            "static": {
+              "ip": "10.20.30.1",
+              "prefix": 24
+            }
+          }
+        }
+      },
+      "description": "interface X0:V30"
+    },
+    {
+      "method": "POST",
+      "path": "/interfaces/ipv4",
+      "body": {
+        "interface": {
+          "name": "X3",
+          "zone": "LAN",
+          "comment": "obliwan:lyon-nord.lan-s0-p1 Office access port",
+          "ip_assignment": {
+            "mode": "unassigned"
+          }
+        }
+      },
+      "description": "interface X3"
+    },
+    {
+      "method": "POST",
+      "path": "/interfaces/ipv4",
+      "body": {
+        "interface": {
+          "name": "X4",
+          "zone": "GUEST",
+          "comment": "obliwan:lyon-nord.lan-s1-p0 Guest access port",
+          "ip_assignment": {
+            "mode": "unassigned"
+          }
+        }
+      },
+      "description": "interface X4"
+    },
+    {
+      "method": "POST",
+      "path": "/dhcp-server/lease-scopes/dynamic/ipv4",
+      "body": {
+        "lease_scope": {
+          "name": "dhcp-office",
+          "comment": "obliwan:lyon-nord.dhcp-s0 Office scope",
+          "range": {
+            "start": "10.20.0.100",
+            "end": "10.20.0.200"
+          },
+          "interface": "X0",
+          "gateway": "10.20.0.1",
+          "dns": {
+            "primary": "10.20.0.1",
+            "secondary": null
+          },
+          "domain": "lyon-nord.example",
+          "lease_time": 28800
+        }
+      },
+      "description": "dhcp scope dhcp-office"
+    },
+    {
+      "method": "POST",
+      "path": "/dhcp-server/lease-scopes/static/ipv4",
+      "body": {
+        "lease_scope": {
+          "name": "dhcp-office-aabbccddee01",
+          "comment": "obliwan:lyon-nord.dhcp-s0-ee01",
+          "ethernet": "aa:bb:cc:dd:ee:01",
+          "ip": "10.20.0.10"
+        }
+      },
+      "description": "dhcp reservation aa:bb:cc:dd:ee:01"
+    },
+    {
+      "method": "POST",
+      "path": "/dhcp-server/lease-scopes/dynamic/ipv4",
+      "body": {
+        "lease_scope": {
+          "name": "dhcp-guest",
+          "comment": "obliwan:lyon-nord.dhcp-s1 Guest scope",
+          "range": {
+            "start": "10.20.30.100",
+            "end": "10.20.30.200"
+          },
+          "interface": "X0:V30",
+          "gateway": "10.20.30.1",
+          "dns": {
+            "primary": "9.9.9.9",
+            "secondary": null
+          },
+          "domain": null,
+          "lease_time": 3600
+        }
+      },
+      "description": "dhcp scope dhcp-guest"
+    },
+    {
+      "method": "POST",
+      "path": "/route-policies/ipv4",
+      "body": {
+        "route_policy": {
+          "name": "lyon-nord.route-w1",
+          "comment": "obliwan:lyon-nord.route-w1 default route via wan2",
+          "destination": {
+            "any": true
+          },
+          "gateway": "192.0.2.9",
+          "metric": 10,
+          "probe": {
+            "type": "ping"
+          }
+        }
+      },
+      "description": "route 0.0.0.0/0"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.in-estab",
+            "comment": "obliwan:lyon-nord.in-estab established and related",
+            "enable": true,
+            "from": "Any",
+            "to": "Firewall",
+            "action": "allow",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.in-estab"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.in-invalid",
+            "comment": "obliwan:lyon-nord.in-invalid invalid connections",
+            "enable": true,
+            "from": "Any",
+            "to": "Firewall",
+            "action": "deny",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.in-invalid"
+    },
+    {
+      "method": "POST",
+      "path": "/address-objects/ipv4",
+      "body": {
+        "address_object": {
+          "ipv4": {
+            "name": "OBW_10_255_0_0_24",
+            "zone": "WAN",
+            "network": {
+              "subnet": "10.255.0.0",
+              "mask": "24"
+            }
+          }
+        }
+      },
+      "description": "address object OBW_10_255_0_0_24"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.in-svc0-0",
+            "comment": "obliwan:lyon-nord.in-svc0-0 ssh from 10.255.0.0/24",
+            "enable": true,
+            "from": "Any",
+            "to": "Firewall",
+            "action": "allow",
+            "source": {
+              "address": {
+                "name": "OBW_10_255_0_0_24"
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "name": "tcp/22"
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.in-svc0-0"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.in-svc1-0",
+            "comment": "obliwan:lyon-nord.in-svc1-0 https from 10.255.0.0/24",
+            "enable": true,
+            "from": "Any",
+            "to": "Firewall",
+            "action": "allow",
+            "source": {
+              "address": {
+                "name": "OBW_10_255_0_0_24"
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "name": "tcp/443"
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.in-svc1-0"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.in-dns-s0",
+            "comment": "obliwan:lyon-nord.in-dns-s0 DNS/DHCP from Office",
+            "enable": true,
+            "from": "Any",
+            "to": "Firewall",
+            "action": "allow",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "name": "udp/53,67"
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.in-dns-s0"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.in-dns-s1",
+            "comment": "obliwan:lyon-nord.in-dns-s1 DNS/DHCP from Guest",
+            "enable": true,
+            "from": "Any",
+            "to": "Firewall",
+            "action": "allow",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "name": "udp/53,67"
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.in-dns-s1"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.in-default",
+            "comment": "obliwan:lyon-nord.in-default default inbound policy",
+            "enable": true,
+            "from": "Any",
+            "to": "Firewall",
+            "action": "deny",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": true
+          }
+        }
+      },
+      "description": "access rule lyon-nord.in-default"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.fwd-estab",
+            "comment": "obliwan:lyon-nord.fwd-estab established and related",
+            "enable": true,
+            "from": "Any",
+            "to": "Any",
+            "action": "allow",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.fwd-estab"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.fwd-invalid",
+            "comment": "obliwan:lyon-nord.fwd-invalid invalid connections",
+            "enable": true,
+            "from": "Any",
+            "to": "Any",
+            "action": "deny",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.fwd-invalid"
+    },
+    {
+      "method": "POST",
+      "path": "/address-objects/ipv4",
+      "body": {
+        "address_object": {
+          "ipv4": {
+            "name": "OBW_203_0_113_0_24",
+            "zone": "WAN",
+            "network": {
+              "subnet": "203.0.113.0",
+              "mask": "24"
+            }
+          }
+        }
+      },
+      "description": "address object OBW_203_0_113_0_24"
+    },
+    {
+      "method": "POST",
+      "path": "/address-objects/ipv4",
+      "body": {
+        "address_object": {
+          "ipv4": {
+            "name": "OBW_10_20_0_10",
+            "zone": "WAN",
+            "host": {
+              "ip": "10.20.0.10"
+            }
+          }
+        }
+      },
+      "description": "address object OBW_10_20_0_10"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.fwd-p0-0",
+            "comment": "obliwan:lyon-nord.fwd-p0-0 NAS web console",
+            "enable": true,
+            "from": "Any",
+            "to": "LAN",
+            "action": "allow",
+            "source": {
+              "address": {
+                "name": "OBW_203_0_113_0_24"
+              }
+            },
+            "destination": {
+              "address": {
+                "name": "OBW_10_20_0_10"
+              }
+            },
+            "service": {
+              "name": "tcp/8443"
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.fwd-p0-0"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.fwd-x-s0-s1",
+            "comment": "obliwan:lyon-nord.fwd-x-s0-s1 Office -> Guest denied",
+            "enable": true,
+            "from": "LAN",
+            "to": "GUEST",
+            "action": "deny",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.fwd-x-s0-s1"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.fwd-x-s1-s0",
+            "comment": "obliwan:lyon-nord.fwd-x-s1-s0 Guest -> Office denied",
+            "enable": true,
+            "from": "GUEST",
+            "to": "LAN",
+            "action": "deny",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.fwd-x-s1-s0"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.fwd-n-s0-w0",
+            "comment": "obliwan:lyon-nord.fwd-n-s0-w0 Office to wan1",
+            "enable": true,
+            "from": "LAN",
+            "to": "WAN",
+            "action": "allow",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.fwd-n-s0-w0"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.fwd-n-s0-w1",
+            "comment": "obliwan:lyon-nord.fwd-n-s0-w1 Office to wan2",
+            "enable": true,
+            "from": "LAN",
+            "to": "WAN",
+            "action": "allow",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.fwd-n-s0-w1"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.fwd-n-s1-w0",
+            "comment": "obliwan:lyon-nord.fwd-n-s1-w0 Guest to wan1",
+            "enable": true,
+            "from": "GUEST",
+            "to": "WAN",
+            "action": "allow",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.fwd-n-s1-w0"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.fwd-n-s1-w1",
+            "comment": "obliwan:lyon-nord.fwd-n-s1-w1 Guest to wan2",
+            "enable": true,
+            "from": "GUEST",
+            "to": "WAN",
+            "action": "allow",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": false
+          }
+        }
+      },
+      "description": "access rule lyon-nord.fwd-n-s1-w1"
+    },
+    {
+      "method": "POST",
+      "path": "/access-rules/ipv4",
+      "body": {
+        "access_rule": {
+          "ipv4": {
+            "name": "lyon-nord.fwd-default",
+            "comment": "obliwan:lyon-nord.fwd-default default forward policy",
+            "enable": true,
+            "from": "Any",
+            "to": "Any",
+            "action": "deny",
+            "source": {
+              "address": {
+                "any": true
+              }
+            },
+            "destination": {
+              "address": {
+                "any": true
+              }
+            },
+            "service": {
+              "any": true
+            },
+            "logging": true
+          }
+        }
+      },
+      "description": "access rule lyon-nord.fwd-default"
+    },
+    {
+      "method": "POST",
+      "path": "/nat-policies/ipv4",
+      "body": {
+        "nat_policy": {
+          "name": "lyon-nord.nat-p0-0",
+          "comment": "obliwan:lyon-nord.nat-p0-0 NAS web console",
+          "inbound": "X1:V832",
+          "outbound": null,
+          "original": {
+            "source": {
+              "name": "OBW_203_0_113_0_24"
+            },
+            "destination": {
+              "any": true
+            },
+            "service": {
+              "name": "tcp/443"
+            }
+          },
+          "translated": {
+            "destination": {
+              "name": "OBW_10_20_0_10"
+            },
+            "service": {
+              "name": "tcp/8443"
+            }
+          }
+        }
+      },
+      "description": "nat policy lyon-nord.nat-p0-0"
+    },
+    {
+      "method": "POST",
+      "path": "/address-objects/ipv4",
+      "body": {
+        "address_object": {
+          "ipv4": {
+            "name": "OBW_10_20_0_0_24",
+            "zone": "WAN",
+            "network": {
+              "subnet": "10.20.0.0",
+              "mask": "24"
+            }
+          }
+        }
+      },
+      "description": "address object OBW_10_20_0_0_24"
+    },
+    {
+      "method": "POST",
+      "path": "/nat-policies/ipv4",
+      "body": {
+        "nat_policy": {
+          "name": "lyon-nord.nat-m-s0-w0",
+          "comment": "obliwan:lyon-nord.nat-m-s0-w0 Office out wan1",
+          "inbound": null,
+          "outbound": "X1:V832",
+          "original": {
+            "source": {
+              "name": "OBW_10_20_0_0_24"
+            },
+            "destination": {
+              "any": true
+            },
+            "service": {
+              "any": true
+            }
+          },
+          "translated": {
+            "source": {
+              "original": false,
+              "interface": true
+            }
+          }
+        }
+      },
+      "description": "nat policy lyon-nord.nat-m-s0-w0"
+    },
+    {
+      "method": "POST",
+      "path": "/nat-policies/ipv4",
+      "body": {
+        "nat_policy": {
+          "name": "lyon-nord.nat-m-s0-w1",
+          "comment": "obliwan:lyon-nord.nat-m-s0-w1 Office out wan2",
+          "inbound": null,
+          "outbound": "X2",
+          "original": {
+            "source": {
+              "name": "OBW_10_20_0_0_24"
+            },
+            "destination": {
+              "any": true
+            },
+            "service": {
+              "any": true
+            }
+          },
+          "translated": {
+            "source": {
+              "original": false,
+              "interface": true
+            }
+          }
+        }
+      },
+      "description": "nat policy lyon-nord.nat-m-s0-w1"
+    },
+    {
+      "method": "POST",
+      "path": "/address-objects/ipv4",
+      "body": {
+        "address_object": {
+          "ipv4": {
+            "name": "OBW_10_20_30_0_24",
+            "zone": "WAN",
+            "network": {
+              "subnet": "10.20.30.0",
+              "mask": "24"
+            }
+          }
+        }
+      },
+      "description": "address object OBW_10_20_30_0_24"
+    },
+    {
+      "method": "POST",
+      "path": "/nat-policies/ipv4",
+      "body": {
+        "nat_policy": {
+          "name": "lyon-nord.nat-m-s1-w0",
+          "comment": "obliwan:lyon-nord.nat-m-s1-w0 Guest out wan1",
+          "inbound": null,
+          "outbound": "X1:V832",
+          "original": {
+            "source": {
+              "name": "OBW_10_20_30_0_24"
+            },
+            "destination": {
+              "any": true
+            },
+            "service": {
+              "any": true
+            }
+          },
+          "translated": {
+            "source": {
+              "original": false,
+              "interface": true
+            }
+          }
+        }
+      },
+      "description": "nat policy lyon-nord.nat-m-s1-w0"
+    },
+    {
+      "method": "POST",
+      "path": "/nat-policies/ipv4",
+      "body": {
+        "nat_policy": {
+          "name": "lyon-nord.nat-m-s1-w1",
+          "comment": "obliwan:lyon-nord.nat-m-s1-w1 Guest out wan2",
+          "inbound": null,
+          "outbound": "X2",
+          "original": {
+            "source": {
+              "name": "OBW_10_20_30_0_24"
+            },
+            "destination": {
+              "any": true
+            },
+            "service": {
+              "any": true
+            }
+          },
+          "translated": {
+            "source": {
+              "original": false,
+              "interface": true
+            }
+          }
+        }
+      },
+      "description": "nat policy lyon-nord.nat-m-s1-w1"
+    },
+    {
+      "method": "POST",
+      "path": "/vpn/policies/ipv4/site-to-site",
+      "body": {
+        "vpn_policy": {
+          "name": "hq",
+          "comment": "obliwan:lyon-nord.ipsec-v0 tunnel hq",
+          "gateway": {
+            "primary": "vpn.example.net"
+          },
+          "auth_method": "shared_secret",
+          "shared_secret": "<<secret:lyon-nord-hq-psk>>",
+          "proposal": {
+            "ike": {
+              "exchange": "ikev2_mode",
+              "dh_group": [
+                "modp2048"
+              ],
+              "encryption": [
+                "aes-256-cbc"
+              ],
+              "authentication": [
+                "sha256"
+              ]
+            }
+          },
+          "network": {
+            "local": [
+              "10.20.0.0/24"
+            ],
+            "remote": [
+              "10.10.0.0/16"
+            ]
+          },
+          "dead_peer_detection": {
+            "interval": 30
+          }
+        }
+      },
+      "description": "vpn policy hq"
+    },
+    {
+      "method": "PUT",
+      "path": "/administration/ssh",
+      "body": {
+        "management": {
+          "enable": true,
+          "port": 22,
+          "comment": "obliwan:lyon-nord.svc-0 ssh",
+          "allowed": {
+            "name": "OBW_10_255_0_0_24"
+          }
+        }
+      },
+      "description": "management ssh"
+    },
+    {
+      "method": "PUT",
+      "path": "/administration/https",
+      "body": {
+        "management": {
+          "enable": true,
+          "port": 443,
+          "comment": "obliwan:lyon-nord.svc-1 https",
+          "allowed": {
+            "name": "OBW_10_255_0_0_24"
+          }
+        }
+      },
+      "description": "management https"
+    },
+    {
+      "method": "PUT",
+      "path": "/snmp",
+      "body": {
+        "snmp": {
+          "enable": true,
+          "version": "v2c",
+          "community": "<<secret:lyon-nord-snmp>>",
+          "comment": "obliwan:lyon-nord.svc-snmp SNMP v2c"
+        }
+      },
+      "description": "snmp"
+    },
+    {
+      "method": "POST",
+      "path": "/user/local/users",
+      "body": {
+        "user": {
+          "local": {
+            "name": "obliwan-svc",
+            "comment": "obliwan:lyon-nord.user-u0 account obliwan-svc",
+            "password": "<<secret:lyon-nord-admin>>",
+            "group": "SonicWALL Administrators"
+          }
+        }
+      },
+      "description": "local user obliwan-svc"
+    },
+    {
+      "method": "POST",
+      "path": "/bwm/elastic",
+      "body": {
+        "bandwidth_object": {
+          "name": "qos-w-wan1",
+          "comment": "obliwan:lyon-nord.qos-wan wan1 shaper",
+          "guaranteed_kbps": 0,
+          "maximum_kbps": 1000000,
+          "upstream_kbps": 400000,
+          "priority": 4,
+          "target": "X1:V832"
+        }
+      },
+      "description": "bandwidth qos-w-wan1"
+    },
+    {
+      "method": "POST",
+      "path": "/bwm/elastic",
+      "body": {
+        "bandwidth_object": {
+          "name": "qos-guest",
+          "comment": "obliwan:lyon-nord.qos-s0 Guest queue",
+          "guaranteed_kbps": 0,
+          "maximum_kbps": 100000,
+          "upstream_kbps": 20000,
+          "priority": 6,
+          "target": "10.20.30.0/24"
+        }
+      },
+      "description": "bandwidth qos-guest"
+    }
+  ]
+}

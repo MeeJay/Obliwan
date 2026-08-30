@@ -1,0 +1,294 @@
+# ObliWAN golden file — zyxel_standalone
+# intent: lyon-nord (schema v1), compiler v1
+# ncm-hash: 958329260d3289eb314e2c7c007ed2630e1c53dd7dd4971bc352895cac15e2f1
+# artifact-sha256: fe9fa336bfca3da351e17ae9efa3d6fc3a1a64a7b462f58bde69e559d5d54617
+# artifact-format: zyxel_zld_cli
+# ---------------------------------------------------------------------------
+
+! ObliWAN — compiled from site intent "lyon-nord" (Lyon Nord)
+! family: zyxel_standalone · intent schema v1 · compiler v1
+! UNVERIFIED AGAINST HARDWARE — no zyxel appliance exists to test this rendering against (§8.3).
+! Secrets appear as <<secret:label>> and are substituted from the vault, in memory, on the push path only (§8.2).
+! Nothing here is applied outside a change_jobs row (D3).
+
+configure terminal
+!
+! --- interfaces ----------------------------------------------------------
+! obliwan:lyon-nord.wan-w0-phy wan1 physical uplink
+interface ge1
+ mtu 1492
+ exit
+! obliwan:lyon-nord.wan-w0 wan1 uplink
+interface vlan832
+ vlan-id 832
+ port ge1
+ encapsulation pppoe
+ account "lyon-nord@isp.example" password "<<secret:lyon-nord-pppoe>>"
+ mtu 1492
+ exit
+! obliwan:lyon-nord.wan-w1 wan2 uplink
+interface ge2
+ ip address 192.0.2.10 /29
+ exit
+! obliwan:lyon-nord.lan-s0 Office
+interface ge3
+ ip address 10.20.0.1 /24
+ exit
+! obliwan:lyon-nord.lan-s1 Guest
+interface vlan30
+ vlan-id 30
+ port ge3
+ ip address 10.20.30.1 /24
+ exit
+! obliwan:lyon-nord.lan-s0-p1 Office access port
+interface ge4
+ exit
+! obliwan:lyon-nord.lan-s1-p0 Guest access port
+interface ge5
+ exit
+!
+! --- zones ---------------------------------------------------------------
+zone GUEST
+ interface vlan30
+ interface ge5
+ exit
+zone OFFICE
+ interface ge3
+ interface ge4
+ exit
+zone WAN
+ interface ge1
+ interface vlan832
+ interface ge2
+ exit
+!
+! --- address objects -----------------------------------------------------
+address-object OBW_10_20_0_0_24 SUBNET 10.20.0.0 24
+address-object OBW_10_20_0_10 HOST 10.20.0.10
+address-object OBW_10_20_30_0_24 SUBNET 10.20.30.0 24
+address-object OBW_10_255_0_0_24 SUBNET 10.255.0.0 24
+address-object OBW_203_0_113_0_24 SUBNET 203.0.113.0 24
+!
+! --- dhcp ----------------------------------------------------------------
+! obliwan:lyon-nord.dhcp-s0 Office scope  (dhcp-office)
+interface ge3
+ ip dhcp-pool dhcp-office
+  starting-address 10.20.0.100 pool-size 10.20.0.200
+  default-router 10.20.0.1
+  first-dns-server 10.20.0.1
+  domain-name lyon-nord.example
+  lease 28800
+  static aa:bb:cc:dd:ee:01 10.20.0.10
+  exit
+ exit
+! obliwan:lyon-nord.dhcp-s1 Guest scope  (dhcp-guest)
+interface vlan30
+ ip dhcp-pool dhcp-guest
+  starting-address 10.20.30.100 pool-size 10.20.30.200
+  default-router 10.20.30.1
+  first-dns-server 9.9.9.9
+  lease 3600
+  exit
+ exit
+!
+! --- routes --------------------------------------------------------------
+! obliwan:lyon-nord.route-w1 default route via wan2
+ip route 0.0.0.0 /0 192.0.2.9 10
+!
+! --- security policy -----------------------------------------------------
+! obliwan:lyon-nord.in-estab established and related
+secure-policy 1
+ from any
+ to ZyWALL
+ action allow
+ description lyon-nord.in-estab
+ exit
+! obliwan:lyon-nord.in-invalid invalid connections
+secure-policy 2
+ from any
+ to ZyWALL
+ action deny
+ description lyon-nord.in-invalid
+ exit
+! obliwan:lyon-nord.in-svc0-0 ssh from 10.255.0.0/24
+secure-policy 3
+ from any
+ to ZyWALL
+ sourceip OBW_10_255_0_0_24
+ service tcp_22
+ action allow
+ description lyon-nord.in-svc0-0
+ exit
+! obliwan:lyon-nord.in-svc1-0 https from 10.255.0.0/24
+secure-policy 4
+ from any
+ to ZyWALL
+ sourceip OBW_10_255_0_0_24
+ service tcp_443
+ action allow
+ description lyon-nord.in-svc1-0
+ exit
+! obliwan:lyon-nord.in-dns-s0 DNS/DHCP from Office
+secure-policy 5
+ from any
+ to ZyWALL
+ service udp_53_67
+ action allow
+ description lyon-nord.in-dns-s0
+ exit
+! obliwan:lyon-nord.in-dns-s1 DNS/DHCP from Guest
+secure-policy 6
+ from any
+ to ZyWALL
+ service udp_53_67
+ action allow
+ description lyon-nord.in-dns-s1
+ exit
+! obliwan:lyon-nord.in-default default inbound policy
+secure-policy 7
+ from any
+ to ZyWALL
+ action deny
+ log log
+ description lyon-nord.in-default
+ exit
+! obliwan:lyon-nord.fwd-estab established and related
+secure-policy 8
+ from any
+ to any
+ action allow
+ description lyon-nord.fwd-estab
+ exit
+! obliwan:lyon-nord.fwd-invalid invalid connections
+secure-policy 9
+ from any
+ to any
+ action deny
+ description lyon-nord.fwd-invalid
+ exit
+! obliwan:lyon-nord.fwd-p0-0 NAS web console
+secure-policy 10
+ from any
+ to OFFICE
+ sourceip OBW_203_0_113_0_24
+ destinationip OBW_10_20_0_10
+ service tcp_8443
+ action allow
+ description lyon-nord.fwd-p0-0
+ exit
+! obliwan:lyon-nord.fwd-x-s0-s1 Office -> Guest denied
+secure-policy 11
+ from OFFICE
+ to GUEST
+ action deny
+ description lyon-nord.fwd-x-s0-s1
+ exit
+! obliwan:lyon-nord.fwd-x-s1-s0 Guest -> Office denied
+secure-policy 12
+ from GUEST
+ to OFFICE
+ action deny
+ description lyon-nord.fwd-x-s1-s0
+ exit
+! obliwan:lyon-nord.fwd-n-s0-w0 Office to wan1
+secure-policy 13
+ from OFFICE
+ to WAN
+ action allow
+ description lyon-nord.fwd-n-s0-w0
+ exit
+! obliwan:lyon-nord.fwd-n-s0-w1 Office to wan2
+secure-policy 14
+ from OFFICE
+ to WAN
+ action allow
+ description lyon-nord.fwd-n-s0-w1
+ exit
+! obliwan:lyon-nord.fwd-n-s1-w0 Guest to wan1
+secure-policy 15
+ from GUEST
+ to WAN
+ action allow
+ description lyon-nord.fwd-n-s1-w0
+ exit
+! obliwan:lyon-nord.fwd-n-s1-w1 Guest to wan2
+secure-policy 16
+ from GUEST
+ to WAN
+ action allow
+ description lyon-nord.fwd-n-s1-w1
+ exit
+! obliwan:lyon-nord.fwd-default default forward policy
+secure-policy 17
+ from any
+ to any
+ action deny
+ log log
+ description lyon-nord.fwd-default
+ exit
+!
+! --- nat -----------------------------------------------------------------
+! obliwan:lyon-nord.nat-p0-0 NAS web console
+ip virtual-server lyon-nord.nat-p0-0
+ interface vlan832
+ original-ip any
+ mapped-ip 10.20.0.10
+ protocol tcp
+ original-port 443 mapped-port 8443
+ exit
+! obliwan:lyon-nord.nat-m-s0-w0 Office out wan1
+ip nat-policy lyon-nord.nat-m-s0-w0 outgoing-interface vlan832 source 10.20.0.0/24 snat outgoing-interface
+! obliwan:lyon-nord.nat-m-s0-w1 Office out wan2
+ip nat-policy lyon-nord.nat-m-s0-w1 outgoing-interface ge2 source 10.20.0.0/24 snat outgoing-interface
+! obliwan:lyon-nord.nat-m-s1-w0 Guest out wan1
+ip nat-policy lyon-nord.nat-m-s1-w0 outgoing-interface vlan832 source 10.20.30.0/24 snat outgoing-interface
+! obliwan:lyon-nord.nat-m-s1-w1 Guest out wan2
+ip nat-policy lyon-nord.nat-m-s1-w1 outgoing-interface ge2 source 10.20.30.0/24 snat outgoing-interface
+!
+! --- ipsec ---------------------------------------------------------------
+! obliwan:lyon-nord.ipsec-v0 tunnel hq
+isakmp policy hq
+ mode ikev2
+ peer-ip vpn.example.net
+ authentication pre-share
+ keystring "<<secret:lyon-nord-hq-psk>>"
+ transform-set aes-256-cbc-sha256
+ dpd 30
+ exit
+crypto map hq
+ local-policy 10.20.0.0/24
+ remote-policy 10.10.0.0/16
+ exit
+!
+! --- management ----------------------------------------------------------
+! obliwan:lyon-nord.svc-0 ssh
+ip ssh server enable port 22
+ip ssh server-access OBW_10_255_0_0_24
+! obliwan:lyon-nord.svc-1 https
+ip https server enable port 443
+ip https server-access OBW_10_255_0_0_24
+! obliwan:lyon-nord.svc-snmp SNMP v2c
+snmp-server enable version v2c
+snmp-server community "<<secret:lyon-nord-snmp>>" ro
+snmp-server host 10.255.0.0/24
+! obliwan:lyon-nord.user-u0 account obliwan-svc
+username obliwan-svc password "<<secret:lyon-nord-admin>>" user-type full
+!
+! --- bandwidth -----------------------------------------------------------
+! obliwan:lyon-nord.qos-wan wan1 shaper
+bwm 1 description qos-w-wan1
+ interface vlan832
+ inbound-kbps 1000000
+ outbound-kbps 400000
+ priority 4
+ exit
+! obliwan:lyon-nord.qos-s0 Guest queue
+bwm 2 description qos-guest
+ interface 10.20.30.0/24
+ inbound-kbps 100000
+ outbound-kbps 20000
+ priority 6
+ exit
+bwm enable
+exit
+write

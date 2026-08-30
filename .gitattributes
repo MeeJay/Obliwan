@@ -1,0 +1,15 @@
+# Shell scripts must keep LF endings: a CRLF docker-entrypoint.sh makes the
+# container fail at startup with "no such file or directory" on the shebang.
+*.sh text eol=lf
+server/docker-entrypoint.sh text eol=lf
+install.sh text eol=lf
+
+# Container-side config files, read by Linux tools.
+client/nginx.conf text eol=lf
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf
+**/Dockerfile text eol=lf
+
+# Windows batch files must keep CRLF or cmd.exe mis-parses multi-line blocks.
+*.bat text eol=crlf
+*.ps1 text eol=crlf
