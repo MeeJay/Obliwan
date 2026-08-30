@@ -98,6 +98,7 @@ export const MGMT_GUARD_REASON_CODES = [
   'TUNNEL_CRITICAL',       // the tunnel interface is removed or disabled by the plan
   'MGMT_ADDRESS_LOST',     // the management address is no longer configured anywhere
   'MGMT_SERVICE_LOST',     // every management service is disabled, or shut to the CHR
+  'MGMT_IDENTITY_LOST',    // no local account is left that could log in and act
   'NAT_HIJACK',            // a prerouting DNAT captures the management session
   // ── blindness: the guard may not conclude ACCEPT ────────────────────────
   'COVERAGE_INCOMPLETE',
@@ -109,6 +110,7 @@ export const MGMT_GUARD_REASON_CODES = [
   'CHAIN_POLICY_UNKNOWN',
   'TUNNEL_UNKNOWN',
   'MGMT_ADDRESS_UNKNOWN',
+  'MGMT_IDENTITY_UNKNOWN',
   'PEER_ADDRESS_UNKNOWN',
   'ROUTE_MODEL_BLIND',
   'JUMP_DEPTH_EXCEEDED',
@@ -130,6 +132,7 @@ export const REASON_EFFECT: Readonly<Record<MgmtGuardReasonCode, ReasonEffect>> 
   TUNNEL_CRITICAL: 'reject',
   MGMT_ADDRESS_LOST: 'reject',
   MGMT_SERVICE_LOST: 'reject',
+  MGMT_IDENTITY_LOST: 'reject',
   NAT_HIJACK: 'reject',
   COVERAGE_INCOMPLETE: 'indeterminate',
   UNMODELED_FORWARDING_SECTION: 'indeterminate',
@@ -140,6 +143,7 @@ export const REASON_EFFECT: Readonly<Record<MgmtGuardReasonCode, ReasonEffect>> 
   CHAIN_POLICY_UNKNOWN: 'indeterminate',
   TUNNEL_UNKNOWN: 'indeterminate',
   MGMT_ADDRESS_UNKNOWN: 'indeterminate',
+  MGMT_IDENTITY_UNKNOWN: 'indeterminate',
   PEER_ADDRESS_UNKNOWN: 'indeterminate',
   ROUTE_MODEL_BLIND: 'indeterminate',
   JUMP_DEPTH_EXCEEDED: 'indeterminate',
@@ -1440,6 +1444,7 @@ export function evaluateMgmtPath(input: MgmtGuardInput): MgmtGuardResult {
 
     // 2b. The management address itself.
     checkManagementAddress(before, after, mgmt, push);
+    checkManagementIdentity(before, after, peer, push);
 
     // 2c. Management services and their address restriction.
     checkManagementServices(before, after, peer, push);
@@ -1749,6 +1754,96 @@ function checkManagementServices(
       `After this plan, whether any management service still accepts ${peer} depends on an ` +
       'address object this model does not expand. The guard will not assume it still contains us.',
       a.culprit);
+  }
+}
+
+/**
+ * Groups that can ACT, not merely look. A read-only account keeps the session
+ * alive and cannot repair anything, which for this guard's purpose is the same
+ * as no account at all: the plan that locked us out cannot be undone.
+ *
+ * Brand roles outside this set are `unknown`, never `no` — a Vigor
+ * administrator role we have not catalogued is not evidence of a demotion.
+ */
+const WRITE_CAPABLE_GROUPS = new Set(['full', 'write', 'admin', 'administrator']);
+const READ_ONLY_GROUPS = new Set(['read', 'readonly', 'read-only', 'guest', 'monitor']);
+
+interface IdentityState {
+  /** The family models local users at all. False = nothing to compare. */
+  modelled: boolean;
+  /** Enabled, write-capable, and `allowedFrom` provably accepts the peer. */
+  definitelyUsable: string[];
+  /** Not excluded, but one of the two facts is `unknown`. */
+  maybeUsable: string[];
+}
+
+function managementIdentityState(ctx: DocContext, peer: string): IdentityState {
+  const users = ctx.doc.resources.localUsers;
+  const state: IdentityState = { modelled: users.length > 0, definitelyUsable: [], maybeUsable: [] };
+
+  for (const u of users) {
+    if (u.disabled) continue;
+
+    const group = (u.group ?? '').trim().toLowerCase();
+    const groupOk: Tri = READ_ONLY_GROUPS.has(group)
+      ? 'no'
+      : WRITE_CAPABLE_GROUPS.has(group)
+        ? 'yes'
+        : 'unknown';
+    if (groupOk === 'no') continue;
+
+    const fromOk = addressSelectorMatches(u.allowedFrom, peer);
+    if (fromOk === 'no') continue;
+
+    if (groupOk === 'yes' && fromOk === 'yes') state.definitelyUsable.push(u.username);
+    else state.maybeUsable.push(u.username);
+  }
+  return state;
+}
+
+/**
+ * K2's fourth coordinate — THE ONE THE FILE WAS MISSING.
+ *
+ * ┌───────────────────────────────────────────────────────────────────────────┐
+ * │ The other three checks prove the PACKET arrives: the tunnel is up, the    │
+ * │ address is held, a service listens and accepts the peer. None of them     │
+ * │ asks whether an IDENTITY survives to use it. A plan that removes the last │
+ * │ account ObliWAN logs in with leaves every one of them green — and leaves  │
+ * │ a router that forwards perfectly and that nobody can enter.               │
+ * │                                                                          │
+ * │ `localUser` is deliberately still OUT of `FORWARDING_KINDS`: demanding    │
+ * │ `complete` coverage on a kind most families declare `unsupported` would   │
+ * │ turn every verdict INDETERMINATE, which is Q8 — the failure mode where    │
+ * │ the confirmation click becomes reflex. So this check is SILENT when the   │
+ * │ family models no accounts, and speaks only when it can compare.           │
+ * └───────────────────────────────────────────────────────────────────────────┘
+ */
+function checkManagementIdentity(
+  before: DocContext,
+  after: DocContext,
+  peer: string,
+  push: Push,
+): void {
+  const b = managementIdentityState(before, peer);
+  const a = managementIdentityState(after, peer);
+
+  if (!b.modelled) return;                                   // nothing to compare
+  if (b.definitelyUsable.length === 0 && b.maybeUsable.length === 0) return;  // none before either
+
+  if (a.definitelyUsable.length === 0 && a.maybeUsable.length === 0) {
+    push('MGMT_IDENTITY_LOST',
+      `After this plan no enabled local account is left that could log in from ${peer} and act. ` +
+      `Today ${[...b.definitelyUsable, ...b.maybeUsable].join(', ')} could. The packet would ` +
+      'still arrive and nobody would be able to use it — the box routes and cannot be entered.',
+      null);
+    return;
+  }
+  if (b.definitelyUsable.length > 0 && a.definitelyUsable.length === 0) {
+    push('MGMT_IDENTITY_UNKNOWN',
+      `After this plan, whether any account can still act from ${peer} depends on a group name ` +
+      'or an address object this model does not resolve. Candidates left: ' +
+      `${a.maybeUsable.join(', ')}. The guard will not assume one of them still works.`,
+      null);
   }
 }
 

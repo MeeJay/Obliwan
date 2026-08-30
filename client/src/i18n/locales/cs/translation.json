@@ -649,7 +649,10 @@
     "saving": "Ukládání…",
     "search": "Hledat",
     "type": "Typ",
-    "yes": "Ano"
+    "yes": "Ano",
+    "searchGroups": "Hledat skupiny...",
+    "dismiss": "Zavřít",
+    "selectGroup": "Vyberte skupinu"
   },
   "config": {
     "compareAgainst": "Porovnat s",
@@ -1254,7 +1257,10 @@
     "reordered": "Skupiny přeuspořádány",
     "save": "Uložit",
     "saveOrder": "Uložit pořadí",
-    "updated": "Skupina aktualizována"
+    "updated": "Skupina aktualizována",
+    "dragReparent": "Přetažením změníte nadřazenou skupinu",
+    "addSubGroup": "Přidat podskupinu",
+    "notFoundOrDenied": "Skupina nenalezena nebo přístup odepřen"
   },
   "header": {
     "socketConnected": "Živě — připojeno k serveru",
@@ -1708,7 +1714,10 @@
     "testSent": "Testovací oznámení odesláno!",
     "title": "Oznámení",
     "updated": "Kanál aktualizován",
-    "workspaces": "Pracovní prostory"
+    "workspaces": "Pracovní prostory",
+    "center": "Centrum oznámení",
+    "markAllRead": "Označit vše jako přečtené",
+    "clearLocal": "Vymazat místní oznámení"
   },
   "plan": {
     "absent": "Na této straně neexistuje",
@@ -2315,7 +2324,8 @@
       "updated": "SMTP server aktualizován",
       "usernameLabel": "Uživatelské jméno"
     },
-    "title": "Globální nastavení"
+    "title": "Globální nastavení",
+    "systemInfoError": "Systémové informace se nepodařilo načíst."
   },
   "sites": {
     "backToSites": "Zpět na lokality",
@@ -2558,6 +2568,19 @@
       "updated": "Tým aktualizován"
     },
     "updated": "Uživatel aktualizován",
-    "usernameLabel": "Uživatelské jméno"
+    "usernameLabel": "Uživatelské jméno",
+    "passwordTitle": "Heslo",
+    "manageTenantAccess": "Spravovat přístup nájemců",
+    "toggleRoRw": "Kliknutím přepnete RO/RW",
+    "readOnly": "Jen pro čtení",
+    "readWrite": "Čtení/zápis",
+    "noTenants": "Nejsou k dispozici žádní nájemci"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Název sady (např. Podpora N1)",
+    "defaultSet": "Výchozí sada"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Ponechte prázdné pro použití pouze SSO"
   }
 }

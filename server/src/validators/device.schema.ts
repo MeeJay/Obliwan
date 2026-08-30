@@ -174,3 +174,31 @@ export type UpdateDeviceInput = z.infer<typeof updateDeviceSchema>;
 export type CreateConcentratorInput = z.infer<typeof createConcentratorSchema>;
 export type UpsertTransportInput = z.infer<typeof upsertTransportSchema>;
 export type BindDiscoveryInput = z.infer<typeof bindDiscoverySchema>;
+
+/**
+ * Single-device enrolment FROM THE UI (M15, second path).
+ *
+ * ┌─ WHY IT IS NOT THE BENCH PAYLOAD WITH A FLAG ────────────────────────────┐
+ * │ The two flows look alike and their secret policy is OPPOSITE. On a bench, │
+ * │ the factory password never leaves the preparer's workstation and no       │
+ * │ credential is transmitted. Here the operator types the credential ObliWAN │
+ * │ will keep, and it goes STRAIGHT TO THE VAULT.                             │
+ * │                                                                          │
+ * │ One route with a boolean would make that difference a runtime branch      │
+ * │ instead of a capability boundary — and `CREDENTIAL_MANAGE` is exactly the │
+ * │ line that must separate them.                                            │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ */
+export const enrollDeviceSchema = z.object({
+  name: z.string().min(1).max(255),
+  family: familyEnum,
+  transport: z.enum(['routeros_api', 'ssh', 'rest', 'snmp']).optional(),
+  host: z.string().min(1).max(255),
+  port: z.number().int().min(1).max(65535).optional(),
+  username: z.string().min(1).max(128),
+  password: z.string().min(1).max(512),
+  useTls: z.boolean().optional(),
+  siteId: z.number().int().positive().nullable().optional(),
+  notes: z.string().max(4000).nullable().optional(),
+});
+export type EnrollDeviceInput = z.infer<typeof enrollDeviceSchema>;

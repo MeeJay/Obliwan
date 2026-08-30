@@ -76,6 +76,41 @@ export interface VerdictContext {
    * `null` = not evaluated (no baseline yet).
    */
   publicPathChanged?: boolean | null;
+  /**
+   * How many of the four signals this device CAN produce at all.
+   *
+   * ┌─ WHY THE DENOMINATOR IS NOT ALWAYS FOUR ──────────────────────────────┐
+   * │ `TOTAL_SIGNALS` was written when every managed box dialled the CHR, so │
+   * │ "we only have two of four" honestly meant "we are half blind". That    │
+   * │ stopped being true the moment the fleet grew boxes that cannot produce │
+   * │ a signal AT ALL: a SonicWall has no L2TP client, so `pppUp` is `null`  │
+   * │ for the rest of its life, and RouterOS and SonicOS have no CWMP client │
+   * │ (risk R2), so `cwmpRecent` is too. Divided by four, a perfectly        │
+   * │ healthy SonicWall answering SNMP reports 0.25 forever — and every      │
+   * │ threshold and every screen reads that as "barely known".               │
+   * │                                                                       │
+   * │ So the denominator is the number of signals that COULD have spoken,    │
+   * │ not the number that exist in the table. Absent means "this box has no  │
+   * │ such organ", which is not the same as "we did not look" — and neither  │
+   * │ is the same as "the site is down". K7 exists to keep those three       │
+   * │ apart.                                                                 │
+   * │                                                                       │
+   * │ Omitted = 4, so every existing caller and every existing test keeps    │
+   * │ the behaviour it was written against.                                  │
+   * └───────────────────────────────────────────────────────────────────────┘
+   */
+  applicableSignals?: number;
+  /**
+   * Whether `pppUp` is a signal this device could ever produce.
+   *
+   * Separate from `applicableSignals` on purpose: the count scales confidence,
+   * this one changes WHICH ROW of the table fires. A `pppUp` of `null` means
+   * two very different things — "the concentrator has not told us yet", where
+   * waiting is right, and "this box has no L2TP client and never will", where
+   * waiting is waiting forever. Only the second may open an alternative route
+   * to `SITE_DOWN`. Defaults to `true`, i.e. the historical behaviour.
+   */
+  pppApplicable?: boolean;
 }
 
 export interface VerdictResult {
@@ -117,6 +152,13 @@ export function evaluateReachability(
 ): VerdictResult {
   const s: ReachabilitySignals = { ...NO_SIGNALS, ...signals };
   const independent = independentOfTunnel(s);
+  // The denominator. Clamped to at least 1: a device that can produce nothing
+  // must not divide by zero, and its verdict is `UNREACHABLE` at confidence 0
+  // either way. Never above TOTAL_SIGNALS — a caller cannot inflate certainty.
+  const scale = Math.min(
+    TOTAL_SIGNALS,
+    Math.max(1, context.applicableSignals ?? TOTAL_SIGNALS),
+  );
   const measured = [s.pppUp, s.snmpOk, ...independent].filter((v) => v !== null).length;
 
   // -- Row 0: the observer is broken --------------------------------------
@@ -126,7 +168,7 @@ export function evaluateReachability(
   if (context.concentratorDegraded && !context.isConcentrator) {
     return {
       verdict: 'CONCENTRATOR_DEGRADED',
-      confidence: round2(1 / TOTAL_SIGNALS),
+      confidence: round2(1 / scale),
       reason: 'parent_concentrator_degraded',
       suppressed: true,
     };
@@ -134,7 +176,7 @@ export function evaluateReachability(
   if (context.isConcentrator && s.pppUp === null && s.snmpOk === false) {
     return {
       verdict: 'CONCENTRATOR_DEGRADED',
-      confidence: round2(1 / TOTAL_SIGNALS),
+      confidence: round2(1 / scale),
       reason: 'concentrator_unreachable',
       suppressed: false,
     };
@@ -149,7 +191,7 @@ export function evaluateReachability(
       const agree = 1 + (s.snmpOk === true ? 1 : 0);
       return {
         verdict: 'WAN_FAILOVER',
-        confidence: round2(agree / TOTAL_SIGNALS),
+        confidence: round2(agree / scale),
         reason: 'ppp_up_from_new_public_path',
         suppressed: false,
       };
@@ -160,7 +202,7 @@ export function evaluateReachability(
       independent.filter((v) => v === true).length;
     return {
       verdict: 'UP',
-      confidence: round2(agree / TOTAL_SIGNALS),
+      confidence: round2(agree / scale),
       // Worth distinguishing: PPP up but SNMP silent is a real, common state
       // (SNMP not provisioned yet). It is still UP, just less corroborated.
       reason: s.snmpOk === true ? 'ppp_up_snmp_ok' : 'ppp_up_only',
@@ -177,7 +219,7 @@ export function evaluateReachability(
       const agree = 1 + independent.filter((v) => v === true).length;
       return {
         verdict: 'TUNNEL_DOWN_SITE_UP',
-        confidence: round2(agree / TOTAL_SIGNALS),
+        confidence: round2(agree / scale),
         reason: 'ppp_down_independent_signal_up',
         suppressed: false,
       };
@@ -190,7 +232,7 @@ export function evaluateReachability(
     if (negativeIndependent >= 1) {
       return {
         verdict: 'SITE_DOWN',
-        confidence: round2((1 + negativeIndependent) / TOTAL_SIGNALS),
+        confidence: round2((1 + negativeIndependent) / scale),
         reason: 'ppp_down_and_independent_signals_down',
         suppressed: false,
       };
@@ -198,10 +240,45 @@ export function evaluateReachability(
     // The M2 case, and the one the milestone acceptance test checks.
     return {
       verdict: 'UNREACHABLE',
-      confidence: round2(1 / TOTAL_SIGNALS),
+      confidence: round2(1 / scale),
       reason: 'ppp_down_no_independent_signal',
       suppressed: false,
     };
+  }
+
+  // -- Row 2b: no PPP signal EXISTS, and the site is provably silent -------
+  //
+  // ┌─ THE HOLE THIS CLOSES ────────────────────────────────────────────────┐
+  // │ Row 2 is gated on `pppUp === false`. A device that cannot produce     │
+  // │ `pppUp` at all — a SonicWall, which has no L2TP client — therefore    │
+  // │ never reached it, fell through, and came out `UNREACHABLE` even when  │
+  // │ every signal it DOES have said the site was dead. K7 exists to keep   │
+  // │ `UNREACHABLE` and `SITE_DOWN` apart, and for a whole brand it could   │
+  // │ only ever say the first one.                                          │
+  // │                                                                      │
+  // │ The bar is deliberately HIGHER here than on Row 2, because there is   │
+  // │ no tunnel state to lean on:                                           │
+  // │   - `externalOk === false` is MANDATORY. It is the out-of-tunnel      │
+  // │     probe, and `probeDevice()` only ever reports `false` once a       │
+  // │     baseline success exists — so it cannot fire on a site we have     │
+  // │     never reached, which is the false-SITE_DOWN this guards against.  │
+  // │   - and at least one MORE signal must also be false. One observer     │
+  // │     saying "silent" is an observer that may itself be broken.         │
+  // │                                                                      │
+  // │ Anything short of that stays `UNREACHABLE`. Under-calling costs a     │
+  // │ line on a screen; over-calling costs a technician driving to a site   │
+  // │ that is up.                                                           │
+  // └──────────────────────────────────────────────────────────────────────┘
+  if (context.pppApplicable === false && s.pppUp === null) {
+    const negatives = [s.snmpOk, ...independent].filter((v) => v === false).length;
+    if (s.externalOk === false && negatives >= 2) {
+      return {
+        verdict: 'SITE_DOWN',
+        confidence: round2(negatives / scale),
+        reason: 'no_ppp_organ_and_corroborated_silence',
+        suppressed: false,
+      };
+    }
   }
 
   // -- Row 3: presence not measured ---------------------------------------
@@ -210,7 +287,7 @@ export function evaluateReachability(
       (s.snmpOk === true ? 1 : 0) + independent.filter((v) => v === true).length;
     return {
       verdict: 'UP',
-      confidence: round2(agree / TOTAL_SIGNALS),
+      confidence: round2(agree / scale),
       reason: 'no_ppp_signal_but_device_answered',
       suppressed: false,
     };
@@ -218,7 +295,7 @@ export function evaluateReachability(
 
   return {
     verdict: 'UNREACHABLE',
-    confidence: round2(measured / TOTAL_SIGNALS),
+    confidence: round2(measured / scale),
     reason: measured === 0 ? 'no_signal_measured' : 'insufficient_evidence',
     suppressed: false,
   };
@@ -404,10 +481,58 @@ async function readExternalOk(deviceId: number): Promise<boolean | null> {
 }
 
 /**
- * Assess one device from everything the database currently knows.
+ * K7's FOURTH signal — the CPE called home by itself.
  *
- * `cwmpRecent` stays `null`: there is no ACS before M10, and writing `false`
- * because we did not look is exactly the bug this file exists to prevent.
+ * ┌─ WHY THIS IS NOT `SELECT reachability FROM cwmp_devices` ─────────────────┐
+ * │ That column is a STORED classification, written when an Inform arrives.   │
+ * │ Nothing demotes it: a CPE that dies right after an Inform keeps the       │
+ * │ string 'online' for as long as the row exists. Reading it would report    │
+ * │ `true` for a dead site forever — a false UP, the one failure mode this    │
+ * │ file was written to prevent.                                             │
+ * │                                                                          │
+ * │ So freshness is DERIVED from `last_inform_at` against the CPE's own       │
+ * │ announced cadence, exactly as `readExternalOk()` derives from             │
+ * │ `last_probe_at`. The clock is the only authority either of them trusts.   │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * Three-valued, like every other signal here:
+ *   `true`  — an Inform landed within `cwmpRecentIntervals` cadences. The CPE
+ *             reached the ACS on its own, which does NOT cross the L2TP tunnel:
+ *             that is why `independentOfTunnel()` counts it, and why it can
+ *             tell `SITE_DOWN` from `TUNNEL_DOWN_SITE_UP`.
+ *   `false` — it has missed `cwmpDownIntervals` cadences. Evidence of absence,
+ *             not absence of evidence.
+ *   `null`  — no `cwmp_devices` row (RouterOS and SonicOS have no CWMP client
+ *             at all, risk R2), or never informed, or in the grey band between
+ *             the two thresholds.
+ */
+async function readCwmpRecent(
+  deviceId: number,
+): Promise<{ value: boolean | null; applicable: boolean }> {
+  const row = await db('cwmp_devices')
+    .where({ device_id: deviceId })
+    .first<
+      | { last_inform_at: Date | null; periodic_inform_interval: number }
+      | undefined
+    >('last_inform_at', 'periodic_inform_interval');
+
+  // No row: this device is not a CWMP CPE at all — RouterOS and SonicOS never
+  // will be (R2). That is `applicable: false`, which is a different statement
+  // from `value: null`: one says the organ does not exist, the other says we
+  // did not hear from it. Only the first may shrink the denominator.
+  if (!row) return { value: null, applicable: false };
+  if (!row.last_inform_at) return { value: null, applicable: true };
+
+  const ageSec = (Date.now() - row.last_inform_at.getTime()) / 1000;
+  const interval = row.periodic_inform_interval;
+
+  if (ageSec <= interval * logsConfig.cwmpRecentIntervals) return { value: true, applicable: true };
+  if (ageSec >= interval * logsConfig.cwmpDownIntervals) return { value: false, applicable: true };
+  return { value: null, applicable: true };
+}
+
+/**
+ * Assess one device from everything the database currently knows.
  *
  * `overrides` and `context` still win over everything derived here — the
  * presence listener already holds a fresher `pppUp` than the database does, and
@@ -426,8 +551,12 @@ export async function assessDevice(
     >('id', 'role', 'ppp_username', 'concentrator_id');
   if (!device) throw new Error(`Device ${deviceId} does not exist`);
 
+  // Structural: a box with no PPP secret on a concentrator can NEVER produce
+  // this signal. A SonicWall has no L2TP client at all — that is the case that
+  // used to cap a healthy unit at 0.25 confidence for life.
+  const pppApplicable = !!(device.ppp_username && device.concentrator_id);
   let pppUp: boolean | null = null;
-  if (device.ppp_username && device.concentrator_id) {
+  if (pppApplicable) {
     const open = await db('ppp_sessions')
       .where({ concentrator_id: device.concentrator_id, ppp_username: device.ppp_username })
       .whereNull('ended_at')
@@ -436,9 +565,10 @@ export async function assessDevice(
   }
 
   const isConcentrator = device.role === 'concentrator';
-  const [snmpOk, externalOk, degraded] = await Promise.all([
+  const [snmpOk, externalOk, cwmp, degraded] = await Promise.all([
     readSnmpOk(deviceId),
     readExternalOk(deviceId),
+    readCwmpRecent(deviceId),
     // A concentrator is never suppressed by itself, and never has a parent in
     // the topology (§8.5: it is everyone's peer and nobody's child).
     isConcentrator ? Promise.resolve(false) : parentConcentratorDegraded(device.concentrator_id),
@@ -446,8 +576,20 @@ export async function assessDevice(
 
   return recordVerdict(
     deviceId,
-    { pppUp, snmpOk, externalOk, ...overrides },
-    { isConcentrator, concentratorDegraded: degraded, ...context },
+    { pppUp, snmpOk, externalOk, cwmpRecent: cwmp.value, ...overrides },
+    {
+      isConcentrator,
+      concentratorDegraded: degraded,
+      // Only STRUCTURAL impossibilities shrink the denominator. `snmpOk` and
+      // `externalOk` stay applicable for every device: any box could be given
+      // an SNMP community or hold a public address, so their silence is a gap
+      // in our instrumentation, not a missing organ — and counting them out
+      // would inflate confidence on a device we simply have not wired up.
+      applicableSignals:
+        2 + (pppApplicable ? 1 : 0) + (cwmp.applicable ? 1 : 0),
+      pppApplicable,
+      ...context,
+    },
   );
 }
 

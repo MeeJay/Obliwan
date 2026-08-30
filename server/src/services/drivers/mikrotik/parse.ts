@@ -150,13 +150,34 @@ export function unfoldLines(lines: readonly string[]): { lines: string[]; unfold
 
   for (const line of lines) {
     const continues = endsWithContinuation(line);
-    const body = continues ? line.slice(0, -1).replace(/[ \t]+$/, '') : line;
+    // Trailing whitespace before the backslash is KEPT. RouterOS wraps at the
+    // terminal width, so the break can land right after a separating space; if
+    // that space is stripped and the join adds none, two tokens fuse.
+    const body = continues ? line.slice(0, -1) : line;
     if (acc === null) {
       acc = body;
     } else {
-      // The continuation is re-joined with ONE space: RouterOS indents the tail
-      // for readability and that indentation is terminal-width dependent.
-      acc = `${acc} ${body.replace(/^[ \t]+/, '')}`;
+      // ┌─ RE-JOINED WITH NOTHING, NOT WITH A SPACE ────────────────────────┐
+      // │ This used to insert one space. On a real export off a production  │
+      // │ CHR that silently destroyed a value:                              │
+      // │                                                                   │
+      // │     script=\                                                      │
+      // │         ":if ($bound=1) do={\                                     │
+      // │                                                                   │
+      // │ became `script= ":if …`, so the tokenizer read `script` as EMPTY  │
+      // │ and turned the rest of the script into phantom properties         │
+      // │ (`":if (\$bound` = `1) do={…`). The DHCP client's bind script —   │
+      // │ two static routes re-pointed at the lease gateway, i.e. the       │
+      // │ site's WAN failover — was parsed as nothing at all.                │
+      // │                                                                   │
+      // │ A `\`-continuation in RouterOS is a pure line break: the next     │
+      // │ character continues the token. Only the READABILITY indentation   │
+      // │ of the tail is an artifact, and only that is stripped.            │
+      // │                                                                   │
+      // │ This affected every wrapped value, not just scripts — and the     │
+      // │ collector allocates a pty, so wrapping is the normal case.         │
+      // └───────────────────────────────────────────────────────────────────┘
+      acc = `${acc}${body.replace(/^[ \t]+/, '')}`;
       unfolded++;
     }
     if (!continues) {

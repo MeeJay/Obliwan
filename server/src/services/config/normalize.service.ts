@@ -58,7 +58,7 @@ import {
   parsePortExpression,
   qosRuleKey,
   rangeAtom,
-  routeKey,
+  routeKey, dhcpClientKey,
   serviceKey,
   vlanKey,
   type CoverageState,
@@ -79,6 +79,7 @@ import {
   type NcmQosRule,
   type NcmResourceKind,
   type NcmRoute,
+  type NcmDhcpClient,
   type NcmService,
   type NcmUnmodeled,
   type NcmVlan,
@@ -704,6 +705,7 @@ function buildDocument(
   const localUsers = buildLocalUsers(ctxAll);
   const services = buildServices(ctxAll);
   const qosRules = buildQosRules(ctxAll);
+  const dhcpClients = buildDhcpClients(ctxAll);
 
   // ── unknown props (N05) ───────────────────────────────────────────────────
   for (const [, r] of readers) {
@@ -744,6 +746,7 @@ function buildDocument(
   // ── coverage (N3) ─────────────────────────────────────────────────────────
   const coverage = computeCoverage(parsed, ctx, {
     interface: interfaces.length,
+    dhcpClient: dhcpClients.length,
     vlan: vlans.length,
     route: routes.length,
     firewallRule: firewallRules.length,
@@ -775,6 +778,7 @@ function buildDocument(
     resources: {
       interfaces, vlans, routes, firewallRules, natRules,
       dhcpScopes, ipsecPeers, localUsers, services, qosRules,
+      dhcpClients,
     },
     unmodeled,
     // Deliberately empty. `extensions` is excluded from the hash and from the
@@ -1059,6 +1063,62 @@ function expandVlanIds(expr: string): number[] {
 // ----------------------------------------------------------------------------
 // routes
 // ----------------------------------------------------------------------------
+
+/**
+ * `/ip/dhcp-client` — the CLIENT, never the lease it obtains.
+ *
+ * ┌─ WHY THIS SECTION IS CONFIG AND ITS RESULT IS NOT ────────────────────────┐
+ * │ `NcmAddress` drops DHCP-learned addresses, and rightly: the address is    │
+ * │ state, it changes on renewal, and diffing it would report drift every     │
+ * │ time a lease turned over. But `/ip/dhcp-client` is a declared object — an │
+ * │ operator creates it and deletes it — and dropping it along with the       │
+ * │ address it learns made a piece of real configuration invisible.           │
+ * │                                                                          │
+ * │ Concretely: on a MikroTik fronted by a bridged Zyxel modem, this client   │
+ * │ is the only reason the MikroTik holds an address in the modem's           │
+ * │ management subnet, which is the only reason it can reach it, which is the │
+ * │ only reason it could ever carry a dead-man for it (§8.3). Delete the      │
+ * │ client and the safety net vanishes with no finding anywhere.              │
+ * │                                                                          │
+ * │ So the client is modelled and `address`, `gateway`, `primary-dns`,        │
+ * │ `expires-after`, `status` are consumed and discarded: every one of them   │
+ * │ is a property of the LEASE, and hashing any of them would make ncm_hash   │
+ * │ change on its own overnight.                                             │
+ * └───────────────────────────────────────────────────────────────────────────┘
+ */
+function buildDhcpClients(c: BuildCtx): NcmDhcpClient[] {
+  const out: NcmDhcpClient[] = [];
+  for (const e of c.section('/ip/dhcp-client')) {
+    const r = c.reader(e);
+    const interfaceName = r.str('interface');
+    if (!interfaceName) {
+      c.warnings.push('/ip/dhcp-client: entry with no interface, skipped (no natural key)');
+      continue;
+    }
+    // Lease state, deliberately read and thrown away so `leftovers()` does not
+    // report them as unknown props (N05) — they are known, and known to be state.
+    r.consume(
+      'address', 'gateway', 'primary-dns', 'secondary-dns', 'primary-ntp', 'secondary-ntp',
+      'expires-after', 'status', 'dhcp-server', 'dhcp-options', 'comment',
+    );
+
+    out.push({
+      ...baseOf(r, c.via),
+      semKey: dhcpClientKey(interfaceName),
+      keyQuality: 'strong',
+      kind: 'dhcpClient',
+      interfaceName,
+      addDefaultRoute: r.bool('add-default-route'),
+      usePeerDns: r.bool('use-peer-dns'),
+      usePeerNtp: r.bool('use-peer-ntp'),
+      defaultRouteDistance: r.num('default-route-distance'),
+      // Verbatim. See the box on NcmDhcpClient.bindScript: a real CHR carries a
+      // WAN failover in here, and reformatting it would invent or hide findings.
+      bindScript: r.str('script'),
+    });
+  }
+  return out;
+}
 
 function buildRoutes(c: BuildCtx): NcmRoute[] {
   const out: NcmRoute[] = [];

@@ -1028,6 +1028,7 @@ export function compileIntent(
 
   const counts: Record<NcmResourceKind, number> = {
     interface: state.interfaces.length,
+    dhcpClient: 0,
     vlan: state.vlans.length,
     route: state.routes.length,
     firewallRule: state.firewallRules.length,

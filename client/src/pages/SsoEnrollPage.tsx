@@ -8,6 +8,7 @@
  *
  * Both steps are optional — the user can skip everything.
  */
+import { useTranslation } from 'react-i18next';
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { UserCircle, KeyRound, Eye, EyeOff } from 'lucide-react';
@@ -18,6 +19,7 @@ import apiClient from '@/api/client';
 import type { ApiResponse, User } from '@obliwan/shared';
 
 export function SsoEnrollPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, checkSession } = useAuthStore();
@@ -100,7 +102,7 @@ export function SsoEnrollPage() {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Laisser vide pour rester SSO uniquement"
+                placeholder={t('sso.passwordOptionalPlaceholder')}
                 autoComplete="new-password"
                 className="w-full rounded-md border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary pr-9"
               />

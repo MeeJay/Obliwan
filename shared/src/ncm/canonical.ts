@@ -19,17 +19,45 @@ import type { NcmDocument } from './model';
  * than `Object.keys().sort()` on purpose: `canonicalJson` already sorts, and an
  * explicit list makes the review of "what is hashed" a diff on ONE array.
  */
-const HASHED_COLLECTIONS: readonly { key: keyof NcmDocument['resources']; kind: NcmResourceKind }[] = [
-  { key: 'interfaces', kind: 'interface' },
-  { key: 'vlans', kind: 'vlan' },
-  { key: 'routes', kind: 'route' },
-  { key: 'firewallRules', kind: 'firewallRule' },
-  { key: 'natRules', kind: 'natRule' },
-  { key: 'dhcpScopes', kind: 'dhcpScope' },
-  { key: 'ipsecPeers', kind: 'ipsecPeer' },
-  { key: 'localUsers', kind: 'localUser' },
-  { key: 'services', kind: 'service' },
-  { key: 'qosRules', kind: 'qosRule' },
+/**
+ * `since` — THE NCM VERSION THAT INTRODUCED THIS COLLECTION.
+ *
+ * ┌─ WHY A NEW RESOURCE KIND CANNOT SIMPLY BE APPENDED ───────────────────────┐
+ * │ `canonicalize()` serialises every collection listed here, empty ones      │
+ * │ included, and `ncmHash()` hashes that string. Appending one line to this  │
+ * │ array therefore adds `"newThing":[]` to the canonical form of EVERY       │
+ * │ document ever stored — every `ncm_hash` in `config_snapshots` and every   │
+ * │ `base_state_hash` on a frozen plan shifts at once. On the next drift run  │
+ * │ the entire fleet reports as changed, which is risk R3 arriving in one     │
+ * │ sweep and taking the product's credibility with it.                       │
+ * │                                                                          │
+ * │ So the hash is VERSIONED, not the schema alone. A collection is included  │
+ * │ only when the document's own `ncmVersion` is at least its `since`. A      │
+ * │ document stamped v1 hashes byte-for-byte as it did before this line was   │
+ * │ written — which is the property that makes adding a kind a deployable     │
+ * │ change instead of a fleet-wide false alarm.                               │
+ * │                                                                          │
+ * │ Corollary for whoever adds the next one: give it the NEXT version, bump   │
+ * │ `NCM_VERSION`, and never retro-date a `since`. Retro-dating is exactly    │
+ * │ the silent rehash this field exists to prevent.                           │
+ * └───────────────────────────────────────────────────────────────────────────┘
+ */
+const HASHED_COLLECTIONS: readonly {
+  key: keyof NcmDocument['resources'];
+  kind: NcmResourceKind;
+  since: number;
+}[] = [
+  { key: 'interfaces', kind: 'interface', since: 1 },
+  { key: 'vlans', kind: 'vlan', since: 1 },
+  { key: 'routes', kind: 'route', since: 1 },
+  { key: 'firewallRules', kind: 'firewallRule', since: 1 },
+  { key: 'natRules', kind: 'natRule', since: 1 },
+  { key: 'dhcpScopes', kind: 'dhcpScope', since: 1 },
+  { key: 'ipsecPeers', kind: 'ipsecPeer', since: 1 },
+  { key: 'localUsers', kind: 'localUser', since: 1 },
+  { key: 'services', kind: 'service', since: 1 },
+  { key: 'qosRules', kind: 'qosRule', since: 1 },
+  { key: 'dhcpClients', kind: 'dhcpClient', since: 2 },
 ];
 
 type Keyed = { semKey?: unknown };
@@ -61,10 +89,17 @@ function bySemKey(a: Keyed, b: Keyed): number {
  * set by construction (one entry per MAC), and RouterOS emits it in `.id`
  * order, which churns on every edit.
  */
-function orderResources(resources: NcmDocument['resources']): Record<string, unknown[]> {
+function orderResources(
+  resources: NcmDocument['resources'],
+  ncmVersion: number,
+): Record<string, unknown[]> {
   const out: Record<string, unknown[]> = {};
-  for (const { key, kind } of HASHED_COLLECTIONS) {
-    const arr = resources[key] as unknown as Keyed[];
+  for (const { key, kind, since } of HASHED_COLLECTIONS) {
+    // A collection younger than the document is not part of that document's
+    // canonical form. Not "empty" — ABSENT, exactly as it was on the day the
+    // snapshot was taken. See the box on HASHED_COLLECTIONS.
+    if (since > ncmVersion) continue;
+    const arr = (resources[key] ?? []) as unknown as Keyed[];
     const copy = arr.slice();
     if (!ORDERED_RESOURCE_KINDS.has(kind)) copy.sort(bySemKey);
     out[key] = copy.map((r) => {
@@ -93,7 +128,7 @@ export function canonicalize(doc: NcmDocument): string {
     device: doc.device,
     coverage: doc.coverage,
     orderAnalysis: doc.orderAnalysis,
-    resources: orderResources(doc.resources),
+    resources: orderResources(doc.resources, doc.ncmVersion),
     unmodeled: doc.unmodeled.slice().sort((a, b) =>
       a.section < b.section ? -1 : a.section > b.section ? 1 : 0),
     extensions: doc.extensions,
@@ -133,7 +168,8 @@ export function canonicalize(doc: NcmDocument): string {
 export function stripForHash(doc: NcmDocument): Record<string, unknown> {
   const coverage: Record<string, unknown> = {};
   for (const k of Object.keys(doc.coverage) as (keyof NcmDocument['coverage'])[]) {
-    coverage[k] = { state: doc.coverage[k].state };
+    const entry = doc.coverage[k];
+    if (entry) coverage[k] = { state: entry.state };
   }
   const { osVersion: _osVersion, ...device } = doc.device;
 
@@ -144,7 +180,7 @@ export function stripForHash(doc: NcmDocument): Record<string, unknown> {
     device,
     coverage,
     orderAnalysis: doc.orderAnalysis,
-    resources: orderResources(doc.resources),
+    resources: orderResources(doc.resources, doc.ncmVersion),
     unmodeled: doc.unmodeled.slice().sort((a, b) =>
       a.section < b.section ? -1 : a.section > b.section ? 1 : 0),
   };

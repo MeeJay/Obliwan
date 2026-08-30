@@ -649,7 +649,10 @@
     "saving": "Zapisywanie…",
     "search": "Szukaj",
     "type": "Typ",
-    "yes": "Tak"
+    "yes": "Tak",
+    "searchGroups": "Szukaj grup...",
+    "dismiss": "Odrzuć",
+    "selectGroup": "Wybierz grupę"
   },
   "config": {
     "compareAgainst": "Porównaj z",
@@ -1254,7 +1257,10 @@
     "reordered": "Grupy przestawione",
     "save": "Zapisz",
     "saveOrder": "Zapisz kolejność",
-    "updated": "Grupa zaktualizowana"
+    "updated": "Grupa zaktualizowana",
+    "dragReparent": "Przeciągnij, aby zmienić grupę nadrzędną",
+    "addSubGroup": "Dodaj podgrupę",
+    "notFoundOrDenied": "Nie znaleziono grupy lub odmowa dostępu"
   },
   "header": {
     "socketConnected": "Na żywo — połączono z serwerem",
@@ -1708,7 +1714,10 @@
     "testSent": "Testowe powiadomienie wysłane!",
     "title": "Powiadomienia",
     "updated": "Kanał zaktualizowany",
-    "workspaces": "Przestrzenie robocze"
+    "workspaces": "Przestrzenie robocze",
+    "center": "Centrum powiadomień",
+    "markAllRead": "Oznacz wszystkie jako przeczytane",
+    "clearLocal": "Wyczyść lokalne powiadomienia"
   },
   "plan": {
     "absent": "Nie istnieje po tej stronie",
@@ -2315,7 +2324,8 @@
       "updated": "Serwer SMTP zaktualizowany",
       "usernameLabel": "Nazwa użytkownika"
     },
-    "title": "Ustawienia globalne"
+    "title": "Ustawienia globalne",
+    "systemInfoError": "Nie można załadować informacji o systemie."
   },
   "sites": {
     "backToSites": "Powrót do lokalizacji",
@@ -2558,6 +2568,19 @@
       "updated": "Zespół zaktualizowany"
     },
     "updated": "Użytkownik zaktualizowany",
-    "usernameLabel": "Nazwa użytkownika"
+    "usernameLabel": "Nazwa użytkownika",
+    "passwordTitle": "Hasło",
+    "manageTenantAccess": "Zarządzaj dostępem najemców",
+    "toggleRoRw": "Kliknij, aby przełączyć RO/RW",
+    "readOnly": "Tylko do odczytu",
+    "readWrite": "Odczyt/zapis",
+    "noTenants": "Brak dostępnych najemców"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Nazwa zestawu (np. Wsparcie N1)",
+    "defaultSet": "Zestaw domyślny"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Pozostaw puste, aby używać tylko SSO"
   }
 }

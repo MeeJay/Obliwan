@@ -649,7 +649,10 @@
     "saving": "Salvataggio…",
     "search": "Cerca",
     "type": "Tipo",
-    "yes": "Sì"
+    "yes": "Sì",
+    "searchGroups": "Cerca gruppi...",
+    "dismiss": "Chiudi",
+    "selectGroup": "Seleziona un gruppo"
   },
   "config": {
     "compareAgainst": "Confrontare con",
@@ -1254,7 +1257,10 @@
     "reordered": "Gruppi riordinati",
     "save": "Salva",
     "saveOrder": "Salva ordine",
-    "updated": "Gruppo aggiornato"
+    "updated": "Gruppo aggiornato",
+    "dragReparent": "Trascina per cambiare il gruppo padre",
+    "addSubGroup": "Aggiungi sottogruppo",
+    "notFoundOrDenied": "Gruppo non trovato o accesso negato"
   },
   "header": {
     "socketConnected": "Live — connesso al server",
@@ -1708,7 +1714,10 @@
     "testSent": "Notifica di prova inviata!",
     "title": "Notifiche",
     "updated": "Canale aggiornato",
-    "workspaces": "Spazi di lavoro"
+    "workspaces": "Spazi di lavoro",
+    "center": "Centro notifiche",
+    "markAllRead": "Segna tutto come letto",
+    "clearLocal": "Cancella notifiche locali"
   },
   "plan": {
     "absent": "Non esiste da questo lato",
@@ -2315,7 +2324,8 @@
       "updated": "Server SMTP aggiornato",
       "usernameLabel": "Nome utente"
     },
-    "title": "Impostazioni globali"
+    "title": "Impostazioni globali",
+    "systemInfoError": "Impossibile caricare le informazioni di sistema."
   },
   "sites": {
     "backToSites": "Tornare ai siti",
@@ -2558,6 +2568,19 @@
       "updated": "Team aggiornato"
     },
     "updated": "Utente aggiornato",
-    "usernameLabel": "Nome utente"
+    "usernameLabel": "Nome utente",
+    "passwordTitle": "Password",
+    "manageTenantAccess": "Gestisci accesso ai tenant",
+    "toggleRoRw": "Clicca per alternare RO/RW",
+    "readOnly": "Sola lettura",
+    "readWrite": "Lettura/scrittura",
+    "noTenants": "Nessun tenant disponibile"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Nome del set (es. Supporto N1)",
+    "defaultSet": "Set predefinito"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Lasciare vuoto per restare solo SSO"
   }
 }

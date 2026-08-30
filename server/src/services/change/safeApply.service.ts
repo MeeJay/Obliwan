@@ -65,6 +65,7 @@ import {
   type SafetyLevel,
 } from '@obliwan/shared';
 import { db } from '../../db';
+import { findSecondUplink } from '../config/snapshot.service';
 import { logger } from '../../utils/logger';
 import { assertTargetBinding } from '../fleet/deviceBinding.service';
 import {
@@ -202,7 +203,167 @@ export interface PeerRecoveryAdapter {
   /** Commands the PEER runs, on its own, to restore the target. */
   buildPeerRecovery(ctx: { target: DeviceTarget; peer: DeviceTarget }): string[];
 }
-export const PEER_RECOVERY_ADAPTERS: Partial<Record<DeviceFamily, PeerRecoveryAdapter>> = {};
+/**
+ * DELIBERATELY EMPTY, and it is not an oversight — it is the honest state.
+ *
+ * An entry here makes `armed_by_peer` REACHABLE, i.e. it makes the product
+ * tell an operator "the dead-man is carried by MK-SHOP-12". Naming a rescuer
+ * changes what a human approves: they read that line and click faster. So an
+ * adapter may only be added once its command sequence has been run against
+ * real hardware — a restore of a Vigor or a Zyxel driven from a RouterOS
+ * script has never been executed here, and a net that has never been sprung is
+ * a claim, not a net.
+ *
+ * Until then every non-MikroTik target resolves to `degraded`: detection
+ * without recovery, with the explicit recorded confirmation §8.3 demands. That
+ * is a worse product and a truthful one.
+ */
+/**
+ * HOW A MIKROTIK RESCUES THE BOX NEXT TO IT — and why it is not "log in and
+ * undo".
+ *
+ * ┌─ THE MECHANISM ──────────────────────────────────────────────────────────┐
+ * │ A RouterOS script cannot drive a Vigor or a SonicWall CLI: there is no    │
+ * │ scriptable SSH client on the box, and inventing one inside a scheduler    │
+ * │ script is how you get a rescue that fails at 3am with no transcript.      │
+ * │                                                                          │
+ * │ But it does not need one. Zyxel ZLD and SonicOS both keep a change        │
+ * │ PENDING until an explicit verb makes it durable — `write` and `commit`,   │
+ * │ the two recorded in `SSH_DIALECTS`. So the recovery is not an undo, it is │
+ * │ a REFUSAL TO COMMIT plus a power cycle: cut PoE, restore it, and the box  │
+ * │ boots on the last configuration it actually saved. The pre-change state,  │
+ * │ exactly, with no session, no credential and no CLI dialect involved.      │
+ * │                                                                          │
+ * │ That is what makes this a real dead-man: the scheduler fires ON THE PEER, │
+ * │ on its own clock, while ObliWAN is unreachable and while the casualty is  │
+ * │ unreachable. Nothing in the loop needs either of them to answer.          │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * ┌─ WHY DRAYTEK IS ABSENT AND IT IS NOT AN OVERSIGHT ───────────────────────┐
+ * │ The Vigor CLI applies per line — `SSH_DIALECTS.draytek_vigor.commitVerb`  │
+ * │ is `null` and says so. A power cycle therefore reboots a Vigor onto the   │
+ * │ configuration it was just given, which is the broken one. The mechanism   │
+ * │ does not merely fail to help; it would be announced as a net and be none. │
+ * │ A family belongs here only if withholding the commit is a real undo.      │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * THE PORT IS RESOLVED BY THE PEER, AT RUN TIME. The script looks for the
+ * ethernet port whose comment carries `obliwan:powers:<target-uuid>` — a
+ * convention, not a schema, so no migration and no second place for the truth
+ * to rot. If no port carries the marker the script logs and does nothing:
+ * `assertPoePortDeclared()` below is what stops a net from being CLAIMED in
+ * that case, and it runs before the arming, not after.
+ *
+ * STILL UNPROVEN, and the reason the map below is not simply switched on: no
+ * Zyxel or SonicWall has ever been power-cycled by this code. The commands are
+ * RouterOS's own and are covered by `m6-sshapply.verify.ts`'s sibling harness,
+ * but "the box boots on its last saved config" is a claim about the CASUALTY,
+ * and only a real one can settle it.
+ */
+export function poeMarkerFor(targetUuid: string): string {
+  return `obliwan:powers:${targetUuid}`;
+}
+
+function buildPoeCycle(ctx: { target: DeviceTarget; peer: DeviceTarget }): string[] {
+  const marker = poeMarkerFor(ctx.target.uuid);
+  const port = `[/interface/ethernet find where comment~"${marker}"]`;
+  return [
+    `:local p ${port};`,
+    ':if ([:len $p] = 0) do={' +
+      `:log error "obliwan: no port carries ${marker}; cannot rescue ${ctx.target.name}"; ` +
+      ':error "no poe port";' +
+      '}',
+    // Off, settle, on. The settle is not politeness: a PoE port toggled faster
+    // than the PSE's own debounce leaves the far side powered and the rescue
+    // silently does nothing.
+    '/interface/ethernet/poe/set $p poe-out=off;',
+    ':delay 8s;',
+    '/interface/ethernet/poe/set $p poe-out=auto-on;',
+    `:log warning "obliwan: power-cycled ${ctx.target.name} — dead-man fired on ${ctx.peer.name}";`,
+  ];
+}
+
+export const PEER_RECOVERY_ADAPTERS: Partial<Record<DeviceFamily, PeerRecoveryAdapter>> = {
+  zyxel_standalone: { family: 'zyxel_standalone', buildPeerRecovery: buildPoeCycle },
+  sonicwall_sonicos: { family: 'sonicwall_sonicos', buildPeerRecovery: buildPoeCycle },
+};
+
+/**
+ * Can the peer actually reach the target, right now, from where it stands?
+ *
+ * Read-only and best-effort-hostile: anything other than a clearly successful
+ * ping counts as "no". `/ping` on RouterOS returns one sentence per probe with
+ * a `received` word; a single reply is enough, because the question is "is
+ * there a path at all", not "is the path good".
+ */
+/**
+ * Does the peer actually POWER the target?
+ *
+ * Read-only, on the peer, at arming time. The convention is a comment on the
+ * ethernet port (`obliwan:powers:<uuid>`) rather than a column: the fact lives
+ * where the cable is, an operator can see it in Winbox next to the port it
+ * describes, and it cannot drift out of sync with a database nobody looks at.
+ *
+ * Anything other than exactly one matching port is `false`. Two ports claiming
+ * the same casualty is a mistake, and cycling the wrong one takes down a
+ * device nobody was changing.
+ */
+async function peerPowersTarget(
+  peerSession: { run: (words: string[], opts: { isWrite: boolean; skipAudit: boolean }) => Promise<unknown> },
+  target: DeviceTarget,
+  checks: string[],
+): Promise<boolean> {
+  const marker = poeMarkerFor(target.uuid);
+  try {
+    const out = (await peerSession.run(
+      ['/interface/ethernet/print', `?comment=${marker}`],
+      { isWrite: false, skipAudit: true },
+    )) as Array<Record<string, string>> | undefined;
+    const n = (out ?? []).length;
+    checks.push(
+      n === 1
+        ? `peer powers the target: one port carries "${marker}"`
+        : `peer does NOT power the target: ${n} ports carry "${marker}" (exactly 1 required)`,
+    );
+    return n === 1;
+  } catch (err) {
+    checks.push(`poe marker probe failed: ${err instanceof Error ? err.message : String(err)}`);
+    return false;
+  }
+}
+
+async function peerCanReachTarget(
+  peerSession: { run: (words: string[], opts: { isWrite: boolean; skipAudit: boolean }) => Promise<unknown> },
+  target: DeviceTarget,
+  checks: string[],
+): Promise<boolean> {
+  const row = await db('device_transports')
+    .where({ device_id: target.id, enabled: true })
+    .whereNotNull('host')
+    .orderBy('priority')
+    .first<{ host: string } | undefined>('host');
+  const address = row?.host ?? target.tunnelIp;
+  if (!address) {
+    checks.push('peer reachability NOT tested: the target has no management address on record');
+    return false;
+  }
+  try {
+    const out = (await peerSession.run(['/ping', `=address=${address}`, '=count=2'], {
+      isWrite: false,
+      skipAudit: true,
+    })) as Array<Record<string, string>> | undefined;
+    const received = (out ?? []).some((s) => Number(s.received ?? s['=received'] ?? 0) > 0);
+    checks.push(
+      received
+        ? `peer reached the target at ${address}`
+        : `peer could NOT reach the target at ${address} (no ICMP reply)`,
+    );
+    return received;
+  } catch (err) {
+    checks.push(`peer reachability probe failed: ${err instanceof Error ? err.message : String(err)}`);
+    return false;
+  }
+}
 
 export interface SafetyNetOptions {
   /** Actually dial the device (and the peer) to check the net can be built.
@@ -292,16 +453,50 @@ export async function resolveSafetyNet(
   }
 
   // --- the other three brands (A2) ----------------------------------------
+  //
+  // §8.3's condition has two halves and only one of them was ever measured.
+  // The old probe asked "can the peer hold a scheduler". It never asked the
+  // question that actually decides whether the net exists: CAN THE PEER REACH
+  // THE TARGET. On the one pairing this fleet actually has — a MikroTik with a
+  // bridged Zyxel DSL modem — the answer depends on whether anyone put an
+  // address on the WAN port in the modem's management subnet. A DHCP client
+  // does it; the NCM cannot see that it did, because `resources.ts:106` drops
+  // DHCP-learned addresses as state. So the fact is unknowable from the model
+  // and has to be MEASURED, from the rescuer, at the moment the net is strung.
   const adapter = PEER_RECOVERY_ADAPTERS[target.family];
-  const peer = target.siteId
+
+  // ── THE PEER MUST BE THE MANAGEMENT UPSTREAM, NOT MERELY A NEIGHBOUR ──────
+  //
+  // This used to take "any co-located MikroTik", ordered by id. On the pairing
+  // this fleet actually has — a MikroTik behind a bridged Zyxel — that is the
+  // right box by luck, not by reasoning, and on a site with two MikroTiks it
+  // would pick whichever was created first.
+  //
+  // A rescuer only works if it is on OUR side of the break: it must survive the
+  // cut and still reach the casualty locally. That is exactly what
+  // `upstream_device_id` records (migration 030), and it is deliberately the
+  // MANAGEMENT ordering, which on a bridged modem is the opposite of the
+  // cabling. When it is null nobody has declared the topology, so nothing may
+  // be inferred: the query falls back to the co-located search and the arming
+  // probe still has to prove reachability before any net is claimed.
+  const upstreamId = target.upstreamDeviceId;
+  const peer = upstreamId
     ? await db('devices')
-        .where({ site_id: target.siteId, is_managed: true })
+        .where({ id: upstreamId, is_managed: true })
         .whereIn('family', ['mikrotik_routeros6', 'mikrotik_routeros7'])
-        .whereNot('id', deviceId)
         .whereNot('status', 'disabled')
-        .orderBy('id')
         .first<any>('id', 'name')
-    : null;
+    : target.siteId
+      ? await db('devices')
+          .where({ site_id: target.siteId, is_managed: true })
+          .whereIn('family', ['mikrotik_routeros6', 'mikrotik_routeros7'])
+          .whereNot('id', deviceId)
+          .whereNot('status', 'disabled')
+          .orderBy('id')
+          .first<any>('id', 'name')
+      : null;
+  if (upstreamId && peer) checks.push(`peer is the declared management upstream (#${peer.id})`);
+  else if (!upstreamId) checks.push('no upstream declared: fell back to a co-located MikroTik');
 
   if (peer) checks.push(`co-located MikroTik candidate: #${peer.id} ${peer.name}`);
   else checks.push(target.siteId ? 'no co-located MikroTik on this site' : 'device has no site');
@@ -324,8 +519,50 @@ export async function resolveSafetyNet(
           isWrite: false,
           skipAudit: true,
         });
-        peerSession.close();
         checks.push('peer answered and can hold a scheduler');
+
+        // THE SECOND HALF. A rescuer that cannot reach the casualty is not a
+        // rescuer. Read-only, from the peer, to the target's management
+        // address — and a failure DOWNGRADES rather than warns, because the
+        // whole defect this guards against is a net that is announced and
+        // absent.
+        const reachable = await peerCanReachTarget(peerSession, target, checks);
+
+        // The PoE marker: the peer must actually POWER the casualty, or the
+        // recovery script has nothing to cycle. Asked HERE, on the peer, at
+        // arming time — the only moment where the answer is worth anything —
+        // and a missing marker DOWNGRADES rather than warns. A net announced
+        // and absent is the whole defect this file has been fighting.
+        const powered = await peerPowersTarget(peerSession, target, checks);
+        peerSession.close();
+        if (!powered) {
+          return {
+            level: 'degraded',
+            peerDeviceId: peer.id,
+            peerDeviceName: peer.name,
+            survivesServerLoss: false,
+            requiresConfirmation: true,
+            reason:
+              `DEGRADED: MikroTik #${peer.id} is the management upstream and answers, but no ` +
+              `ethernet port on it carries the comment "${poeMarkerFor(target.uuid)}". The ` +
+              'recovery is a power cycle; without a declared port there is nothing to cycle.',
+            checks,
+          };
+        }
+        if (!reachable) {
+          return {
+            level: 'degraded',
+            peerDeviceId: peer.id,
+            peerDeviceName: peer.name,
+            survivesServerLoss: false,
+            requiresConfirmation: true,
+            reason:
+              `DEGRADED: MikroTik #${peer.id} is co-located and could hold a scheduler, but it ` +
+              'cannot reach this device on its management address. It would detect the loss and ' +
+              'be unable to repair it — that is not a net.',
+            checks,
+          };
+        }
         return {
           level: 'armed_by_peer',
           peerDeviceId: peer.id,
@@ -348,6 +585,32 @@ export async function resolveSafetyNet(
     );
   }
 
+  // Before promising a van: does this box have a way home of its own? Same
+  // reading as `resolveSafetyNet` in apply.service.ts, and it MUST agree with
+  // it — the rule of §8.3 is that the level the operator lives with is the one
+  // reported here, and a job stops when this one is worse. Two functions
+  // disagreeing about LTE would halt every DrayTek write with no explanation.
+  const uplink = await findSecondUplink(target.id);
+  if (uplink) {
+    checks.push(`second uplink present: "${uplink}" (type lte, enabled)`);
+    return {
+      level: 'armed_by_second_uplink',
+      peerDeviceId: null,
+      peerDeviceName: null,
+      // NOT a dead-man: nothing repairs the device. It comes BACK, which is a
+      // different promise, and it only holds if the change did not deny
+      // management on every interface.
+      survivesServerLoss: false,
+      requiresConfirmation: false,
+      reason:
+        `ARMED_BY_SECOND_UPLINK: "${uplink}" is a live uplink on another medium. A mistake on ` +
+        'the wired path is expected to be repairable remotely once the box fails over. This is ' +
+        'not a dead-man and it does not survive a change that denies management everywhere.',
+      checks,
+    };
+  }
+  checks.push('no second uplink in the latest NCM');
+
   return {
     level: 'degraded',
     peerDeviceId: null,
@@ -355,9 +618,10 @@ export async function resolveSafetyNet(
     survivesServerLoss: false,
     requiresConfirmation: true,
     reason:
-      `DEGRADED: '${target.family}' has no native dead-man and no peer can carry one for it. ` +
-      'Detection without recovery — we will know the CPE stopped answering and we will not be ' +
-      'able to fix it remotely. §8.3 demands an explicit recorded confirmation before any write.',
+      `DEGRADED: '${target.family}' has no native dead-man, no peer can carry one for it, and ` +
+      'it has no second uplink. Detection without recovery — we will know the CPE stopped ' +
+      'answering and we will not be able to fix it remotely. §8.3 demands an explicit recorded ' +
+      'confirmation before any write.',
     checks,
   };
 }
@@ -1432,6 +1696,71 @@ export async function checkPppSession(deviceId: number): Promise<string> {
 // The other three brands (A2) — the write path exists, the net does not
 // ============================================================================
 
+/**
+ * ONE PLACE WHERE THE PER-BRAND CLI STRINGS LIVE.
+ *
+ * ┌─ WHY THIS IS A TABLE AND NOT A PARAMETER EACH CALLER FILLS IN ───────────┐
+ * │ `applyOverSsh` decides a command SUCCEEDED by failing to match           │
+ * │ `errorPattern` in the device's own echo. None of these boxes sets a       │
+ * │ usable exit code on a config line, so that regex is the entire failure    │
+ * │ detector for the write path of three brands.                             │
+ * │                                                                          │
+ * │ A pattern that is too narrow does not throw and does not log: the device  │
+ * │ prints "% Unknown command", nothing matches, and the line is counted as   │
+ * │ APPLIED. The job goes green, `applied` equals the batch size, §8.3 sees   │
+ * │ no reason to roll anything back, and a firewall is left half written.     │
+ * │ Letting each call site invent its own regex guarantees that failure       │
+ * │ eventually; one reviewed table makes it a diff on a single object.        │
+ * │                                                                          │
+ * │ PROVENANCE, stated because it decides how much to trust this: every       │
+ * │ string here comes from vendor documentation and published CLI            │
+ * │ transcripts. NONE of it has been read off a real appliance. The harness   │
+ * │ `m6-sshapply.verify.ts` proves the LOOP is correct given a device that    │
+ * │ answers this way; it cannot prove a Vigor answers this way. The first     │
+ * │ session against real hardware should capture a transcript and correct     │
+ * │ this table before anything is pushed in anger.                            │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ */
+export interface SshDialect {
+  /** End-of-answer marker. The loop treats a buffer ending here as "the device
+   *  is ready for the next line". */
+  promptPattern: RegExp;
+  /** Anything matching this in the echo means the line was REFUSED. Kept
+   *  deliberately broad: a false refusal costs one aborted job, a missed
+   *  refusal costs a half-configured router. */
+  errorPattern: RegExp;
+  /** What makes the change durable, if the brand needs an explicit verb.
+   *  `null` when the CLI commits per line. */
+  commitVerb: string | null;
+  /** Free note for whoever validates this against hardware. */
+  note: string;
+}
+
+/** The historical matcher, kept as the default so every existing call keeps
+ *  the behaviour it was written against. */
+export const DEFAULT_PROMPT_PATTERN = /[>#$]\s*$/;
+
+export const SSH_DIALECTS: Readonly<Record<string, SshDialect>> = {
+  draytek_vigor: {
+    promptPattern: /(^|\r?\n)[^\r\n]*>\s*$/,
+    errorPattern: /%\s|invalid input|unknown command|syntax error|command failed|not supported/i,
+    commitVerb: null,
+    note: 'Vigor CLI applies per line; `sys commit` exists on some trains but is not universal.',
+  },
+  zyxel_standalone: {
+    promptPattern: /(^|\r?\n)[^\r\n]*[>#]\s*$/,
+    errorPattern: /error|invalid|unknown command|incomplete command|permission denied/i,
+    commitVerb: 'write',
+    note: 'ZLD CLI needs an explicit `write` to survive a reboot — without it the change is lost silently on the next power cut, which looks exactly like drift.',
+  },
+  sonicwall_sonicos: {
+    promptPattern: /(^|\r?\n)[^\r\n]*[>#]\s*$/,
+    errorPattern: /%\s|error|invalid|failed|not (allowed|supported)/i,
+    commitVerb: 'commit',
+    note: 'SonicOS CLI is transactional: without `commit` the pending config is discarded when the session ends. A loop that reports success without it reports a change that never existed.',
+  },
+};
+
 export interface SshApplyOptions {
   host: string;
   port?: number;
@@ -1446,6 +1775,10 @@ export interface SshApplyOptions {
   /** Regex that identifies an error in the device's own echo. Brand-specific:
    *  none of these boxes sets a useful exit code on a config line. */
   errorPattern: RegExp;
+  /** End-of-answer marker. Defaults to the historical `/[>#$]s*$/`, which is
+   *  right for every dialect in `SSH_DIALECTS` but not for a device whose
+   *  prompt ends in something else. Pass the dialect's, not a guess. */
+  promptPattern?: RegExp;
   timeoutMs?: number;
   onLine?: (redactedLine: string) => void;
 }
@@ -1489,10 +1822,25 @@ export const CLI_WRITE_PROFILES: Partial<
  * honest arrangement: the write path is real, the net is not, and the level
  * says so.
  *
- * HONESTY NOTE, LOAD-BEARING: never executed. No DrayTek, Zyxel or SonicWall
- * exists on this machine or in this test suite. The prompt strings, the error
- * patterns and the commit verbs above come from documentation. Treat the first
- * real push as the first test, and read §8.3 before scheduling it.
+ * HONESTY NOTE, LOAD-BEARING — REVISED, because the old one is no longer true
+ * and a stale disclaimer is worse than none.
+ *
+ * WHAT IS NOW PROVEN. `m6-sshapply.verify.ts` drives this function through a
+ * real ssh2 server on a real socket with a real interactive channel
+ * (`fakeSshRouter.ts`): a clean batch, a refusal stopping AT its line with the
+ * rest never written, answers fragmented across two TCP writes, a device that
+ * wedges mid-apply, a connection dropped mid-apply, and a secret that reaches
+ * the equipment while never reaching the audit trail. Its first run found a
+ * real defect — the banner prompt was counted as an answer, so `applied` ran
+ * one ahead of the device and the last command was reported without being
+ * sent. §8.3 sizes a rollback from that number, so over-reporting restored too
+ * little. Fixed above; the harness holds the fix.
+ *
+ * WHAT IS STILL NOT PROVEN, and it is a different claim entirely: that a Vigor,
+ * a Zyxel or a SonicWall behaves like that fake. The prompt strings, the error
+ * patterns and the commit verbs still come from documentation. The harness
+ * proves this FUNCTION is correct given a device that answers as described; it
+ * cannot prove the description. Read §8.3 before the first real push.
  */
 export async function applyOverSsh(
   options: SshApplyOptions,
@@ -1523,6 +1871,26 @@ export async function applyOverSsh(
           }
           let buffer = '';
           let index = 0;
+          // ┌─ THE BANNER IS NOT AN ANSWER ────────────────────────────────┐
+          // │ Every CLI prints a greeting and a first prompt before it      │
+          // │ accepts anything. Sending command 0 immediately and then      │
+          // │ treating the FIRST prompt as its answer credits each command  │
+          // │ with the previous one's prompt: `applied` runs one ahead of   │
+          // │ reality, and the loop finishes believing it sent a line it    │
+          // │ never wrote. Found by `m6-sshapply.verify.ts` on the first    │
+          // │ run this function ever had — three lines queued, two reached  │
+          // │ the device, three reported applied.                           │
+          // │                                                              │
+          // │ That number is not cosmetic: §8.3 decides how much to roll    │
+          // │ back from it, so over-reporting restores TOO LITTLE and       │
+          // │ leaves a router half-configured with a green job.             │
+          // │                                                              │
+          // │ So the first prompt is CONSUMED, and only then does the first │
+          // │ command go out. A device that greets with silence hangs until │
+          // │ the timeout — the honest failure, and one this loop already   │
+          // │ reports with the partial count.                               │
+          // └──────────────────────────────────────────────────────────────┘
+          let primed = false;
           const sendNext = () => {
             if (index >= options.commands.length) {
               clearTimeout(timer);
@@ -1532,7 +1900,12 @@ export async function applyOverSsh(
           };
           stream.on('data', (chunk: Buffer) => {
             buffer += chunk.toString('utf8');
-            if (!/[>#$]\s*$/.test(buffer)) return;
+            if (!(options.promptPattern ?? DEFAULT_PROMPT_PATTERN).test(buffer)) return;
+            if (!primed) {
+              primed = true;
+              buffer = '';
+              return sendNext();
+            }
             if (options.errorPattern.test(buffer)) {
               clearTimeout(timer);
               failedAt = index;
@@ -1550,7 +1923,8 @@ export async function applyOverSsh(
             clearTimeout(timer);
             finish();
           });
-          sendNext();
+          // NOT sendNext(): the first command goes out when the banner prompt
+          // has been consumed. See the box above.
         });
       })
       .on('error', (err: Error) => {

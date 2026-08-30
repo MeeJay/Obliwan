@@ -267,6 +267,11 @@ export interface PostWaveSignals {
   /** The device's own change job, folded in so "this wave is unhealthy" has
    *  one answer rather than two that can disagree. */
   jobStatus: string | null;
+  /**
+   * Did a BRAND-NEW authenticated session succeed after the change?
+   * `null` = the step never ran or was skipped, which is not evidence either way.
+   */
+  reconnectOk?: boolean | null;
 }
 
 export async function readPostWaveSignals(
@@ -326,15 +331,30 @@ export async function readPostWaveSignals(
   }
 
   let jobStatus: string | null = null;
+  let reconnectOk: boolean | null = null;
   if (jobId !== null) {
     const job = (await q('change_jobs')
       .where({ id: jobId, tenant_id: tenantId })
       .first('status')) as { status: string } | undefined;
     jobStatus = job?.status ?? null;
+
+    // The `reconnect` step is the ONLY place in the whole product that proves a
+    // login still works after a change: `safeApply` opens six brand-new sockets
+    // and re-asserts identity on them. It already runs; nothing read its
+    // verdict. Latest attempt wins — an earlier attempt that failed and was
+    // retried successfully is not a lockout.
+    const step = (await q('change_job_steps')
+      .where({ job_id: jobId, kind: 'reconnect' })
+      .whereIn('status', ['succeeded', 'failed'])
+      .orderBy('attempt', 'desc')
+      .orderBy('seq', 'desc')
+      .first('status')) as { status: string } | undefined;
+    reconnectOk = step ? step.status === 'succeeded' : null;
   }
 
   return {
     deviceId,
+    reconnectOk,
     pppUp,
     uptimeTicks,
     rttUs:
@@ -400,6 +420,22 @@ export function judgeDevice(
         'JOB_NOT_SUCCEEDED',
         `The change job for this device ended in '${post.jobStatus}', not 'succeeded'. ` +
           "A 'rolled_back' here means the on-box dead-man already did its work.",
+      ),
+    );
+  }
+
+  // ── 0b. Can we still LOG IN? ──────────────────────────────────────────────
+  // Every other signal below is L3 presence. A router that lost its last usable
+  // account forwards perfectly: `pppUp` true, `sysUpTime` climbing, RTT normal,
+  // every `ifOperStatus` up. The gate would pass the wave and move to the next
+  // one, and on a brand with no on-device dead-man that is one truck per device
+  // in the wave. This is the only signal here that tests ACCESS.
+  if (post.reconnectOk === false) {
+    reasons.push(
+      reason(
+        'MGMT_SESSION_LOST',
+        'A brand-new authenticated session to this device failed after the change, on a box we ' +
+          'could open one to before it. The packets still arrive; nobody can log in to use them.',
       ),
     );
   }

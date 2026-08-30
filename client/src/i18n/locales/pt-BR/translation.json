@@ -649,7 +649,10 @@
     "saving": "Salvando…",
     "search": "Pesquisar",
     "type": "Tipo",
-    "yes": "Sim"
+    "yes": "Sim",
+    "searchGroups": "Pesquisar grupos...",
+    "dismiss": "Dispensar",
+    "selectGroup": "Selecionar um grupo"
   },
   "config": {
     "compareAgainst": "Comparar com",
@@ -1254,7 +1257,10 @@
     "reordered": "Grupos reordenados",
     "save": "Salvar",
     "saveOrder": "Salvar ordem",
-    "updated": "Grupo atualizado"
+    "updated": "Grupo atualizado",
+    "dragReparent": "Arraste para alterar o grupo pai",
+    "addSubGroup": "Adicionar subgrupo",
+    "notFoundOrDenied": "Grupo não encontrado ou acesso negado"
   },
   "header": {
     "socketConnected": "Ao vivo — conectado ao servidor",
@@ -1708,7 +1714,10 @@
     "testSent": "Notificação de teste enviada!",
     "title": "Notificações",
     "updated": "Canal atualizado",
-    "workspaces": "Espaços de Trabalho"
+    "workspaces": "Espaços de Trabalho",
+    "center": "Central de notificações",
+    "markAllRead": "Marcar tudo como lido",
+    "clearLocal": "Limpar notificações locais"
   },
   "plan": {
     "absent": "Não existe deste lado",
@@ -2315,7 +2324,8 @@
       "updated": "Servidor SMTP atualizado",
       "usernameLabel": "Nome de usuário"
     },
-    "title": "Configurações Globais"
+    "title": "Configurações Globais",
+    "systemInfoError": "Não foi possível carregar as informações do sistema."
   },
   "sites": {
     "backToSites": "Voltar aos sites",
@@ -2558,6 +2568,19 @@
       "updated": "Time atualizado"
     },
     "updated": "Usuário atualizado",
-    "usernameLabel": "Nome de usuário"
+    "usernameLabel": "Nome de usuário",
+    "passwordTitle": "Senha",
+    "manageTenantAccess": "Gerenciar acesso aos inquilinos",
+    "toggleRoRw": "Clique para alternar RO/RW",
+    "readOnly": "Somente leitura",
+    "readWrite": "Leitura/gravação",
+    "noTenants": "Nenhum inquilino disponível"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Nome do conjunto (ex.: Suporte N1)",
+    "defaultSet": "Conjunto padrão"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Deixe em branco para usar apenas SSO"
   }
 }

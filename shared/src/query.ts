@@ -35,7 +35,7 @@ import {
 import { DIFF_SEVERITIES } from './ncm/diff';
 import {
   NCM_RESOURCE_KINDS, RESOURCE_KIND_TO_COLLECTION,
-  NcmInterface, NcmVlan, NcmRoute, NcmFirewallRule, NcmNatRule,
+  NcmInterface, NcmVlan, NcmRoute, NcmFirewallRule, NcmNatRule, NcmDhcpClient,
   NcmDhcpScope, NcmIpsecPeer, NcmLocalUser, NcmService, NcmQosRule,
 } from './ncm/resources';
 import type { NcmResourceKind } from './ncm/resources';
@@ -334,6 +334,7 @@ function walkObject(
 
 const RESOURCE_SCHEMAS: Readonly<Record<NcmResourceKind, z.ZodObject<z.ZodRawShape>>> = {
   interface: NcmInterface as unknown as z.ZodObject<z.ZodRawShape>,
+  dhcpClient: NcmDhcpClient as unknown as z.ZodObject<z.ZodRawShape>,
   vlan: NcmVlan as unknown as z.ZodObject<z.ZodRawShape>,
   route: NcmRoute as unknown as z.ZodObject<z.ZodRawShape>,
   firewallRule: NcmFirewallRule as unknown as z.ZodObject<z.ZodRawShape>,

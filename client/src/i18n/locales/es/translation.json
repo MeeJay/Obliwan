@@ -649,7 +649,10 @@
     "saving": "Guardando…",
     "search": "Buscar",
     "type": "Tipo",
-    "yes": "Sí"
+    "yes": "Sí",
+    "searchGroups": "Buscar grupos...",
+    "dismiss": "Descartar",
+    "selectGroup": "Seleccionar un grupo"
   },
   "config": {
     "compareAgainst": "Compare with",
@@ -1254,7 +1257,10 @@
     "reordered": "Grupos reordenados",
     "save": "Guardar",
     "saveOrder": "Guardar orden",
-    "updated": "Grupo actualizado"
+    "updated": "Grupo actualizado",
+    "dragReparent": "Arrastrar para cambiar el grupo padre",
+    "addSubGroup": "Anadir subgrupo",
+    "notFoundOrDenied": "Grupo no encontrado o acceso denegado"
   },
   "header": {
     "socketConnected": "En vivo — conectado al servidor",
@@ -1708,7 +1714,10 @@
     "testSent": "¡Notificación de prueba enviada!",
     "title": "Notificaciones",
     "updated": "Canal actualizado",
-    "workspaces": "Espacios de trabajo"
+    "workspaces": "Espacios de trabajo",
+    "center": "Centro de notificaciones",
+    "markAllRead": "Marcar todo como leído",
+    "clearLocal": "Borrar notificaciones locales"
   },
   "plan": {
     "absent": "No existe en este lado",
@@ -2315,7 +2324,8 @@
       "updated": "Servidor SMTP actualizado",
       "usernameLabel": "Usuario"
     },
-    "title": "Configuración global"
+    "title": "Configuración global",
+    "systemInfoError": "No se pudo cargar la información del sistema."
   },
   "sites": {
     "backToSites": "Volver a los sitios",
@@ -2558,6 +2568,19 @@
       "updated": "Equipo actualizado"
     },
     "updated": "Usuario actualizado",
-    "usernameLabel": "Usuario"
+    "usernameLabel": "Usuario",
+    "passwordTitle": "Contraseña",
+    "manageTenantAccess": "Gestionar el acceso a inquilinos",
+    "toggleRoRw": "Haga clic para alternar RO/RW",
+    "readOnly": "Solo lectura",
+    "readWrite": "Lectura/escritura",
+    "noTenants": "No hay inquilinos disponibles"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Nombre del conjunto (p. ej. Soporte N1)",
+    "defaultSet": "Conjunto predeterminado"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Dejar vacío para usar solo SSO"
   }
 }

@@ -563,7 +563,7 @@ function DraggableGroupRow({
       <button
         onClick={() => openCreate(node.id)}
         className="p-1 text-text-muted hover:text-accent opacity-0 group-hover:opacity-100"
-        title="Add sub-group"
+        title={t('groups.addSubGroup')}
       >
         <Plus size={14} />
       </button>

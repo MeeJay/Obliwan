@@ -41,6 +41,31 @@ import {
 import { db } from '../../db';
 import { logger } from '../../utils/logger';
 import { decrypt } from '../secretVault.service';
+import { getDriver } from '../drivers/registry';
+import type { DriverContext, ResolvedTransport } from '../drivers/types';
+import type { TransportKind } from '@obliwan/shared';
+
+/**
+ * Which transport carries the IDENTITY assertion, per brand (M6).
+ *
+ * Deliberately NOT the arbiter's choice. The arbiter optimises for a working
+ * channel; this one answers a different question — "which channel can tell me
+ * what box this is on a socket nobody has used yet" — and it must be stable,
+ * because an assertion that silently changes transport is an assertion whose
+ * failures nobody can compare across time.
+ *
+ * SonicOS rides `rest`, and its freshness is structural rather than a promise:
+ * `withSonicOsSession` logs in, works, and logs out in a `finally` on EVERY
+ * unit of work, because the appliance allows very few concurrent admin
+ * sessions and leaks them on timeout. There is no pooled session to reuse
+ * here even by accident — which is exactly the property D5 asks for.
+ */
+const BINDING_TRANSPORT: Partial<Record<string, TransportKind>> = {
+  mikrotik: 'routeros_api',
+  draytek: 'ssh',
+  zyxel: 'ssh',
+  sonicwall: 'rest',
+};
 
 // ============================================================================
 // Result shapes
@@ -211,12 +236,70 @@ interface TargetRow {
   use_tls: boolean | null;
   tls_fingerprint_sha256: string | null;
   enabled: boolean | null;
+  params: Record<string, unknown> | null;
 }
 
-async function loadTarget(deviceId: number): Promise<TargetRow> {
+/**
+ * Read the identity over the family's own driver, on a session that did not
+ * exist a moment ago.
+ *
+ * WHY THE DRIVER AND NOT A COMMAND TYPED HERE: the driver already knows that a
+ * Vigor answers `sys ver` on every train and puts the serial in `sys info` on
+ * some of them, and that a failure of the second must not invalidate the
+ * first. Re-typing those commands in this file would create two versions of
+ * "what this box says its serial is" — and the day they disagree, the one that
+ * guards the write path is the one nobody tested. One reader, one truth.
+ *
+ * The freshness D5 demands is satisfied by construction: the SSH inventory
+ * paths open their own `withSsh()` session and close it on the way out. No
+ * pool, no reuse, no arbiter — the arbiter picks a channel that WORKS, which
+ * is not the same question as "prove to me what you are".
+ */
+async function readIdentityViaDriver(
+  target: TargetRow,
+  transport: TransportKind,
+  timeoutMs: number,
+): Promise<ObservedIdentity> {
+  const resolved: ResolvedTransport = {
+    transport,
+    enabled: true,
+    priority: 0,
+    host: target.host ?? target.tunnel_ip,
+    port: target.port,
+    useTls: target.use_tls === true,
+    tlsFingerprintSha256: target.tls_fingerprint_sha256,
+    params: target.params ?? {},
+    credentials: {
+      username: target.username,
+      // §8.2: decrypted here, held for the length of one call, never persisted
+      // and never logged — `secretsOf()` is what redacts it downstream.
+      password: target.secret_enc ? decrypt(target.secret_enc) : null,
+    },
+  };
+
+  const ctx: DriverContext = {
+    deviceId: target.id,
+    tenantId: target.tenant_id,
+    family: target.family as DeviceFamily,
+    transports: [resolved],
+    timeoutMs,
+  };
+
+  const inventory = await getDriver(target.family).getInventory(ctx);
+  return {
+    systemIdentity: inventory.systemIdentity ?? null,
+    serial: inventory.serial ?? null,
+    // No PPP username is readable from the box itself on these families: the
+    // CHR is the only thing that knows it (D4). Left null so `compareIdentity`
+    // scores it `unrecorded` instead of inventing a mismatch.
+    pppUsername: null,
+  };
+}
+
+async function loadTarget(deviceId: number, transport: TransportKind): Promise<TargetRow> {
   const row = await db('devices as d')
-    .leftJoin('device_transports as t', function joinRouterOs(this: any) {
-      this.on('t.device_id', '=', 'd.id').andOn('t.transport', '=', db.raw('?', ['routeros_api']));
+    .leftJoin('device_transports as t', function joinBindingTransport(this: any) {
+      this.on('t.device_id', '=', 'd.id').andOn('t.transport', '=', db.raw('?', [transport]));
     })
     .where('d.id', deviceId)
     .first<TargetRow | undefined>(
@@ -236,6 +319,7 @@ async function loadTarget(deviceId: number): Promise<TargetRow> {
       't.use_tls',
       't.tls_fingerprint_sha256',
       't.enabled',
+      't.params',
     );
   if (!row) throw new Error(`Device ${deviceId} does not exist`);
   return row;
@@ -264,7 +348,18 @@ export async function assertTargetBinding(
   const quarantineOnMismatch = options.quarantineOnMismatch ?? true;
   const throwOnFailure = options.throwOnFailure ?? true;
   const at = new Date().toISOString();
-  const target = await loadTarget(deviceId);
+
+  // The family decides which channel proves identity, so it has to be read
+  // before the transport row can be joined. One extra round trip, once per
+  // assertion, on the path that guards every write there will ever be.
+  const familyRow = await db('devices')
+    .where({ id: deviceId })
+    .first<{ family: string | null } | undefined>('family');
+  if (!familyRow) throw new Error(`Device ${deviceId} does not exist`);
+  const bindingBrand = FAMILY_BRAND[familyRow.family as DeviceFamily];
+  const bindingTransport = BINDING_TRANSPORT[bindingBrand ?? ''];
+
+  const target = await loadTarget(deviceId, bindingTransport ?? 'routeros_api');
 
   const fail = async (reason: string, checks: AttributeCheck[] = [], dialled = '-'): Promise<BindingAssertion> => {
     const assertion: BindingAssertion = {
@@ -294,44 +389,71 @@ export async function assertTargetBinding(
     return fail("device status is 'disabled'; no transport may be opened");
   }
 
-  const brand = FAMILY_BRAND[target.family as DeviceFamily];
-  if (brand !== 'mikrotik') {
-    // Honest refusal rather than a silent pass. DrayTek / Zyxel / SonicWall
-    // identity probes ride SSH and REST, and those write paths arrive at M6:
-    // returning `ok: true` here would hand M6 an unlocked door.
+  const brand = bindingBrand;
+  if (!bindingTransport) {
+    // Honest refusal rather than a silent pass. SonicOS identity rides a REST
+    // call whose fresh-session semantics are not built: returning `ok: true`
+    // here would hand the write path an unlocked door.
     return fail(
-      `no fresh-connection identity path for family '${target.family}' yet (milestone M6) — ` +
+      `no fresh-connection identity path for family '${target.family}' yet — ` +
         'refusing rather than assuming',
     );
   }
 
-  if (!target.enabled) return fail('routeros_api transport is absent or disabled');
+  if (!target.enabled) return fail(`${bindingTransport} transport is absent or disabled`);
   const host = target.host ?? target.tunnel_ip;
   if (!host) return fail('no address to dial');
   if (!target.username || !target.secret_enc) return fail('no credential in the vault');
 
-  let conn: RouterOsConnection | null = null;
+  const connectTimeoutMs = options.connectTimeoutMs ?? 10_000;
   let observed: ObservedIdentity;
-  try {
-    conn = await createRouterOsConnection({
+
+  if (brand === 'mikrotik') {
+    let conn: RouterOsConnection | null = null;
+    try {
+      conn = await createRouterOsConnection({
+        host,
+        port: target.port ?? undefined,
+        tls: target.use_tls === true,
+        username: target.username,
+        password: decrypt(target.secret_enc),
+        expectedFingerprint: target.tls_fingerprint_sha256,
+        connectTimeoutMs,
+        label: `assert:${target.name}`,
+      });
+      observed = await readRouterOsIdentity(conn);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return fail(`fresh connection to ${host} failed: ${message}`, [], host);
+    } finally {
+      // The socket exists for this assertion and dies with it. It is deliberately
+      // NOT handed to the pool: a connection opened to prove identity must not
+      // become the connection used to act on it minutes later.
+      conn?.close();
+    }
+  } else {
+    // DrayTek and Zyxel (M6). The driver owns the commands and owns the
+    // session; this file owns only the comparison. Any throw is a refusal —
+    // an identity we could not read is never an identity that matched.
+    try {
+      observed = await readIdentityViaDriver(target, bindingTransport, connectTimeoutMs);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return fail(`fresh ${bindingTransport} session to ${host} failed: ${message}`, [], host);
+    }
+  }
+
+  // An identity read that returned NOTHING is not a match, and must not fall
+  // through to `compareIdentity` where a device with a blank `serial` and a
+  // blank `system_identity` would score zero mismatches and pass. §D5 asks for
+  // a positive proof; silence is not one.
+  if (!observed.systemIdentity && !observed.serial && !observed.pppUsername) {
+    return fail(
+      `${bindingTransport} answered but reported no identity attribute at all — ` +
+        'refusing rather than treating silence as agreement',
+      [],
       host,
-      port: target.port ?? undefined,
-      tls: target.use_tls === true,
-      username: target.username,
-      password: decrypt(target.secret_enc),
-      expectedFingerprint: target.tls_fingerprint_sha256,
-      connectTimeoutMs: options.connectTimeoutMs ?? 10_000,
-      label: `assert:${target.name}`,
-    });
-    observed = await readRouterOsIdentity(conn);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return fail(`fresh connection to ${host} failed: ${message}`, [], host);
-  } finally {
-    // The socket exists for this assertion and dies with it. It is deliberately
-    // NOT handed to the pool: a connection opened to prove identity must not
-    // become the connection used to act on it minutes later.
-    conn?.close();
+    );
   }
 
   const comparison = compareIdentity(

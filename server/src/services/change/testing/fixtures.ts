@@ -217,6 +217,7 @@ export function baseDoc(deviceId: number, identity: string, serial: string): Ncm
       localUsers: [],
       services: [service({ name: 'ssh', port: 22 }), service({ name: 'api', port: 8728 })],
       qosRules: [],
+      dhcpClients: [],
     },
   };
 }

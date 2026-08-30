@@ -227,6 +227,9 @@ export function slotIsForbidden(slot: string): boolean {
  */
 export const BASELINE_SECTION_WEIGHTS: Readonly<Record<NcmResourceKind, number>> = {
   firewallRule: 3,
+  // A DHCP client decides whether this box has a default route and a resolver
+  // at all — forwarding-relevant, but one object, not a chain.
+  dhcpClient: 1.5,
   natRule: 3,
   route: 2.5,
   ipsecPeer: 2,

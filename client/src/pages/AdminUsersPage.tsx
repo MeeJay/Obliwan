@@ -579,7 +579,7 @@ export function AdminUsersPage() {
                       <>
                         {!user.foreignSource && (
                           <button onClick={() => { setEditingUser(user); setFormPassword(''); setUserFormMode('password'); }}
-                            className="shrink-0 p-1 text-text-muted hover:text-accent opacity-0 group-hover:opacity-100" title="Password">
+                            className="shrink-0 p-1 text-text-muted hover:text-accent opacity-0 group-hover:opacity-100" title={t('users.passwordTitle')}>
                             <Key size={13} />
                           </button>
                         )}
@@ -600,7 +600,7 @@ export function AdminUsersPage() {
                     <button
                       onClick={() => openTenantPanel(user)}
                       className="shrink-0 p-1 text-text-muted hover:text-accent opacity-0 group-hover:opacity-100"
-                      title="Manage tenant access"
+                      title={t('users.manageTenantAccess')}
                     >
                       <Building2 size={13} />
                     </button>
@@ -905,7 +905,7 @@ export function AdminUsersPage() {
                   </div>
                 </div>
               ) : tenantAssignments.length === 0 ? (
-                <p className="text-sm text-text-muted text-center py-8">No tenants available</p>
+                <p className="text-sm text-text-muted text-center py-8">{t('users.noTenants')}</p>
               ) : (
                 tenantAssignments.map((assignment) => {
                   const draft = tenantDraft[assignment.tenantId] ?? { isMember: assignment.isMember, role: assignment.role };
@@ -1067,7 +1067,7 @@ function PermTreeNode({
                   ? 'bg-accent/10 text-accent hover:bg-accent/20'
                   : 'bg-bg-tertiary text-text-muted hover:bg-bg-hover'
               }`}
-              title="Click to toggle RO/RW"
+              title={t('users.toggleRoRw')}
             >
               {perm.level === 'rw' ? <><Pencil size={10} className="inline mr-0.5" />{t('users.teams.rwLabel')}</> : <><Eye size={10} className="inline mr-0.5" />{t('users.teams.roLabel')}</>}
             </button>
@@ -1080,11 +1080,11 @@ function PermTreeNode({
         ) : (
           <>
             <button onClick={() => addPermission('group', node.id, 'ro')}
-              className="px-1.5 py-0.5 text-[10px] rounded bg-bg-tertiary text-text-muted hover:bg-bg-hover shrink-0" title="Read Only">
+              className="px-1.5 py-0.5 text-[10px] rounded bg-bg-tertiary text-text-muted hover:bg-bg-hover shrink-0" title={t('users.readOnly')}>
               {t('users.teams.roLabel')}
             </button>
             <button onClick={() => addPermission('group', node.id, 'rw')}
-              className="px-1.5 py-0.5 text-[10px] rounded bg-accent/10 text-accent hover:bg-accent/20 shrink-0" title="Read/Write">
+              className="px-1.5 py-0.5 text-[10px] rounded bg-accent/10 text-accent hover:bg-accent/20 shrink-0" title={t('users.readWrite')}>
               {t('users.teams.rwLabel')}
             </button>
           </>
@@ -1117,7 +1117,7 @@ function PermTreeNode({
                       ? 'bg-accent/10 text-accent hover:bg-accent/20'
                       : 'bg-bg-tertiary text-text-muted hover:bg-bg-hover'
                   }`}
-                  title="Click to toggle RO/RW"
+                  title={t('users.toggleRoRw')}
                 >
                   {devicePerm.level === 'rw'
                     ? <><Pencil size={10} className="inline mr-0.5" />{t('users.teams.rwLabel')}</>
@@ -1137,11 +1137,11 @@ function PermTreeNode({
             ) : (
               <>
                 <button onClick={() => addPermission('device', device.id, 'ro')}
-                  className="px-1.5 py-0.5 text-[10px] rounded bg-bg-tertiary text-text-muted hover:bg-bg-hover shrink-0" title="Read Only">
+                  className="px-1.5 py-0.5 text-[10px] rounded bg-bg-tertiary text-text-muted hover:bg-bg-hover shrink-0" title={t('users.readOnly')}>
                   {t('users.teams.roLabel')}
                 </button>
                 <button onClick={() => addPermission('device', device.id, 'rw')}
-                  className="px-1.5 py-0.5 text-[10px] rounded bg-accent/10 text-accent hover:bg-accent/20 shrink-0" title="Read/Write">
+                  className="px-1.5 py-0.5 text-[10px] rounded bg-accent/10 text-accent hover:bg-accent/20 shrink-0" title={t('users.readWrite')}>
                   {t('users.teams.rwLabel')}
                 </button>
               </>

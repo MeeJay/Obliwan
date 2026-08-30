@@ -30,6 +30,12 @@ const SECTIONS = [
   'settings',
   'notificationChannels',
   'teams',
+  // Fleet (M2). Ordered AFTER `deviceGroups` on purpose: a device points at a
+  // site and at a group, so the import walks the list in this order and every
+  // reference is resolvable by the time it is needed.
+  'sites',
+  'devices',
+  'deviceTransports',
 ] as const;
 
 type ExportSection = (typeof SECTIONS)[number];
@@ -386,6 +392,87 @@ export const importExportController = {
             }))
             .filter((p) => p.scopeUuid !== null),
         }));
+      }
+
+      // -- Fleet: sites, devices, transports (M2) --------------------------
+      //
+      // ┌─ WHAT LEAVES AND WHAT NEVER DOES ────────────────────────────────┐
+      // │ STRUCTURE leaves: a site, a box, the fact that it is reached over │
+      // │ SSH on port 22 as `obliwan-svc`. The SECRET does not — neither    │
+      // │ `secret_enc` nor `private_key_enc` is read here, and they are not │
+      // │ merely redacted: they are never selected. A bundle is a JSON file │
+      // │ that travels by e-mail (§8.2), and a redacted field is one        │
+      // │ refactor away from an un-redacted one.                            │
+      // │                                                                  │
+      // │ An imported device therefore arrives WITHOUT credentials, which  │
+      // │ is why it also arrives `status: 'pending'` and unmanaged: it must │
+      // │ be given a secret and bound by a human before anything dials it   │
+      // │ (D5 / R4). Importing a fleet is not adopting one.                 │
+      // └──────────────────────────────────────────────────────────────────┘
+      const siteUuidById = new Map<number, string>();
+      const deviceUuidById = new Map<number, string>();
+      if (want('sites') || want('devices') || want('deviceTransports')) {
+        for (const s of await db('sites').where({ tenant_id: tenantId }).select('id', 'uuid')) {
+          siteUuidById.set(Number(s.id), String(s.uuid));
+        }
+        for (const d of await db('devices').where({ tenant_id: tenantId }).select('id', 'uuid')) {
+          deviceUuidById.set(Number(d.id), String(d.uuid));
+        }
+      }
+
+      if (want('sites')) {
+        const sites = await db('sites').where({ tenant_id: tenantId }).orderBy('id');
+        entities.sites = sites.map((s) => ({
+          uuid: s.uuid,
+          code: s.code,
+          name: s.name,
+          address: s.address,
+          contact: s.contact,
+          timezone: s.timezone,
+          maintenanceWindow: s.maintenance_window,
+        }));
+      }
+
+      if (want('devices')) {
+        const devices = await db('devices').where({ tenant_id: tenantId }).orderBy('id');
+        entities.devices = devices.map((d) => ({
+          uuid: d.uuid,
+          name: d.name,
+          brand: d.brand,
+          family: d.family,
+          model: d.model,
+          osVersion: d.os_version,
+          role: d.role,
+          notes: d.notes,
+          siteUuid: d.site_id === null ? null : siteUuidById.get(Number(d.site_id)) ?? null,
+          groupUuid: d.group_id === null ? null : groupUuidById.get(Number(d.group_id)) ?? null,
+          concentratorUuid:
+            d.concentrator_id === null ? null : deviceUuidById.get(Number(d.concentrator_id)) ?? null,
+          // Identity (D5) travels: it is what lets the far side recognise the
+          // same box rather than create a second row for it. `serial` and
+          // `system_identity` are observations, not secrets.
+          serial: d.serial,
+          systemIdentity: d.system_identity,
+          pppUsername: d.ppp_username,
+          // `status` and `is_managed` are deliberately NOT exported — see the
+          // box above. The importer forces `pending` / false.
+        }));
+      }
+
+      if (want('deviceTransports')) {
+        const transports = await db('device_transports')
+          .whereIn('device_id', [...deviceUuidById.keys()])
+          .orderBy(['device_id', 'priority']);
+        entities.deviceTransports = transports.map((t) => ({
+          deviceUuid: deviceUuidById.get(Number(t.device_id)) ?? null,
+          transport: t.transport,
+          enabled: t.enabled,
+          priority: t.priority,
+          host: t.host,
+          port: t.port,
+          username: t.username,
+          // secret_enc / private_key_enc: never selected. Not redacted — absent.
+        })).filter((t) => t.deviceUuid !== null);
       }
 
       const payload = {
@@ -874,6 +961,165 @@ export const importExportController = {
             }
           }
           results.teams = { created, updated, skipped };
+        }
+
+        // -- Fleet: sites, devices, transports (M2) -------------------------
+        //
+        // ┌─ AN IMPORTED DEVICE IS NEVER A MANAGED DEVICE ──────────────────┐
+        // │ Every device created here lands `status: 'pending'` and         │
+        // │ `is_managed: false`, whatever the bundle says — the exporter    │
+        // │ does not even emit those two fields. It is the same quarantine  │
+        // │ CHR discovery uses, and for the same reason (D5 / R4): a row    │
+        // │ that arrived in a JSON file is a CLAIM about a box, and a claim │
+        // │ must be confirmed on a fresh connection before anything is      │
+        // │ pushed to it. Nothing dials a device this code created.         │
+        // │                                                                 │
+        // │ No credential crosses either, so an imported device could not   │
+        // │ be dialled even if it were managed. Adopting a fleet is a       │
+        // │ deliberate act performed per device, not a side effect of a     │
+        // │ restore.                                                        │
+        // └─────────────────────────────────────────────────────────────────┘
+        const siteIdByUuid = new Map<string, number>();
+        const deviceIdByUuid = new Map<string, number>();
+        if (want('sites') || want('devices') || want('deviceTransports')) {
+          for (const s of await trx('sites').where({ tenant_id: tenantId }).select('id', 'uuid')) {
+            siteIdByUuid.set(String(s.uuid), Number(s.id));
+          }
+          for (const d of await trx('devices').where({ tenant_id: tenantId }).select('id', 'uuid')) {
+            deviceIdByUuid.set(String(d.uuid), Number(d.id));
+          }
+        }
+
+        if (want('sites')) {
+          let created = 0, updated = 0, skipped = 0;
+          const foreignSiteUuids = await foreignUuids('sites', uuidsOf('sites'));
+
+          for (const s of listOf('sites')) {
+            if (!s.name || !s.code) { skipped++; continue; }
+            const decision = resolveConflict(s.uuid, siteIdByUuid, foreignSiteUuids);
+            if (decision.action === 'skip') { skipped++; continue; }
+
+            const fields = {
+              code: s.code as string,
+              name: s.name as string,
+              address: (s.address as string | null) ?? null,
+              contact: (s.contact as string | null) ?? null,
+              timezone: (s.timezone as string) ?? 'Europe/Paris',
+              maintenance_window: (s.maintenanceWindow as unknown) ?? null,
+            };
+
+            if (decision.action === 'update') {
+              await trx('sites')
+                .where({ uuid: decision.uuid, tenant_id: tenantId })
+                .update({ ...fields, updated_at: new Date() });
+              siteIdByUuid.set(decision.uuid, decision.existingId);
+              updated++;
+            } else {
+              const [row] = await trx('sites')
+                .insert({ uuid: decision.uuid, tenant_id: tenantId, ...fields })
+                .returning('id');
+              siteIdByUuid.set(decision.uuid, Number(row.id));
+              if (typeof s.uuid === 'string') siteIdByUuid.set(s.uuid, Number(row.id));
+              created++;
+            }
+          }
+          results.sites = { created, updated, skipped };
+        }
+
+        if (want('devices')) {
+          let created = 0, updated = 0, skipped = 0;
+          const foreignDeviceUuids = await foreignUuids('devices', uuidsOf('devices'));
+
+          // Concentrators first: a CPE points at one, and a forward reference
+          // would otherwise resolve to null and silently orphan the site (D4).
+          const ordered = [...listOf('devices')].sort(
+            (a, b) => (a.role === 'concentrator' ? 0 : 1) - (b.role === 'concentrator' ? 0 : 1),
+          );
+
+          for (const d of ordered) {
+            if (!d.name || !d.brand || !d.family) { skipped++; continue; }
+            const decision = resolveConflict(d.uuid, deviceIdByUuid, foreignDeviceUuids);
+            if (decision.action === 'skip') { skipped++; continue; }
+
+            const siteUuid = d.siteUuid as string | null | undefined;
+            const concUuid = d.concentratorUuid as string | null | undefined;
+            const fields = {
+              name: d.name as string,
+              brand: d.brand as string,
+              family: d.family as string,
+              model: (d.model as string | null) ?? null,
+              os_version: (d.osVersion as string | null) ?? null,
+              role: (d.role as string) ?? 'cpe',
+              notes: (d.notes as string | null) ?? null,
+              site_id: siteUuid ? siteIdByUuid.get(siteUuid) ?? null : null,
+              group_id: resolveGroup(d.groupUuid as string | null | undefined),
+              concentrator_id: concUuid ? deviceIdByUuid.get(concUuid) ?? null : null,
+              serial: (d.serial as string | null) ?? null,
+              system_identity: (d.systemIdentity as string | null) ?? null,
+              ppp_username: (d.pppUsername as string | null) ?? null,
+            };
+
+            if (decision.action === 'update') {
+              // `status` and `is_managed` are NOT touched on update: a device
+              // already adopted on this instance must not be sent back to
+              // quarantine by a restore, and one still pending must not be
+              // promoted by one.
+              await trx('devices')
+                .where({ uuid: decision.uuid, tenant_id: tenantId })
+                .update({ ...fields, updated_at: new Date() });
+              deviceIdByUuid.set(decision.uuid, decision.existingId);
+              updated++;
+            } else {
+              const [row] = await trx('devices')
+                .insert({
+                  uuid: decision.uuid,
+                  tenant_id: tenantId,
+                  ...fields,
+                  status: 'pending',
+                  is_managed: false,
+                })
+                .returning('id');
+              deviceIdByUuid.set(decision.uuid, Number(row.id));
+              if (typeof d.uuid === 'string') deviceIdByUuid.set(d.uuid, Number(row.id));
+              created++;
+            }
+          }
+          results.devices = { created, updated, skipped };
+        }
+
+        if (want('deviceTransports')) {
+          let created = 0, updated = 0, skipped = 0;
+
+          for (const t of listOf('deviceTransports')) {
+            const deviceUuid = t.deviceUuid as string | null | undefined;
+            const deviceId = deviceUuid ? deviceIdByUuid.get(deviceUuid) : undefined;
+            // A transport with no device is not an error worth aborting a whole
+            // bundle for — it is a line the operator trimmed. Counted, skipped.
+            if (deviceId === undefined || !t.transport) { skipped++; continue; }
+
+            const key = { device_id: deviceId, transport: t.transport as string };
+            const fields = {
+              enabled: (t.enabled as boolean) ?? true,
+              priority: (t.priority as number) ?? 100,
+              host: (t.host as string | null) ?? null,
+              port: (t.port as number | null) ?? null,
+              username: (t.username as string | null) ?? null,
+              // secret_enc / private_key_enc are never written here. A restored
+              // transport is a route with no key, and that is the point.
+            };
+
+            const existing = await trx('device_transports').where(key).first('id');
+            if (existing) {
+              await trx('device_transports')
+                .where({ id: existing.id })
+                .update({ ...fields, updated_at: new Date() });
+              updated++;
+            } else {
+              await trx('device_transports').insert({ ...key, ...fields });
+              created++;
+            }
+          }
+          results.deviceTransports = { created, updated, skipped };
         }
       }); // end transaction
 

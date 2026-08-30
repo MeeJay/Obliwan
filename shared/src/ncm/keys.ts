@@ -31,6 +31,7 @@ import type {
  *  it is present from day one precisely so that a bump is survivable (§8.4). */
 export const SEM_KEY_PREFIX: Readonly<Record<NcmResourceKind, string>> = {
   interface: 'if',
+  dhcpClient: 'dhcpc',
   vlan: 'vlan',
   route: 'route',
   firewallRule: 'fw',
@@ -177,6 +178,13 @@ export function computePayloadHash(resource: Record<string, unknown>): string {
 // ============================================================================
 
 /** `if.v1:ether1` */
+/** `dhcpc.v1:ether1` — one client per interface, which is what RouterOS
+ *  enforces too. The interface name is the natural key; there is no id to
+ *  invent and no ordinal to fall back on. */
+export function dhcpClientKey(interfaceName: string): string {
+  return capKey(`${gen('dhcpClient')}:${interfaceName}`);
+}
+
 export function interfaceKey(name: string): string {
   return capKey(`${gen('if')}:${name}`);
 }

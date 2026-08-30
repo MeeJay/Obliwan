@@ -91,6 +91,7 @@ function usePersisted<T>(key: string, initial: T): [T, (v: T | ((prev: T) => T))
 // (spec §4.1) sits below, in <FleetTree />.
 
 function GroupSection({ group, depth }: { group: GroupTreeNode; depth: number }) {
+  const { t } = useTranslation();
   const location = useLocation();
   const [expanded, setExpanded] = usePersisted<boolean>(`sidebar:group-${group.id}-open`, true);
 
@@ -131,7 +132,7 @@ function GroupSection({ group, depth }: { group: GroupTreeNode; depth: number })
           {...attributes}
           {...listeners}
           className="cursor-grab p-1 text-text-muted opacity-0 group-hover/row:opacity-50 hover:!opacity-100 shrink-0 transition-opacity"
-          title="Drag to reparent group"
+          title={t('groups.dragReparent')}
         >
           <GripVertical size={10} />
         </div>

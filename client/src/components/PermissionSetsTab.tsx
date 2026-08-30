@@ -156,7 +156,7 @@ export function PermissionSetsTab() {
             <Input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Set name (e.g. N1 Support)"
+              placeholder={t('permissionSets.namePlaceholder')}
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); }}
               autoFocus
             />
@@ -207,7 +207,7 @@ export function PermissionSetsTab() {
                             {set.name}
                           </span>
                           {set.isDefault && (
-                            <span title="Default set"><Shield size={11} className="text-accent shrink-0" /></span>
+                            <span title={t('permissionSets.defaultSet')}><Shield size={11} className="text-accent shrink-0" /></span>
                           )}
                         </>
                       )}

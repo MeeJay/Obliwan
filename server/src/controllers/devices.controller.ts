@@ -1,3 +1,4 @@
+import type { EnrollDeviceInput } from '../validators/device.schema';
 import type { Request, Response, NextFunction } from 'express';
 import { FAMILY_BRAND, type DeviceFamily, type TransportKind } from '@obliwan/shared';
 import { AppError } from '../middleware/errorHandler';
@@ -67,6 +68,16 @@ function translateDbError(err: unknown): AppError | null {
   }
   return null;
 }
+
+const DEFAULT_ENROL_TRANSPORT: Readonly<Record<string, TransportKind>> = {
+  mikrotik_routeros6: 'routeros_api',
+  mikrotik_routeros7: 'routeros_api',
+  draytek_vigor: 'ssh',
+  zyxel_standalone: 'ssh',
+  zyxel_nebula: 'rest',
+  zyxel_cpe: 'ssh',
+  sonicwall_sonicos: 'rest',
+};
 
 export const devicesController = {
   async list(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -419,6 +430,165 @@ export const devicesController = {
           watched: pppPresence.watched.filter((id) => ids.includes(id)),
           concentrators: ids,
         },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Bench enrolment (M15) — a router configured on a workbench announces itself.
+   *
+   * ┌─ IT LANDS IN QUARANTINE, AND THE TENANT IS A SUGGESTION ───────────────┐
+   * │ `status: 'pending'` and `is_managed: false`, whatever the payload says  │
+   * │ — the bench tool does not even send them. This is the same quarantine   │
+   * │ CHR discovery uses and for the same reason (D5 / R4): the preparer      │
+   * │ picked a customer from a dropdown, on a workbench, on their fortieth    │
+   * │ box of the day. Get it wrong and customer A's variables render onto     │
+   * │ customer B's router. So `proposedTenantId` is recorded as a NOTE and    │
+   * │ binds nothing; a human confirms it in the UI with the identity the box  │
+   * │ actually reported in front of them.                                     │
+   * │                                                                        │
+   * │ Nothing dials a device this endpoint creates. It has no credential —    │
+   * │ the factory password never left the preparer's workstation, and the     │
+   * │ account the tool created goes to the vault through the normal path.     │
+   * └────────────────────────────────────────────────────────────────────────┘
+   *
+   * The identity is REQUIRED to carry a serial or a system identity. Without
+   * one, no later connection could be matched to this row, `assertTargetBinding`
+   * would refuse it forever, and the fleet would hold a device it can see and
+   * never touch — worse than one it never knew about. The bench tool refuses
+   * first; this refuses again, because a client-side check is a convenience and
+   * not a boundary.
+   */
+  /**
+   * Single-device enrolment FROM THE UI (M15, second path).
+   *
+   * ┌─ THE SAME QUARANTINE, THE OPPOSITE SECRET POLICY ──────────────────────┐
+   * │ Like the bench path, the device lands `pending` and unmanaged: a row an │
+   * │ operator typed is a CLAIM about a box, and a claim is confirmed on a    │
+   * │ fresh connection before anything is pushed (D5 / R4).                   │
+   * │                                                                        │
+   * │ Unlike the bench path, a credential IS transmitted — this is the one    │
+   * │ ObliWAN will keep — so it goes straight to the vault and this route     │
+   * │ demands `CREDENTIAL_MANAGE`. That capability is the whole difference    │
+   * │ between the two, which is why they are two routes and not one route     │
+   * │ with a flag.                                                           │
+   * └────────────────────────────────────────────────────────────────────────┘
+   *
+   * The probe runs AFTER the transport is stored, because `testTransport`
+   * reads the vault rather than taking a password as an argument — the same
+   * path a real operation will use. Probing with the value from the request
+   * body would prove that THIS password works, not that the stored one does,
+   * and those two differ the day an encryption key is wrong.
+   *
+   * A probe that reads no identity does NOT delete the row. The operator can
+   * see it, fix the credential and retry; and `pending` + unmanaged already
+   * means nothing will dial it. Silently discarding what somebody typed is a
+   * worse failure than leaving a row they can correct.
+   */
+  async enrollFromUi(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const body = req.body as EnrollDeviceInput;
+      const family = body.family as DeviceFamily;
+      const transport = (body.transport ?? DEFAULT_ENROL_TRANSPORT[family] ?? 'ssh') as TransportKind;
+
+      const device = await deviceService.createDevice(req.tenantId, {
+        name: body.name,
+        family,
+        role: 'cpe',
+        siteId: body.siteId ?? null,
+        systemIdentity: null,
+        notes: body.notes ?? null,
+        // Not negotiable by the payload. A human binds it afterwards.
+        status: 'pending',
+      });
+
+      await deviceService.upsertTransport(req.tenantId, device.id, transport, {
+        enabled: true,
+        priority: 10,
+        host: body.host,
+        port: body.port ?? null,
+        username: body.username,
+        secret: body.password,
+        useTls: body.useTls ?? transport === 'rest',
+        tlsFingerprintSha256: null,
+      });
+
+      const test = await deviceService.testTransport(req.tenantId, device.id, transport);
+      if (test.ok && (test.identity?.systemIdentity || test.identity?.serial)) {
+        await deviceService.updateDevice(req.tenantId, device.id, {
+          systemIdentity: test.identity.systemIdentity ?? undefined,
+          serial: test.identity.serial ?? undefined,
+        });
+      }
+
+      const detail = await deviceService.getDeviceDetail(req.tenantId, device.id);
+      res.status(201).json({
+        success: true,
+        data: {
+          device: detail ? toDeviceDetailDto(detail) : null,
+          connection: test,
+          // Said out loud rather than left for the operator to discover on the
+          // first push: without one of the two identity attributes,
+          // `assertTargetBinding` refuses every write to this device.
+          identityRead: Boolean(test.identity?.systemIdentity || test.identity?.serial),
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async enroll(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const body = req.body as {
+        identity: {
+          family: string; brand?: string | null; model?: string | null;
+          osVersion?: string | null; serial?: string | null; systemIdentity?: string | null;
+        };
+        proposedTenantId?: number | null;
+        note?: string | null;
+        preparedBy?: string | null;
+        preparedAt?: string | null;
+      };
+      const id = body?.identity;
+      if (!id?.family) throw new AppError(400, 'identity.family is required');
+      if (!id.serial && !id.systemIdentity) {
+        throw new AppError(
+          400,
+          'The device reported neither a serial number nor a system identity. It cannot be ' +
+            'recognised on a later connection (D5), so it is not enrolled.',
+        );
+      }
+
+      const family = id.family as DeviceFamily;
+      if (!FAMILY_BRAND[family]) throw new AppError(400, `unknown family '${id.family}'`);
+
+      const provenance = [
+        'Enrolled from a preparation bench (M15).',
+        body.preparedBy ? `Workstation: ${body.preparedBy}.` : null,
+        body.preparedAt ? `At: ${body.preparedAt}.` : null,
+        // Recorded as text on purpose: a suggestion that lived in a foreign key
+        // would be one migration away from becoming a binding.
+        body.proposedTenantId ? `Tenant PROPOSED by the preparer: #${body.proposedTenantId} (not applied).` : null,
+        body.note ? `Note: ${body.note}` : null,
+      ].filter(Boolean).join(' ');
+
+      const device = await deviceService.createDevice(req.tenantId, {
+        name: id.systemIdentity || id.serial || `bench-${Date.now()}`,
+        family,
+        role: 'cpe',
+        siteId: null,
+        systemIdentity: id.systemIdentity ?? null,
+        notes: provenance,
+        // The quarantine. Not negotiable by the payload.
+        status: 'pending',
+      });
+
+      res.status(201).json({
+        success: true,
+        data: { deviceId: device.id, status: 'pending' },
       });
     } catch (err) {
       next(err);

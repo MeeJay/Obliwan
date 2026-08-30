@@ -649,7 +649,10 @@
     "saving": "Saving…",
     "search": "Search",
     "type": "Type",
-    "yes": "Yes"
+    "yes": "Yes",
+    "searchGroups": "Search groups...",
+    "dismiss": "Dismiss",
+    "selectGroup": "Select a group"
   },
   "config": {
     "compareAgainst": "Compare with",
@@ -1254,7 +1257,10 @@
     "reordered": "Groups reordered",
     "save": "Save",
     "saveOrder": "Save order",
-    "updated": "Group updated"
+    "updated": "Group updated",
+    "dragReparent": "Drag to reparent group",
+    "addSubGroup": "Add sub-group",
+    "notFoundOrDenied": "Group not found or access denied"
   },
   "header": {
     "socketConnected": "Live — connected to server",
@@ -1708,7 +1714,10 @@
     "testSent": "Test notification sent!",
     "title": "Notifications",
     "updated": "Channel updated",
-    "workspaces": "Workspaces"
+    "workspaces": "Workspaces",
+    "center": "Notification Center",
+    "markAllRead": "Mark all as read",
+    "clearLocal": "Clear local notifications"
   },
   "plan": {
     "absent": "Does not exist on this side",
@@ -2315,7 +2324,8 @@
       "updated": "SMTP server updated",
       "usernameLabel": "Username"
     },
-    "title": "Global Settings"
+    "title": "Global Settings",
+    "systemInfoError": "Could not load system information."
   },
   "sites": {
     "backToSites": "Back to sites",
@@ -2558,6 +2568,19 @@
       "updated": "Team updated"
     },
     "updated": "User updated",
-    "usernameLabel": "Username"
+    "usernameLabel": "Username",
+    "passwordTitle": "Password",
+    "manageTenantAccess": "Manage tenant access",
+    "toggleRoRw": "Click to toggle RO/RW",
+    "readOnly": "Read Only",
+    "readWrite": "Read/Write",
+    "noTenants": "No tenants available"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Set name (e.g. N1 Support)",
+    "defaultSet": "Default set"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Leave empty to stay SSO-only"
   }
 }

@@ -238,12 +238,43 @@ export type ObservedCapabilityOverrides = Partial<Record<DeviceCapabilityFlag, b
  * The level is computed per device and shown on the blast-radius screen BEFORE
  * launch, never after. A wave rollout (K3) treats `degraded` devices last.
  */
-export const SAFETY_LEVELS = ['armed', 'armed_by_peer', 'degraded'] as const;
+export const SAFETY_LEVELS = [
+  'armed', 'armed_by_peer', 'armed_by_second_uplink', 'degraded',
+] as const;
 export type SafetyLevel = (typeof SAFETY_LEVELS)[number];
 
-/** Sort key for rollout waves: safest first, `degraded` last. */
+/**
+ * `armed_by_second_uplink` — WHY A FOURTH LEVEL EXISTS.
+ *
+ * ┌──────────────────────────────────────────────────────────────────────────┐
+ * │ The three original levels answer one question: does something REPAIR the │
+ * │ device if the change cuts us off. They missed a second, cheaper answer:   │
+ * │ does the device come BACK on a path the change did not touch.            │
+ * │                                                                          │
+ * │ Nearly every MikroTik and DrayTek in a real fleet carries a backup LTE    │
+ * │ SIM. Break the wired WAN and the box fails over, redials the             │
+ * │ concentrator and reappears — on a different medium, a different           │
+ * │ operator, a different point of failure. That is a genuinely independent   │
+ * │ return path, and `WAN_FAILOVER` (K7) is the verdict that observes it.     │
+ * │ Under the old three-way split those devices were filed `degraded`:        │
+ * │ "detection without recovery, repair means a visit". That was simply       │
+ * │ untrue for them, and it made the confirmation §8.3 demands look like      │
+ * │ paperwork — which is how a confirmation stops being read.                 │
+ * │                                                                          │
+ * │ WHAT IT IS NOT. It is weaker than `armed`, and the difference is not a    │
+ * │ matter of degree. An on-device dead-man repairs ANY cut, including a      │
+ * │ firewall rule that denies management on every interface. A second uplink  │
+ * │ only survives a mistake on the FIRST one: deny the input chain and both   │
+ * │ paths die together. So it covers a different family of faults, and it     │
+ * │ must never be described as a dead-man.                                    │
+ * │                                                                          │
+ * │ Ranked between `armed_by_peer` and `degraded`: a peer that answered and   │
+ * │ can reach the target is a repair; this is only a way home.                │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ */
 export const SAFETY_LEVEL_RANK: Readonly<Record<SafetyLevel, number>> = {
   armed: 0,
   armed_by_peer: 1,
-  degraded: 2,
+  armed_by_second_uplink: 2,
+  degraded: 3,
 };

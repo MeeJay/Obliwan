@@ -352,6 +352,15 @@ export const HEALTH_GATE_FAIL_REASONS = [
   /** The device's own change job did not end in `succeeded`. Folded into the
    *  gate so that "the wave is unhealthy" has ONE answer and not two. */
   'JOB_NOT_SUCCEEDED',
+  /** A brand-new authenticated session to the device FAILED after the change,
+   *  on a box we could reach before it. Every other gate signal is L3 presence:
+   *  `pppUp`, `sysUpTime`, RTT, `ifOperStatus`. All four stay perfectly green on
+   *  a router that forwards and that nobody can log into any more — which is
+   *  exactly what removing the last usable account produces. This is the only
+   *  signal in the gate that tests ACCESS rather than PRESENCE. K2 has the same
+   *  blind spot at plan time and now checks for it; this is its counterpart
+   *  after the fact. */
+  'MGMT_SESSION_LOST',
 ] as const;
 export type HealthGateFailReason = (typeof HEALTH_GATE_FAIL_REASONS)[number];
 
@@ -389,6 +398,7 @@ export const HEALTH_GATE_REASON_VERDICT: Readonly<
   RTT_REGRESSION: 'FAIL',
   UNEXPECTED_BOOT: 'FAIL',
   JOB_NOT_SUCCEEDED: 'FAIL',
+  MGMT_SESSION_LOST: 'FAIL',
   NO_BASELINE: 'INDETERMINATE',
   NO_TELEMETRY: 'INDETERMINATE',
   RTT_BASELINE_INSUFFICIENT: 'INDETERMINATE',

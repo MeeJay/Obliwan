@@ -18,11 +18,11 @@ import { DEVICE_BRANDS, DEVICE_FAMILIES, TRANSPORT_KINDS } from '../device';
 import {
   NCM_RESOURCE_KINDS, NcmResourceKind,
   NcmInterface, NcmVlan, NcmRoute, NcmFirewallRule, NcmNatRule,
-  NcmDhcpScope, NcmIpsecPeer, NcmLocalUser, NcmService, NcmQosRule,
+  NcmDhcpScope, NcmIpsecPeer, NcmLocalUser, NcmService, NcmQosRule, NcmDhcpClient,
 } from './resources';
 
 /** Bumped on ANY change to the shape. Integer, monotone, never reused. */
-export const NCM_VERSION = 1;
+export const NCM_VERSION = 2;
 
 /** Bumped ONLY when the semKey algorithm changes. Embedded in every key as a
  *  prefix (`fw.v1:…`), because a bump invalidates every stored `sem_key`, every
@@ -85,6 +85,10 @@ export const NcmCoverageMap = z.object({
   localUser: NcmCoverage,
   service: NcmCoverage,
   qosRule: NcmCoverage,
+  /** v2. Optional so a stored v1 coverage map still validates; `coverageOf()`
+   *  turns its absence into 'unsupported', which is the closed default and the
+   *  right answer for every snapshot taken before the parser existed. */
+  dhcpClient: NcmCoverage.optional(),
 }).strict();
 export type NcmCoverageMap = z.infer<typeof NcmCoverageMap>;
 
@@ -177,6 +181,9 @@ export const NcmResources = z.object({
   localUsers: z.array(NcmLocalUser),
   services: z.array(NcmService),
   qosRules: z.array(NcmQosRule),             // ORDERED
+  /** v2. Defaulted so a stored v1 document still parses: it had no such key,
+   *  and an absent collection is an empty one, never a validation failure. */
+  dhcpClients: z.array(NcmDhcpClient).default([]),
 }).strict();
 export type NcmResources = z.infer<typeof NcmResources>;
 
@@ -236,7 +243,10 @@ export const NcmDocumentAuthored = NcmDocument.superRefine((doc, ctx) => {
   // A non-complete coverage without a reason is an unexplained blind spot, and
   // §2.4 says the reason is shown verbatim in the UI.
   for (const kind of NCM_RESOURCE_KINDS) {
+    // v2 kinds are optional in the map: an absent entry is not a missing reason,
+    // it is a snapshot taken before that kind existed. Nothing to validate.
     const c = doc.coverage[kind];
+    if (!c) continue;
     if (c.state !== 'complete' && (c.reason === null || c.reason.trim() === '')) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -260,7 +270,7 @@ export const NcmDocumentAuthored = NcmDocument.superRefine((doc, ctx) => {
     ['qosRule', doc.resources.qosRules.length],
   ];
   for (const [kind, count] of pairs) {
-    if (count > 0 && doc.coverage[kind].state === 'unsupported') {
+    if (count > 0 && doc.coverage[kind]?.state === 'unsupported') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['coverage', kind, 'state'],

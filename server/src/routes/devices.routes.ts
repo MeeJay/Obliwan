@@ -5,6 +5,7 @@ import { requireCapability } from '../middleware/rbac';
 import { validate } from '../middleware/validate';
 import {
   createConcentratorSchema,
+  enrollDeviceSchema,
   createDeviceSchema,
   listDevicesQuerySchema,
   updateDeviceSchema,
@@ -39,6 +40,27 @@ router.get(
 );
 
 // Declared before `/:id` so the literal path is not swallowed by the parameter.
+router.post(
+  // M15 — single-device enrolment FROM THE UI. Unlike '/enroll' above, a
+  // credential IS transmitted and goes to the vault, so this one demands
+  // CREDENTIAL_MANAGE. That capability is the entire difference between the
+  // two paths, which is why they are two routes and not one with a flag.
+  '/enroll-probe',
+  requireCapability(CAPABILITIES.DEVICE_WRITE),
+  requireCapability(CAPABILITIES.CREDENTIAL_MANAGE),
+  validate(enrollDeviceSchema),
+  devicesController.enrollFromUi,
+);
+
+router.post(
+  // M15 — bench enrolment. DEVICE_WRITE only: it creates a quarantined row and
+  // nothing else. It deliberately does NOT ask for CREDENTIAL_MANAGE, because
+  // it carries no credential — the factory password never leaves the bench.
+  '/enroll',
+  requireCapability(CAPABILITIES.DEVICE_WRITE),
+  devicesController.enroll,
+);
+
 router.post(
   '/concentrator',
   requireCapability(CAPABILITIES.DEVICE_WRITE),

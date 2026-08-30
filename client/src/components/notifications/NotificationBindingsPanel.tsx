@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useCallback } from 'react';
 import { Bell, BellOff, ArrowDown, Check, Ban } from 'lucide-react';
 import { notificationsApi } from '@/api/notifications.api';
@@ -23,6 +24,7 @@ interface NotificationBindingsPanelProps {
 }
 
 export function NotificationBindingsPanel({ scope, scopeId, title }: NotificationBindingsPanelProps) {
+  const { t } = useTranslation();
   const [channels, setChannels] = useState<NotificationChannel[]>([]);
   const [resolved, setResolved] = useState<ResolvedBinding[]>([]);
   const [directBindings, setDirectBindings] = useState<Map<number, OverrideMode>>(new Map());
@@ -159,7 +161,7 @@ export function NotificationBindingsPanel({ scope, scopeId, title }: Notificatio
       </div>
 
       {channels.length === 0 ? (
-        <p className="text-sm text-text-muted">No notification channels configured.</p>
+        <p className="text-sm text-text-muted">{t('notifications.noChannels')}</p>
       ) : (
         <div className="space-y-2">
           {channels.map((channel) => {

@@ -649,7 +649,10 @@
     "saving": "Opslaan…",
     "search": "Zoeken",
     "type": "Soort",
-    "yes": "Ja"
+    "yes": "Ja",
+    "searchGroups": "Groepen zoeken...",
+    "dismiss": "Sluiten",
+    "selectGroup": "Selecteer een groep"
   },
   "config": {
     "compareAgainst": "Vergelijken met",
@@ -1254,7 +1257,10 @@
     "reordered": "Groepen opnieuw geordend",
     "save": "Opslaan",
     "saveOrder": "Volgorde opslaan",
-    "updated": "Groep bijgewerkt"
+    "updated": "Groep bijgewerkt",
+    "dragReparent": "Sleep om de bovenliggende groep te wijzigen",
+    "addSubGroup": "Subgroep toevoegen",
+    "notFoundOrDenied": "Groep niet gevonden of toegang geweigerd"
   },
   "header": {
     "socketConnected": "Live — verbonden met server",
@@ -1708,7 +1714,10 @@
     "testSent": "Testmelding verzonden!",
     "title": "Meldingen",
     "updated": "Kanaal bijgewerkt",
-    "workspaces": "Werkruimten"
+    "workspaces": "Werkruimten",
+    "center": "Meldingencentrum",
+    "markAllRead": "Alles als gelezen markeren",
+    "clearLocal": "Lokale meldingen wissen"
   },
   "plan": {
     "absent": "Bestaat niet aan deze kant",
@@ -2315,7 +2324,8 @@
       "updated": "SMTP-server bijgewerkt",
       "usernameLabel": "Gebruikersnaam"
     },
-    "title": "Globale instellingen"
+    "title": "Globale instellingen",
+    "systemInfoError": "Kan systeeminformatie niet laden."
   },
   "sites": {
     "backToSites": "Terug naar de locaties",
@@ -2558,6 +2568,19 @@
       "updated": "Team bijgewerkt"
     },
     "updated": "Gebruiker bijgewerkt",
-    "usernameLabel": "Gebruikersnaam"
+    "usernameLabel": "Gebruikersnaam",
+    "passwordTitle": "Wachtwoord",
+    "manageTenantAccess": "Tenanttoegang beheren",
+    "toggleRoRw": "Klik om RO/RW te wisselen",
+    "readOnly": "Alleen lezen",
+    "readWrite": "Lezen/schrijven",
+    "noTenants": "Geen tenants beschikbaar"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Naam van de set (bijv. N1-support)",
+    "defaultSet": "Standaardset"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Leeg laten om alleen SSO te gebruiken"
   }
 }

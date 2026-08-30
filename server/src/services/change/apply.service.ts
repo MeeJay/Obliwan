@@ -60,7 +60,7 @@ import { db } from '../../db';
 import { logger } from '../../utils/logger';
 import { emitToDevice, emitToTenant } from '../fleet/fleetEvents';
 import { assertTargetBinding, BindingAssertionError } from '../fleet/deviceBinding.service';
-import { latestDocument } from '../config/snapshot.service';
+import { latestDocument, findSecondUplink } from '../config/snapshot.service';
 import {
   assertPlanFresh,
   checkPlanFreshness,
@@ -599,18 +599,48 @@ export async function resolveSafetyNet(device: DeviceRecord): Promise<SafetyNetP
     };
   }
 
+  // ── A WAY HOME, WHEN THERE IS NO REPAIR ──────────────────────────────────
+  //
+  // Before filing this device `degraded` — whose text promises a van — ask
+  // whether it has a second uplink. Nearly every MikroTik and DrayTek carries
+  // a backup LTE SIM: break the wired WAN and the box fails over, redials the
+  // concentrator, and reappears. K7 already has a name for that: WAN_FAILOVER.
+  //
+  // Read from the last snapshot's NCM, so it costs no network: an interface of
+  // type `lte` that is not disabled. INVENTORY ARITHMETIC like the rest of this
+  // function — it does not prove the SIM has credit or the operator has
+  // coverage, and the wording below says so rather than implying a guarantee.
+  const secondUplink = await findSecondUplink(device.id);
+  if (secondUplink) {
+    return {
+      level: 'armed_by_second_uplink',
+      peerDeviceId: null,
+      peerDeviceName: null,
+      rationale:
+        `ARMED_BY_SECOND_UPLINK — this device carries a second uplink ("${secondUplink}") on a ` +
+        'different medium. If this change cuts the wired path, the box is expected to fail over ' +
+        'and come back by itself, so a mistake is repairable REMOTELY. This is NOT a dead-man: ' +
+        'it survives a mistake on the WAN, and it dies with the first path if the change denies ' +
+        'management on every interface. Not verified against the operator — no call was placed.',
+      unverified: true,
+      requiresConfirmation: false,
+    };
+  }
+
   return {
     level: 'degraded',
     peerDeviceId: null,
     peerDeviceName: null,
     rationale:
-      `DEGRADED — ${device.brand} with no co-located MikroTik. Detection WITHOUT recovery: if ` +
-      'this change cuts the management path we will know, and we will not be able to repair it ' +
-      'remotely. Repair means a visit. §8.3 requires an explicit, recorded confirmation.',
+      `DEGRADED — ${device.brand} with no co-located MikroTik and no second uplink. Detection ` +
+      'WITHOUT recovery: if this change cuts the management path we will know, and we will not ' +
+      'be able to repair it remotely. Repair means a visit. §8.3 requires an explicit, recorded ' +
+      'confirmation.',
     unverified: false,
     requiresConfirmation: true,
   };
 }
+
 
 // ============================================================================
 // Enqueue — where a plan becomes a job

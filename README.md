@@ -25,10 +25,8 @@
 > intent compiler, template mining, and the eight evidence and operations
 > features described below. 30 migrations, 37 pages, the full deployment chain.
 >
-> **What is not done:** milestone M13, the translation of the sixteen locales.
-> Every milestone after M1 left its new interface keys behind in English. That
-> was a deliberate deferral, not an oversight, and the product is usable in
-> English today.
+> **What is not done:** nothing in the milestone plan. M1 through M13 and F1
+> through F8 are built. What remains is field validation — see below.
 >
 > **How it was built:** every driver, parser and safety guard was developed
 > against protocol-level fakes and recorded fixtures, then put through five
@@ -240,7 +238,7 @@ PostgreSQL advisory lock.
 | M3 | SNMP sessions, IF-MIB discovery, time series, rollups, thresholds | **done** |
 | M4 | MikroTik NCM, snapshots, read-only drift | **done** |
 | M5 | Templates, inherited variables, plan generation | **done** |
-| M6 | Safe apply (dead-man rollback) + Management-Path Guard | **done** |
+| M6 | Safe apply (dead-man rollback) + Management-Path Guard | **done** — MikroTik; the SSH write path for the other three brands is written but unexercised |
 | M7 | Waved rollouts with health gates — end of v1 | **done** |
 | M8 | Syslog ingestion, drift attribution, reachability verdict | **done** |
 | M9 | Fleet Query DSL | **done** |
@@ -248,10 +246,9 @@ PostgreSQL advisory lock.
 | M11 | SonicWall driver + multi-dialect intent compiler | **done** |
 | M12 | Fleet onboarding: template mining from existing configs | **done** |
 | F1–F8 | Drift exceptions, attestations, intervention mode, change aftermath, operator weather, hardware replacement, computed SLA, EOL inventory | **done** |
-| M13 | Internationalisation — translating the sixteen locales | planned |
+| M13 | Internationalisation — 18 locales, no hardcoded string left | **done** |
 
-Every milestone is built, reviewed and passing its own tests; M13 is the only
-one still open.
+Every milestone is built, reviewed and passing its own tests.
 
 Backlog after M13: time machine and config bisect, failover forensics, change
 requests with approval, mass credential rotation, zero-touch provisioning,

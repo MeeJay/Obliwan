@@ -339,6 +339,7 @@ export function restrictCoverage(
   const out = {} as Record<NcmResourceKind, NcmCoverage>;
   for (const kind of NCM_RESOURCE_KINDS) {
     const current = coverage[kind];
+    if (!current) continue;   // a v2 kind absent from a v1 coverage map
     if (claimed.has(kind)) { out[kind] = current; continue; }
     out[kind] = {
       state: 'unsupported',

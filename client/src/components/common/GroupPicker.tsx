@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react';
 import { ChevronRight, ChevronDown, Folder, Search, X } from 'lucide-react';
 import type { GroupTreeNode } from '@obliwan/shared';
@@ -107,7 +108,8 @@ function TreeNode({ node, depth, selectedId, onSelect, filter, excludeId }: Tree
   );
 }
 
-export function GroupPicker({ value, onChange, tree, placeholder = 'Select a group', excludeId }: GroupPickerProps) {
+export function GroupPicker({ value, onChange, tree, placeholder, excludeId }: GroupPickerProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -148,7 +150,7 @@ export function GroupPicker({ value, onChange, tree, placeholder = 'Select a gro
         className="flex w-full items-center justify-between rounded-md border border-border bg-bg-tertiary px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
       >
         <span className={cn(!selectedName && 'text-text-muted')}>
-          {selectedName || placeholder}
+          {selectedName || placeholder || t('common.selectGroup')}
         </span>
         <ChevronDown size={14} className={cn('transition-transform', open && 'rotate-180')} />
       </button>
@@ -164,7 +166,7 @@ export function GroupPicker({ value, onChange, tree, placeholder = 'Select a gro
               type="text"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              placeholder="Search groups..."
+              placeholder={t('common.searchGroups')}
               className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
             />
             {filter && (

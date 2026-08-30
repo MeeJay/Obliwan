@@ -488,6 +488,7 @@ const PHASE_BLOCKED = 5;
  */
 const CREATE_LAYER: Readonly<Record<NcmResourceKind, number>> = {
   interface: 0,
+  dhcpClient: 0,
   vlan: 1,
   ipsecPeer: 2,
   route: 3,
@@ -626,6 +627,75 @@ function buildOps(
         // not know that, and a delete compiled from an incomplete picture is
         // how a truncated export empties a firewall.
         if (!actual) break;
+
+        // ── THE MANAGEMENT-PATH VETO ─────────────────────────────────────
+        //
+        // `facts.tunnelInterfaces` is the set of interfaces the platform
+        // actually reaches this box through — `l2tp-mgmt` and anything riding
+        // it, a VLAN over the L2TP link included. Deleting one is not a change
+        // that MIGHT break management; it is the removal of the only road.
+        //
+        // Recognised by TYPE, never by name (`isTunnelBearing`, riskScoring.ts
+        // :178): a rule keyed on the string "l2tp-mgmt" would miss the site
+        // where somebody called it "l2tp-mgmt2", which is precisely the site
+        // where the mistake gets made.
+        //
+        // K2 already REJECTS this — but a reject is a verdict, and a verdict
+        // is overridable with CHANGE_APPROVE. Deleting the management tunnel
+        // is not a decision a signature should be able to buy on a compiled
+        // plan. Blocked at compilation, it is never presented as an option.
+        const actualIfName =
+          kind === 'interface' ? ((actual as { name?: string }).name ?? '') : '';
+        if (actualIfName && facts.tunnelInterfaces.has(actualIfName)) {
+          drafts.push({
+            kind: 'blocked', resource: kind, semKey: finding.semKey,
+            before: actual, after: null, fields: [],
+            chain: chainOf(actual), targetIndex: null,
+            blockedReason: 'mgmt_path_veto',
+            finding, coverageDegraded: degraded,
+            provides: [], requires: [],
+            phase: PHASE_BLOCKED, rank: rank++,
+          });
+          break;
+        }
+
+        // ── THE IDENTITY VETO ────────────────────────────────────────────
+        //
+        // K2 proves the PACKET arrives. It never proves an identity survives
+        // to authenticate when it does: `FORWARDING_KINDS` is
+        // interface/route/firewallRule/natRule/service, and `evaluateMgmtPath`
+        // never reads `doc.resources.localUsers` at all. Its exclusion comment
+        // is literally true — a local user cannot change the fate of a packet
+        // already inside the tunnel — but the file's own header promises "can
+        // the platform still reach this device?", and `reach` was quietly
+        // defined as "a SYN gets an answer".
+        //
+        // So a template that claims `localUser` and does not list the account
+        // ObliWAN logs in with compiles a `delete` for it, and the guard
+        // returns ACCEPT: tunnel up, address held, service open, probes green.
+        // Nothing downstream catches it either — `healthGate` measures
+        // `pppUp`, `sysUpTime`, RTT and `ifOperStatus`, every one of them an
+        // L3 presence signal. The box routes perfectly and nobody can log in.
+        // On a brand with no on-device dead-man and no LTE, that is a truck.
+        //
+        // Until `checkManagementIdentity()` exists in K2, removing a local
+        // user is not a decision a compiled plan may take on its own. Blocked
+        // is INFORMATION, not a failure: the operator sees the account, the
+        // reason, and does it by hand if it is really what they want.
+        // Creating one is untouched — provisioning must keep working.
+        if (kind === 'localUser') {
+          drafts.push({
+            kind: 'blocked', resource: kind, semKey: finding.semKey,
+            before: actual, after: null, fields: [],
+            chain: chainOf(actual), targetIndex: null,
+            blockedReason: 'mgmt_path_veto',
+            finding, coverageDegraded: degraded,
+            provides: [], requires: [],
+            phase: PHASE_BLOCKED, rank: rank++,
+          });
+          break;
+        }
+
         const coverage = coverageOf(observed.coverage, kind);
         if (coverage.state !== 'complete') {
           const entry = deletionsBlocked.get(kind) ?? { coverage: coverage.state, count: 0 };
@@ -658,6 +728,49 @@ function buildOps(
 
       case 'changed': {
         if (!intent || !actual) break;
+
+        // Disabling the management tunnel is deleting it with extra steps.
+        // Only the DISABLE transition is blocked, not every edit: a comment or
+        // an MTU on `l2tp-mgmt` must still be plannable, or the veto becomes a
+        // line operators learn to scroll past — which is how a guard stops
+        // guarding.
+        if (
+          kind === 'interface' &&
+          facts.tunnelInterfaces.has((actual as { name?: string }).name ?? '') &&
+          (intent as { disabled?: boolean }).disabled === true &&
+          (actual as { disabled?: boolean }).disabled !== true
+        ) {
+          drafts.push({
+            kind: 'blocked', resource: kind, semKey: finding.semKey,
+            before: actual, after: intent, fields: [],
+            chain: chainOf(actual), targetIndex: null,
+            blockedReason: 'mgmt_path_veto',
+            finding, coverageDegraded: degraded,
+            provides: [], requires: [],
+            phase: PHASE_BLOCKED, rank: rank++,
+          });
+          break;
+        }
+
+        // Same veto, other half. A `changed` on a `localUser` that walks
+        // `group` back from full to read, or narrows `allowedFrom` past the
+        // address ObliWAN dials from, locks the account out just as completely
+        // as deleting it — and K2 returns the same ACCEPT, because the account
+        // still exists and the packet still arrives. Deleting and disarming
+        // are the same event seen from two sides; blocking one and compiling
+        // the other would only move the truck to a different Tuesday.
+        if (kind === 'localUser') {
+          drafts.push({
+            kind: 'blocked', resource: kind, semKey: finding.semKey,
+            before: actual, after: intent, fields: [],
+            chain: chainOf(actual), targetIndex: null,
+            blockedReason: 'mgmt_path_veto',
+            finding, coverageDegraded: degraded,
+            provides: [], requires: [],
+            phase: PHASE_BLOCKED, rank: rank++,
+          });
+          break;
+        }
         const fields = finding.fieldDiffs.map((f) => f.field);
         // A change whose ONLY field is `disabled` is an enable/disable, not an
         // update. The distinction is not cosmetic: on RouterOS the two are

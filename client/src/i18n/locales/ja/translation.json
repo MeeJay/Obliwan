@@ -649,7 +649,10 @@
     "saving": "保存中…",
     "search": "検索",
     "type": "タイプ",
-    "yes": "はい"
+    "yes": "はい",
+    "searchGroups": "グループを検索...",
+    "dismiss": "閉じる",
+    "selectGroup": "グループを選択"
   },
   "config": {
     "compareAgainst": "比較対象",
@@ -1254,7 +1257,10 @@
     "reordered": "グループを並べ替えました",
     "save": "保存",
     "saveOrder": "並び順を保存",
-    "updated": "グループを更新しました"
+    "updated": "グループを更新しました",
+    "dragReparent": "ドラッグして親グループを変更",
+    "addSubGroup": "サブグループを追加",
+    "notFoundOrDenied": "グループが見つからないか、アクセスが拒否されました"
   },
   "header": {
     "socketConnected": "接続中 — サーバーに接続済み",
@@ -1708,7 +1714,10 @@
     "testSent": "テスト通知を送信しました！",
     "title": "通知",
     "updated": "チャンネルを更新しました",
-    "workspaces": "ワークスペース"
+    "workspaces": "ワークスペース",
+    "center": "通知センター",
+    "markAllRead": "すべて既読にする",
+    "clearLocal": "ローカル通知を消去"
   },
   "plan": {
     "absent": "この側には存在しません",
@@ -2315,7 +2324,8 @@
       "updated": "SMTPサーバーを更新しました",
       "usernameLabel": "ユーザー名"
     },
-    "title": "グローバル設定"
+    "title": "グローバル設定",
+    "systemInfoError": "システム情報を読み込めませんでした。"
   },
   "sites": {
     "backToSites": "サイト一覧に戻る",
@@ -2558,6 +2568,19 @@
       "updated": "チームを更新しました"
     },
     "updated": "ユーザーを更新しました",
-    "usernameLabel": "ユーザー名"
+    "usernameLabel": "ユーザー名",
+    "passwordTitle": "パスワード",
+    "manageTenantAccess": "テナントアクセスを管理",
+    "toggleRoRw": "クリックして RO/RW を切り替え",
+    "readOnly": "読み取り専用",
+    "readWrite": "読み書き",
+    "noTenants": "利用可能なテナントがありません"
+  },
+  "permissionSets": {
+    "namePlaceholder": "セット名（例：N1 サポート）",
+    "defaultSet": "既定のセット"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "SSO のみを使用する場合は空のままにします"
   }
 }

@@ -649,7 +649,10 @@
     "saving": "Kaydediliyor…",
     "search": "Ara",
     "type": "Tür",
-    "yes": "Evet"
+    "yes": "Evet",
+    "searchGroups": "Grup ara...",
+    "dismiss": "Kapat",
+    "selectGroup": "Bir grup seçin"
   },
   "config": {
     "compareAgainst": "Şununla karşılaştır",
@@ -1254,7 +1257,10 @@
     "reordered": "Gruplar yeniden sıralandı",
     "save": "Kaydet",
     "saveOrder": "Sıralamayı kaydet",
-    "updated": "Grup güncellendi"
+    "updated": "Grup güncellendi",
+    "dragReparent": "Üst grubu değiştirmek için sürükleyin",
+    "addSubGroup": "Alt grup ekle",
+    "notFoundOrDenied": "Grup bulunamadı veya erişim reddedildi"
   },
   "header": {
     "socketConnected": "Canlı — sunucuya bağlı",
@@ -1708,7 +1714,10 @@
     "testSent": "Test bildirimi gönderildi!",
     "title": "Bildirimler",
     "updated": "Kanal güncellendi",
-    "workspaces": "Çalışma Alanları"
+    "workspaces": "Çalışma Alanları",
+    "center": "Bildirim merkezi",
+    "markAllRead": "Tümünü okundu işaretle",
+    "clearLocal": "Yerel bildirimleri temizle"
   },
   "plan": {
     "absent": "Bu tarafta yok",
@@ -2315,7 +2324,8 @@
       "updated": "SMTP sunucusu güncellendi",
       "usernameLabel": "Kullanıcı adı"
     },
-    "title": "Genel Ayarlar"
+    "title": "Genel Ayarlar",
+    "systemInfoError": "Sistem bilgileri yüklenemedi."
   },
   "sites": {
     "backToSites": "Sahalara dön",
@@ -2558,6 +2568,19 @@
       "updated": "Takım güncellendi"
     },
     "updated": "Kullanıcı güncellendi",
-    "usernameLabel": "Kullanıcı adı"
+    "usernameLabel": "Kullanıcı adı",
+    "passwordTitle": "Parola",
+    "manageTenantAccess": "Kiracı erişimini yönet",
+    "toggleRoRw": "RO/RW arasında geçiş için tıklayın",
+    "readOnly": "Salt okunur",
+    "readWrite": "Okuma/yazma",
+    "noTenants": "Kullanılabilir kiracı yok"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Küme adı (örn. N1 Destek)",
+    "defaultSet": "Varsayılan küme"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Yalnızca SSO kullanmak için boş bırakın"
   }
 }

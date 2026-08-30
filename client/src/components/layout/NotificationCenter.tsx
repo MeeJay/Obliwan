@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, X, Trash2, CheckCheck } from 'lucide-react';
@@ -31,6 +32,7 @@ interface AlertRowProps {
 }
 
 function AlertRow({ alert, showTenantBadge, onRead, onRemove }: AlertRowProps) {
+  const { t } = useTranslation();
   const styles = SEVERITY_STYLES[alert.severity];
   return (
     <div
@@ -66,7 +68,7 @@ function AlertRow({ alert, showTenantBadge, onRead, onRemove }: AlertRowProps) {
       <button
         className="shrink-0 text-text-muted hover:text-text-primary transition-colors mt-0.5"
         onClick={(e) => { e.stopPropagation(); onRemove(alert.id); }}
-        title="Dismiss"
+        title={t('common.dismiss')}
       >
         <X size={12} />
       </button>
@@ -109,6 +111,7 @@ function Toggle({ enabled, onChange, label }: ToggleProps) {
 type Tab = 'local' | 'global';
 
 export function NotificationCenter() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>('local');
 
@@ -189,7 +192,7 @@ export function NotificationCenter() {
       <button
         ref={buttonRef}
         onClick={() => setOpen((v) => !v)}
-        title="Notification Center"
+        title={t('notifications.center')}
         className="relative flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors"
       >
         <Bell
@@ -217,7 +220,7 @@ export function NotificationCenter() {
                 {tabAlerts.some((a) => !a.read) && (
                   <button
                     onClick={markAllRead}
-                    title="Mark all as read"
+                    title={t('notifications.markAllRead')}
                     className="text-text-muted hover:text-text-primary transition-colors"
                   >
                     <CheckCheck size={14} />
@@ -226,7 +229,7 @@ export function NotificationCenter() {
                 {tabAlerts.length > 0 && (
                   <button
                     onClick={clearAll}
-                    title="Clear local notifications"
+                    title={t('notifications.clearLocal')}
                     className="text-text-muted hover:text-text-primary transition-colors"
                   >
                     <Trash2 size={14} />

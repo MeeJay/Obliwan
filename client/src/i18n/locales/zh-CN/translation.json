@@ -649,7 +649,10 @@
     "saving": "保存中…",
     "search": "搜索",
     "type": "类型",
-    "yes": "是"
+    "yes": "是",
+    "searchGroups": "搜索组...",
+    "dismiss": "关闭",
+    "selectGroup": "选择组"
   },
   "config": {
     "compareAgainst": "比较对象",
@@ -1254,7 +1257,10 @@
     "reordered": "分组已重新排序",
     "save": "保存",
     "saveOrder": "保存排序",
-    "updated": "分组已更新"
+    "updated": "分组已更新",
+    "dragReparent": "拖动以更改父组",
+    "addSubGroup": "添加子组",
+    "notFoundOrDenied": "未找到组或访问被拒绝"
   },
   "header": {
     "socketConnected": "在线 — 已连接到服务器",
@@ -1708,7 +1714,10 @@
     "testSent": "测试通知已发送！",
     "title": "通知",
     "updated": "渠道已更新",
-    "workspaces": "工作区"
+    "workspaces": "工作区",
+    "center": "通知中心",
+    "markAllRead": "全部标为已读",
+    "clearLocal": "清除本地通知"
   },
   "plan": {
     "absent": "这一侧不存在",
@@ -2315,7 +2324,8 @@
       "updated": "SMTP 服务器已更新",
       "usernameLabel": "用户名"
     },
-    "title": "全局设置"
+    "title": "全局设置",
+    "systemInfoError": "无法加载系统信息。"
   },
   "sites": {
     "backToSites": "返回站点列表",
@@ -2558,6 +2568,19 @@
       "updated": "团队已更新"
     },
     "updated": "用户已更新",
-    "usernameLabel": "用户名"
+    "usernameLabel": "用户名",
+    "passwordTitle": "密码",
+    "manageTenantAccess": "管理租户访问",
+    "toggleRoRw": "点击切换只读/读写",
+    "readOnly": "只读",
+    "readWrite": "读写",
+    "noTenants": "没有可用租户"
+  },
+  "permissionSets": {
+    "namePlaceholder": "集合名称（例如 N1 支持）",
+    "defaultSet": "默认集合"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "留空则仅使用 SSO"
   }
 }

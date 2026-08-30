@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
@@ -25,6 +26,7 @@ interface AlertCardProps {
 }
 
 function AlertCard({ alert, opacity = 1, lifetimeMs }: AlertCardProps) {
+  const { t } = useTranslation();
   const { dismissToast } = useLiveAlertsStore();
   const navigate = useNavigate();
   const styles = SEVERITY_STYLES[alert.severity];
@@ -77,7 +79,7 @@ function AlertCard({ alert, opacity = 1, lifetimeMs }: AlertCardProps) {
           e.stopPropagation();
           dismissToast(alert.id);
         }}
-        aria-label="Dismiss"
+        aria-label={t('common.dismiss')}
       >
         <X size={13} />
       </button>

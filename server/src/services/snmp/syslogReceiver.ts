@@ -385,9 +385,15 @@ async function attribute(hostname: string | null): Promise<ResolvedSender | null
   if (!hostname) return null;
   const key = hostname.toLowerCase();
   if (deviceByHostname.has(key)) return deviceByHostname.get(key) ?? null;
+  // Same reasoning as `attributeTrap()` — see the box there. Syslog over UDP
+  // is unauthenticated and carries no tenant, so a tenant predicate is not
+  // missing here, it is unwritable. What IS narrowed: `name` is no longer
+  // matched (an operator-typed label collides across customers; a hostname
+  // read off the box does not), and a device that is not `active` receives no
+  // attributed lines at all.
   const matches = await db('devices')
     .whereRaw('lower(system_identity) = ?', [key])
-    .orWhereRaw('lower(name) = ?', [key])
+    .where('status', 'active')
     .limit(2)
     .select<{ id: number; brand: string | null }[]>('id', 'brand');
   const resolved: ResolvedSender | null =

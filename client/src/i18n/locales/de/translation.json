@@ -649,7 +649,10 @@
     "saving": "Speichern…",
     "search": "Suchen",
     "type": "Typ",
-    "yes": "Ja"
+    "yes": "Ja",
+    "searchGroups": "Gruppen suchen...",
+    "dismiss": "Schließen",
+    "selectGroup": "Gruppe auswählen"
   },
   "config": {
     "compareAgainst": "Vergleichen mit",
@@ -1254,7 +1257,10 @@
     "reordered": "Gruppen neu geordnet",
     "save": "Speichern",
     "saveOrder": "Reihenfolge speichern",
-    "updated": "Gruppe aktualisiert"
+    "updated": "Gruppe aktualisiert",
+    "dragReparent": "Ziehen, um die übergeordnete Gruppe zu ändern",
+    "addSubGroup": "Untergruppe hinzufügen",
+    "notFoundOrDenied": "Gruppe nicht gefunden oder Zugriff verweigert"
   },
   "header": {
     "socketConnected": "Live — mit Server verbunden",
@@ -1708,7 +1714,10 @@
     "testSent": "Testbenachrichtigung gesendet!",
     "title": "Benachrichtigungen",
     "updated": "Kanal aktualisiert",
-    "workspaces": "Arbeitsbereiche"
+    "workspaces": "Arbeitsbereiche",
+    "center": "Benachrichtigungszentrale",
+    "markAllRead": "Alle als gelesen markieren",
+    "clearLocal": "Lokale Benachrichtigungen löschen"
   },
   "plan": {
     "absent": "Existiert auf dieser Seite nicht",
@@ -2315,7 +2324,8 @@
       "updated": "SMTP-Server aktualisiert",
       "usernameLabel": "Benutzername"
     },
-    "title": "Globale Einstellungen"
+    "title": "Globale Einstellungen",
+    "systemInfoError": "Systeminformationen konnten nicht geladen werden."
   },
   "sites": {
     "backToSites": "Zurück zu den Standorten",
@@ -2558,6 +2568,19 @@
       "updated": "Team aktualisiert"
     },
     "updated": "Benutzer aktualisiert",
-    "usernameLabel": "Benutzername"
+    "usernameLabel": "Benutzername",
+    "passwordTitle": "Passwort",
+    "manageTenantAccess": "Mandantenzugriff verwalten",
+    "toggleRoRw": "Klicken, um zwischen RO/RW zu wechseln",
+    "readOnly": "Nur Lesen",
+    "readWrite": "Lesen/Schreiben",
+    "noTenants": "Keine Mandanten verfügbar"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Name des Satzes (z. B. N1-Support)",
+    "defaultSet": "Standardsatz"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Leer lassen, um nur SSO zu verwenden"
   }
 }

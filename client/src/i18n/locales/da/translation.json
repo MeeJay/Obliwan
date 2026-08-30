@@ -649,7 +649,10 @@
     "saving": "Gemmer…",
     "search": "Søg",
     "type": "Type",
-    "yes": "Ja"
+    "yes": "Ja",
+    "searchGroups": "Søg grupper...",
+    "dismiss": "Afvis",
+    "selectGroup": "Vælg en gruppe"
   },
   "config": {
     "compareAgainst": "Sammenlign med",
@@ -1254,7 +1257,10 @@
     "reordered": "Grupper omordnet",
     "save": "Gem",
     "saveOrder": "Gem rækkefølge",
-    "updated": "Gruppe opdateret"
+    "updated": "Gruppe opdateret",
+    "dragReparent": "Træk for at ændre overordnet gruppe",
+    "addSubGroup": "Tilføj undergruppe",
+    "notFoundOrDenied": "Gruppe ikke fundet eller adgang nægtet"
   },
   "header": {
     "socketConnected": "Live — forbundet til server",
@@ -1708,7 +1714,10 @@
     "testSent": "Testmeddelelse sendt!",
     "title": "Meddelelser",
     "updated": "Kanal opdateret",
-    "workspaces": "Arbejdsrum"
+    "workspaces": "Arbejdsrum",
+    "center": "Notifikationscenter",
+    "markAllRead": "Markér alle som læst",
+    "clearLocal": "Ryd lokale notifikationer"
   },
   "plan": {
     "absent": "Findes ikke på denne side",
@@ -2315,7 +2324,8 @@
       "updated": "SMTP-server opdateret",
       "usernameLabel": "Brugernavn"
     },
-    "title": "Globale Indstillinger"
+    "title": "Globale Indstillinger",
+    "systemInfoError": "Systemoplysninger kunne ikke indlæses."
   },
   "sites": {
     "backToSites": "Tilbage til sites",
@@ -2558,6 +2568,19 @@
       "updated": "Team opdateret"
     },
     "updated": "Bruger opdateret",
-    "usernameLabel": "Brugernavn"
+    "usernameLabel": "Brugernavn",
+    "passwordTitle": "Adgangskode",
+    "manageTenantAccess": "Administrer lejeradgang",
+    "toggleRoRw": "Klik for at skifte RO/RW",
+    "readOnly": "Skrivebeskyttet",
+    "readWrite": "Læs/skriv",
+    "noTenants": "Ingen lejere tilgængelige"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Sætnavn (f.eks. N1-support)",
+    "defaultSet": "Standardsæt"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Lad stå tomt for kun at bruge SSO"
   }
 }

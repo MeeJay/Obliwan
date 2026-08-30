@@ -649,7 +649,10 @@
     "saving": "Sparar…",
     "search": "Sök",
     "type": "Typ",
-    "yes": "Ja"
+    "yes": "Ja",
+    "searchGroups": "Sök grupper...",
+    "dismiss": "Avfärda",
+    "selectGroup": "Välj en grupp"
   },
   "config": {
     "compareAgainst": "Jämför med",
@@ -1254,7 +1257,10 @@
     "reordered": "Grupper omordnade",
     "save": "Spara",
     "saveOrder": "Spara ordning",
-    "updated": "Grupp uppdaterad"
+    "updated": "Grupp uppdaterad",
+    "dragReparent": "Dra för att byta överordnad grupp",
+    "addSubGroup": "Lägg till undergrupp",
+    "notFoundOrDenied": "Gruppen hittades inte eller åtkomst nekad"
   },
   "header": {
     "socketConnected": "Direkt — ansluten till server",
@@ -1708,7 +1714,10 @@
     "testSent": "Testavisering skickad!",
     "title": "Aviseringar",
     "updated": "Kanal uppdaterad",
-    "workspaces": "Arbetsytor"
+    "workspaces": "Arbetsytor",
+    "center": "Aviseringscenter",
+    "markAllRead": "Markera alla som lästa",
+    "clearLocal": "Rensa lokala aviseringar"
   },
   "plan": {
     "absent": "Finns inte på den här sidan",
@@ -2315,7 +2324,8 @@
       "updated": "SMTP-server uppdaterad",
       "usernameLabel": "Användarnamn"
     },
-    "title": "Globala inställningar"
+    "title": "Globala inställningar",
+    "systemInfoError": "Det gick inte att läsa in systeminformation."
   },
   "sites": {
     "backToSites": "Tillbaka till platser",
@@ -2558,6 +2568,19 @@
       "updated": "Lag uppdaterat"
     },
     "updated": "Användare uppdaterad",
-    "usernameLabel": "Användarnamn"
+    "usernameLabel": "Användarnamn",
+    "passwordTitle": "Lösenord",
+    "manageTenantAccess": "Hantera hyresgastatkomst",
+    "toggleRoRw": "Klicka för att växla RO/RW",
+    "readOnly": "Skrivskyddad",
+    "readWrite": "Läs/skriv",
+    "noTenants": "Inga hyresgäster tillgängliga"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Namn pa uppsattning (t.ex. N1-support)",
+    "defaultSet": "Standarduppsättning"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Lämna tomt för att endast använda SSO"
   }
 }

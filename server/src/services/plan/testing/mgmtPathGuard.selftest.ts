@@ -273,6 +273,7 @@ function baseDoc(): NcmDocument {
         service({ name: 'api', enabled: true, port: 8728 }),
       ],
       qosRules: [],
+      dhcpClients: [],
     },
   };
 }

@@ -102,7 +102,7 @@ export function GroupEditPage() {
   if (!group || !canWriteGroup(groupId)) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
-        <p className="text-text-muted">Group not found or access denied</p>
+        <p className="text-text-muted">{t('groups.notFoundOrDenied')}</p>
         <Link to="/" className="mt-4">
           <Button variant="secondary">{t('groups.backToDashboard')}</Button>
         </Link>

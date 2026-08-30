@@ -195,6 +195,10 @@ export interface DeviceTarget {
   status: string;
   isManaged: boolean;
   tunnelIp: string | null;
+  /** The device immediately upstream ON THE MANAGEMENT PATH (migration 030).
+   *  Null = the topology was never declared, which is not the same as "there
+   *  is none": every consumer takes the closed branch on null. */
+  upstreamDeviceId: number | null;
   pppUsername: string | null;
   systemIdentity: string | null;
   serial: string | null;
@@ -229,6 +233,7 @@ export async function loadDeviceTarget(deviceId: number): Promise<DeviceTarget> 
       'd.status',
       'd.is_managed',
       'd.tunnel_ip',
+      'd.upstream_device_id',
       'd.ppp_username',
       'd.system_identity',
       'd.serial',
@@ -255,6 +260,7 @@ export async function loadDeviceTarget(deviceId: number): Promise<DeviceTarget> 
     status: row.status,
     isManaged: row.is_managed === true,
     tunnelIp: row.tunnel_ip ?? null,
+    upstreamDeviceId: row.upstream_device_id ?? null,
     pppUsername: row.ppp_username ?? null,
     systemIdentity: row.system_identity ?? null,
     serial: row.serial ?? null,

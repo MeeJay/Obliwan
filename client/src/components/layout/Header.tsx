@@ -36,7 +36,7 @@ const APP_ORDER: AppEntry[] = [
   { type: 'obliguard', label: 'Obliguard', color: '#f5a623' },
   // TODO(design): ObliWAN has no brand colour of its own yet — this is a
   // placeholder, to be replaced together with the logo/favicon artwork.
-  { type: 'obliwan',   label: 'ObliWAN',   color: '#4e9cff' },
+  { type: 'obliwan',   label: 'ObliWAN',   color: '#90A4AE' },
   { type: 'oblimap',   label: 'Oblimap',   color: '#1edd8a' },
   { type: 'obliance',  label: 'Obliance',  color: '#e03a3a' },
   { type: 'obliplan',  label: 'Obliplan',  color: '#7c6cff' },

@@ -418,6 +418,7 @@ export interface NcmTree {
 
 const KIND_LABEL: Readonly<Record<NcmResourceKind, string>> = {
   interface: 'Interfaces',
+  dhcpClient: 'DHCP clients',
   vlan: 'VLANs',
   route: 'Static routes',
   firewallRule: 'Firewall rules',
@@ -539,4 +540,33 @@ export async function deleteSnapshot(tenantId: number, snapshotId: string): Prom
   if (!owned) return false;
   await db('config_snapshots').where({ id: snapshotId }).del();
   return true;
+}
+
+/**
+ * The name of a live SECOND UPLINK on this device, or null.
+ *
+ * ┌─ WHY IT LIVES HERE AND NOT IN THE CHANGE PATH ───────────────────────────┐
+ * │ Two callers need this answer and they MUST agree: `resolveSafetyNet` in   │
+ * │ `apply.service` shows the level BEFORE launch, and its counterpart in     │
+ * │ `safeApply` reports the level the operator finally lives with — §8.3 says │
+ * │ the job stops when the second is worse than the first. Two copies of this │
+ * │ predicate drifting apart would halt every DrayTek write with no readable  │
+ * │ reason, so there is one, and it sits with the snapshot it reads.          │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * Reads the latest NCM rather than a column: `interface.type === 'lte'` is a
+ * modelled fact with a parser behind it, whereas a column would be a second
+ * place for the same truth to rot. A device with no snapshot answers null —
+ * absence of evidence — and the caller then files it `degraded`, the closed
+ * direction.
+ *
+ * It does NOT prove the SIM has credit or the operator has coverage. Nothing
+ * short of a call does, and the wording at both call sites says so instead of
+ * implying a guarantee.
+ */
+export async function findSecondUplink(deviceId: number): Promise<string | null> {
+  const row = await latestDocument(deviceId).catch(() => null);
+  if (!row) return null;
+  const uplink = row.doc.resources.interfaces.find((i) => i.type === 'lte' && !i.disabled);
+  return uplink ? uplink.name : null;
 }

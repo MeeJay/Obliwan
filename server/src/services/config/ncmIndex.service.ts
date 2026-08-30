@@ -48,6 +48,8 @@ import { logger } from '../../utils/logger';
  *  is an insert that throws, which is the failure mode we want. */
 export const FLAT_TABLE: Readonly<Record<NcmResourceKind, { table: string; ruleLike: boolean }>> = {
   interface: { table: 'ncm_interfaces', ruleLike: false },
+  // v2 — no flat table yet: nothing parses this kind, so nothing is indexed.
+  dhcpClient: { table: 'ncm_dhcp_clients', ruleLike: false },
   vlan: { table: 'ncm_vlans', ruleLike: false },
   route: { table: 'ncm_routes', ruleLike: false },
   firewallRule: { table: 'ncm_firewall_rules', ruleLike: true },

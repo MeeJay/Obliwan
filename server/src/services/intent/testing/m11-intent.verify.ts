@@ -301,7 +301,7 @@ function coverageIsOptIn(): void {
     family: 'mikrotik_routeros7',
   });
   const complete = NCM_RESOURCE_KINDS.filter(
-    (k) => compilation.document.coverage[k].state === 'complete',
+    (k) => compilation.document.coverage[k]?.state === 'complete',
   );
   eq('by default the intent claims NOTHING exhaustively', complete.length, 0);
   eq(

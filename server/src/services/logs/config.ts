@@ -97,6 +97,24 @@ export const logsConfig = {
    */
   externalProbeStaleSec: int('EXTERNAL_PROBE_STALE_SEC', 900, 60, 86_400),
 
+  /**
+   * K7's fourth signal, expressed in MISSED INFORMS rather than in seconds.
+   *
+   * A CPE announces its own cadence (`cwmp_devices.periodic_inform_interval`,
+   * 30 s..24 h), so a fixed window would be wrong at both ends of that range.
+   * Everything here is therefore a multiple of the device's own interval.
+   *
+   * Within `cwmpRecentIntervals` the CPE called home recently enough to prove
+   * the site is alive WITHOUT the tunnel — 2 tolerates one lost Inform, which
+   * is routine on a DSL line. Beyond `cwmpDownIntervals` it has missed enough
+   * of them to count as evidence of absence. BETWEEN the two the answer is
+   * `null`: not "up", not "down", not measured. That gap is the whole point —
+   * `cwmpRecent` is one of the two signals that can produce `SITE_DOWN`, and
+   * `SITE_DOWN` dispatches a technician.
+   */
+  cwmpRecentIntervals: int('CWMP_RECENT_INTERVALS', 2, 1, 100),
+  cwmpDownIntervals: int('CWMP_DOWN_INTERVALS', 4, 2, 200),
+
   // -- Reachability freshness ----------------------------------------------
   /**
    * How long a `CONCENTRATOR_DEGRADED` verdict on a parent keeps suppressing

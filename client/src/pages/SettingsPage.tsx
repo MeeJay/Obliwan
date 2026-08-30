@@ -282,7 +282,7 @@ export function SettingsPage() {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-text-muted">Could not load system information.</p>
+              <p className="text-sm text-text-muted">{t('settings.systemInfoError')}</p>
             )}
           </div>
         </div>

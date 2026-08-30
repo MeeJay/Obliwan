@@ -25,6 +25,8 @@ import {
 export const NCM_RESOURCE_KINDS = [
   'interface', 'vlan', 'route', 'firewallRule', 'natRule',
   'dhcpScope', 'ipsecPeer', 'localUser', 'service', 'qosRule',
+  // v2 — see HASHED_COLLECTIONS.since in canonical.ts before adding another.
+  'dhcpClient',
 ] as const;
 export type NcmResourceKind = (typeof NCM_RESOURCE_KINDS)[number];
 
@@ -41,6 +43,7 @@ export const ORDERED_RESOURCE_KINDS: ReadonlySet<NcmResourceKind> =
  *  Kept here so nothing downstream re-derives it by string surgery. */
 export const RESOURCE_KIND_TO_COLLECTION: Readonly<Record<NcmResourceKind, string>> = {
   interface: 'interfaces',
+  dhcpClient: 'dhcpClients',
   vlan: 'vlans',
   route: 'routes',
   firewallRule: 'firewallRules',
@@ -345,6 +348,70 @@ export const NcmLocalUser = z.object({
   twoFactor: z.boolean().nullable(),
 }).strict();
 export type NcmLocalUser = z.infer<typeof NcmLocalUser>;
+
+// ── dhcp client (v2) ────────────────────────────────────────────────────────
+/**
+ * A DHCP CLIENT declared on an interface — configuration, not the lease.
+ *
+ * ┌─ THE DISTINCTION THIS RESOURCE EXISTS TO MAKE ────────────────────────────┐
+ * │ `NcmAddress` above drops DHCP- and PPP-learned addresses, and it is right │
+ * │ to: the address is STATE, it changes on its own, and treating it as       │
+ * │ config would report drift every time a lease renewed.                     │
+ * │                                                                          │
+ * │ But the CLIENT is not state. `/ip/dhcp-client` on RouterOS is an object   │
+ * │ an operator creates and deletes, and dropping it with the address it      │
+ * │ learns made a piece of real configuration invisible to the model — so     │
+ * │ invisible that removing it was not drift.                                 │
+ * │                                                                          │
+ * │ That mattered concretely: on a MikroTik + bridged Zyxel site, the DHCP    │
+ * │ client on the WAN port is the ONLY reason the MikroTik can reach the      │
+ * │ modem's management address, which is the only reason it could ever act as │
+ * │ the peer that carries a dead-man for it (§8.3). Delete the client and the │
+ * │ safety net disappears in silence, while the product keeps offering it.    │
+ * │                                                                          │
+ * │ So: the client is modelled, the address it learns is still not.           │
+ * └───────────────────────────────────────────────────────────────────────────┘
+ */
+export const NcmDhcpClient = z.object({
+  ...ncmBase,
+  kind: z.literal('dhcpClient'),
+  /** Interface the client runs on. The semKey is built from it. */
+  interfaceName: z.string().min(1).max(64),
+  /** Does the lease install a default route on this box? */
+  addDefaultRoute: z.boolean().nullable(),
+  /** Does the lease overwrite the resolver list? */
+  usePeerDns: z.boolean().nullable(),
+  /** Does the lease set the clock source? */
+  usePeerNtp: z.boolean().nullable(),
+  /** Brand-declared route distance when `addDefaultRoute`. Null when unmodelled. */
+  defaultRouteDistance: z.number().int().min(0).max(255).nullable(),
+  /**
+   * The `script=` body RouterOS runs on every lease bind. CONFIGURATION, and
+   * the most load-bearing field of this resource.
+   *
+   * ┌─ WHY IT IS MODELLED AND NOT DISCARDED ────────────────────────────────┐
+   * │ It was discarded, until a real export off a production CHR showed what │
+   * │ actually lives in there:                                              │
+   * │                                                                       │
+   * │   :if ($bound=1) do={                                                 │
+   * │     /ip/route/set [find where comment="NW-WAN1"]  gateway=$"gateway…" │
+   * │     /ip/route/set [find where comment="WAN1-GW"]  gateway=$"gateway…" │
+   * │   }                                                                   │
+   * │                                                                       │
+   * │ That is a WAN failover wired into the DHCP client: two static routes   │
+   * │ re-pointed at whatever gateway the lease hands out. Editing it changes │
+   * │ where the site's default route goes. Dropping it made a change to the  │
+   * │ routing of a site invisible to drift — the exact class of blindness    │
+   * │ this model exists to remove.                                          │
+   * │                                                                       │
+   * │ Kept VERBATIM apart from line-ending canonicalisation: reformatting a  │
+   * │ script would either invent findings or hide them, and the platform has │
+   * │ no business deciding that two spellings of a script are the same.      │
+   * └───────────────────────────────────────────────────────────────────────┘
+   */
+  bindScript: z.string().max(8000).nullable(),
+}).strict();
+export type NcmDhcpClient = z.infer<typeof NcmDhcpClient>;
 
 // ── management services ─────────────────────────────────────────────────────
 export const NCM_SERVICE_NAMES = [

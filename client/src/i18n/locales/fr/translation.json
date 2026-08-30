@@ -649,7 +649,10 @@
     "saving": "Enregistrement…",
     "search": "Rechercher",
     "type": "Type",
-    "yes": "Oui"
+    "yes": "Oui",
+    "searchGroups": "Rechercher des groupes...",
+    "dismiss": "Fermer",
+    "selectGroup": "Sélectionner un groupe"
   },
   "config": {
     "compareAgainst": "Comparer avec",
@@ -1254,7 +1257,10 @@
     "reordered": "Groupes réorganisés",
     "save": "Enregistrer",
     "saveOrder": "Enregistrer l'ordre",
-    "updated": "Groupe mis à jour"
+    "updated": "Groupe mis à jour",
+    "dragReparent": "Glisser pour changer le groupe parent",
+    "addSubGroup": "Ajouter un sous-groupe",
+    "notFoundOrDenied": "Groupe introuvable ou accès refusé"
   },
   "header": {
     "socketConnected": "En direct — connecté au serveur",
@@ -1708,7 +1714,10 @@
     "testSent": "Notification de test envoyée !",
     "title": "Notifications",
     "updated": "Canal mis à jour",
-    "workspaces": "Espaces de travail"
+    "workspaces": "Espaces de travail",
+    "center": "Centre de notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "clearLocal": "Effacer les notifications locales"
   },
   "plan": {
     "absent": "N'existe pas de ce côté",
@@ -2315,7 +2324,8 @@
       "updated": "Serveur SMTP mis à jour",
       "usernameLabel": "Identifiant"
     },
-    "title": "Paramètres globaux"
+    "title": "Paramètres globaux",
+    "systemInfoError": "Impossible de charger les informations système."
   },
   "sites": {
     "backToSites": "Retour aux sites",
@@ -2558,6 +2568,19 @@
       "updated": "Équipe mise à jour"
     },
     "updated": "Utilisateur mis à jour",
-    "usernameLabel": "Identifiant"
+    "usernameLabel": "Identifiant",
+    "passwordTitle": "Mot de passe",
+    "manageTenantAccess": "Gérer l'accès aux locataires",
+    "toggleRoRw": "Cliquer pour basculer lecture seule / lecture-écriture",
+    "readOnly": "Lecture seule",
+    "readWrite": "Lecture-écriture",
+    "noTenants": "Aucun locataire disponible"
+  },
+  "permissionSets": {
+    "namePlaceholder": "Nom du jeu (ex. Support N1)",
+    "defaultSet": "Jeu par défaut"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "Laisser vide pour rester SSO uniquement"
   }
 }

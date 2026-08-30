@@ -448,6 +448,7 @@ export function siteDoc(spec: SiteSpec, deviceId: number): NcmDocument {
     resources: {
       interfaces, vlans, routes, firewallRules, natRules,
       dhcpScopes, ipsecPeers, localUsers, services, qosRules,
+      dhcpClients: [],
     },
     unmodeled: [],
     extensions: {},

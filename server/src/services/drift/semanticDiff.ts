@@ -76,6 +76,7 @@ export interface SemanticDiffOptions {
 
 const KIND_SEVERITY: Readonly<Record<NcmResourceKind, DiffSeverity>> = {
   interface: 'medium',
+  dhcpClient: 'medium',
   vlan: 'medium',
   route: 'high',
   firewallRule: 'high',
@@ -600,7 +601,7 @@ export function semanticDiff(
     // A kind the collector could not read at all is not evaluated. Comparing
     // against "nothing was collected" is how a diff engine invents a firewall
     // that vanished.
-    if (actualCoverage.state === 'unsupported' || actualCoverage.state === 'failed') {
+    if (!actualCoverage || actualCoverage.state === 'unsupported' || actualCoverage.state === 'failed') {
       suppress(kind, 'coverage_incomplete');
       continue;
     }
@@ -610,7 +611,7 @@ export function semanticDiff(
     const allowMissing = mayEmitMissing(actual.coverage, kind);
     const allowExtra = mayEmitMissing(intent.coverage, kind);
     if (!allowMissing || !allowExtra) suppress(kind, 'coverage_incomplete');
-    if (intentCoverage.state === 'unsupported' || intentCoverage.state === 'failed') {
+    if (!intentCoverage || intentCoverage.state === 'unsupported' || intentCoverage.state === 'failed') {
       // Nothing was claimed on the desired side: every observed record would be
       // `extra`, which is exactly the 200-finding first run of R3.
       suppress(kind, 'coverage_incomplete');

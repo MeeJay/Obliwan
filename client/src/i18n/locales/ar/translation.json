@@ -649,7 +649,10 @@
     "saving": "جارٍ الحفظ…",
     "search": "بحث",
     "type": "النوع",
-    "yes": "نعم"
+    "yes": "نعم",
+    "searchGroups": "البحث عن المجموعات...",
+    "dismiss": "إغلاق",
+    "selectGroup": "اختر مجموعة"
   },
   "config": {
     "compareAgainst": "المقارنة مع",
@@ -1254,7 +1257,10 @@
     "reordered": "تم إعادة ترتيب المجموعات",
     "save": "حفظ",
     "saveOrder": "حفظ الترتيب",
-    "updated": "تم تحديث المجموعة"
+    "updated": "تم تحديث المجموعة",
+    "dragReparent": "اسحب لتغيير المجموعة الأصل",
+    "addSubGroup": "إضافة مجموعة فرعية",
+    "notFoundOrDenied": "المجموعة غير موجودة أو تم رفض الوصول"
   },
   "header": {
     "socketConnected": "حي — متصل بالخادم",
@@ -1708,7 +1714,10 @@
     "testSent": "تم إرسال إشعار الاختبار!",
     "title": "الإشعارات",
     "updated": "تم تحديث القناة",
-    "workspaces": "مساحات العمل"
+    "workspaces": "مساحات العمل",
+    "center": "مركز الإشعارات",
+    "markAllRead": "تعليم الكل كمقروء",
+    "clearLocal": "مسح الإشعارات المحلية"
   },
   "plan": {
     "absent": "غير موجود في هذا الجانب",
@@ -2315,7 +2324,8 @@
       "updated": "تم تحديث خادم SMTP",
       "usernameLabel": "اسم المستخدم"
     },
-    "title": "الإعدادات العامة"
+    "title": "الإعدادات العامة",
+    "systemInfoError": "تعذر تحميل معلومات النظام."
   },
   "sites": {
     "backToSites": "العودة إلى المواقع",
@@ -2558,6 +2568,19 @@
       "updated": "تم تحديث الفريق"
     },
     "updated": "تم تحديث المستخدم",
-    "usernameLabel": "اسم المستخدم"
+    "usernameLabel": "اسم المستخدم",
+    "passwordTitle": "كلمة المرور",
+    "manageTenantAccess": "إدارة وصول المستأجرين",
+    "toggleRoRw": "انقر للتبديل بين RO/RW",
+    "readOnly": "للقراءة فقط",
+    "readWrite": "قراءة/كتابة",
+    "noTenants": "لا يوجد مستأجرون متاحون"
+  },
+  "permissionSets": {
+    "namePlaceholder": "اسم المجموعة (مثل دعم N1)",
+    "defaultSet": "المجموعة الافتراضية"
+  },
+  "sso": {
+    "passwordOptionalPlaceholder": "اتركه فارغًا لاستخدام الدخول الموحد فقط"
   }
 }

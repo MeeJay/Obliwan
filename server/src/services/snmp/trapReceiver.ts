@@ -113,9 +113,34 @@ export async function attributeTrap(varbinds: DecodedVarbind[]): Promise<number 
   const identity = typeof sysName?.value === 'string' ? sysName.value.trim() : '';
   if (identity.length === 0) return null;
 
+  // ┌─ THIS QUERY IS NOT TENANT-SCOPED, AND IT CANNOT BE ────────────────────┐
+  // │ A trap is an unauthenticated UDP datagram. It carries no tenant, and    │
+  // │ its source address is worthless here (A6: the Docker bridge NATs it to  │
+  // │ the gateway). So there is nothing to scope BY — a tenant predicate is   │
+  // │ not "missing", it is unwritable on this path.                           │
+  // │                                                                        │
+  // │ The consequence, stated rather than hidden: anyone who can reach        │
+  // │ 162/udp can emit a trap naming another customer's `system_identity` and │
+  // │ have it attributed to that customer's device. What is narrowed here is  │
+  // │ the surface, not the class:                                             │
+  // │                                                                        │
+  // │  - `name` is NO LONGER matched. It is an ObliWAN-side label an operator │
+  // │    typed ("Routeur principal"), so it collides across tenants far more  │
+  // │    readily than a value read off the box, and matching it bought        │
+  // │    nothing an identity match does not already give.                     │
+  // │  - only `active` devices are eligible. A quarantined box (R4: it        │
+  // │    answered with the wrong identity) or one still in `pending` must not  │
+  // │    receive attributed events — quarantine that still accepts an event    │
+  // │    stream is not quarantine.                                            │
+  // │                                                                        │
+  // │ Closing the class properly needs SNMPv3 USM on this listener, which is  │
+  // │ a deliberate piece of work: a hand-rolled USM fails SILENTLY in the     │
+  // │ alert path, and a presence signal whose bug fabricates a false outage   │
+  // │ is a worse trade than the exposure it removes.                          │
+  // └────────────────────────────────────────────────────────────────────────┘
   const matches = await db('devices')
     .whereRaw('lower(system_identity) = lower(?)', [identity])
-    .orWhereRaw('lower(name) = lower(?)', [identity])
+    .where('status', 'active')
     .limit(2)
     .select('id');
   return matches.length === 1 ? matches[0].id : null;
