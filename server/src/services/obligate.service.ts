@@ -171,7 +171,26 @@ export const obligateService = {
       });
 
       if (!res.ok) {
-        logger.warn(`Obligate exchange failed: HTTP ${res.status}`);
+        // ┌─ THE REASON IS IN THE BODY, AND IT USED TO BE THROWN AWAY ───────┐
+        // │ Obligate answers with a NAMED cause — 'Invalid API key',          │
+        // │ 'Missing code or redirect_uri', 'Invalid, expired, or already     │
+        // │ used code' — and this logged only "HTTP 401". Those three have    │
+        // │ completely different fixes (wrong key in the vault / a bug here / │
+        // │ a redirect_uri mismatch), and the operator was handed a number    │
+        // │ that cannot distinguish them.                                     │
+        // │                                                                  │
+        // │ `redirectUri` goes in too: a mismatch is the most common cause    │
+        // │ and it is invisible without seeing what we actually sent. It is a │
+        // │ URL, not a secret. The API key is NOT logged.                     │
+        // └──────────────────────────────────────────────────────────────────┘
+        const body = await res.text().catch(() => '');
+        logger.warn(
+          { status: res.status, redirectUri, obligateSaid: body.slice(0, 300) },
+          'Obligate exchange REFUSED. 401 with "Invalid API key" means the key stored here is '
+            + 'not the one Obligate issued for this app; 401 with "Invalid, expired, or already '
+            + 'used code" usually means the redirect_uri above is not the callback URL registered '
+            + 'in Obligate.',
+        );
         return null;
       }
 

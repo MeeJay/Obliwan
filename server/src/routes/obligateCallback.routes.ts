@@ -669,14 +669,46 @@ router.get('/sso-redirect', async (req, res) => {
       res.redirect('/login?error=sso_client_id_missing');
       return;
     }
-    // Verify Obligate is reachable before redirecting (prevents redirect loop when Gate is down)
+    // ┌─ THIS PROBE BLOCKS THE LOGIN, AND ITS TIMEOUT WAS 2 SECONDS ─────────┐
+    // │ Unlike the one behind the login banner, a failure here does not       │
+    // │ degrade anything — it BOUNCES the user to /login?error=sso_failed     │
+    // │ before they ever reach Obligate. Two seconds is a LAN budget, and the │
+    // │ real deployment puts Obligate behind Oblihub: the first click of the  │
+    // │ day pays DNS, a cold TCP connect and a full TLS handshake through a   │
+    // │ reverse proxy. Exceeding 2 s there is ordinary, and it presented as   │
+    // │ "SSO is broken" on a system where nothing was.                        │
+    // │                                                                      │
+    // │ The probe itself is kept: it exists to stop a redirect loop when      │
+    // │ Obligate really is down, which is worth more than the 8 s ceiling it  │
+    // │ now costs in the worst case. What changes is that a refusal is now    │
+    // │ LOGGED with its cause — it used to be two silent `res.redirect`       │
+    // │ calls, and an operator had nothing to read.                           │
+    // └──────────────────────────────────────────────────────────────────────┘
+    const SSO_PROBE_TIMEOUT_MS = 8000;
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 2000);
+      const timeout = setTimeout(() => controller.abort(), SSO_PROBE_TIMEOUT_MS);
       const healthRes = await fetch(`${raw.url}/health`, { signal: controller.signal });
       clearTimeout(timeout);
-      if (!healthRes.ok) { res.redirect('/login?error=sso_failed'); return; }
-    } catch {
+      if (!healthRes.ok) {
+        logger.warn(
+          { obligateUrl: raw.url, status: healthRes.status },
+          'sso-redirect REFUSED: Obligate /health answered but not OK',
+        );
+        res.redirect('/login?error=sso_failed');
+        return;
+      }
+    } catch (err) {
+      logger.warn(
+        {
+          obligateUrl: raw.url,
+          err: err instanceof Error ? err.message : String(err),
+          timeoutMs: SSO_PROBE_TIMEOUT_MS,
+        },
+        'sso-redirect REFUSED: the SERVER CONTAINER could not reach Obligate. This is about the '
+          + 'container, not your browser — each Obli* stack has its own Docker network, so a URL '
+          + 'that works in a tab can be unreachable from here.',
+      );
       res.redirect('/login?error=sso_failed');
       return;
     }

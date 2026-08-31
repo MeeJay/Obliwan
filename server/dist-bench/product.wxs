@@ -36,7 +36,7 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="ObliWAN Bench Tool"
            Manufacturer="ObliWAN"
-           Version="1.0.2"
+           Version="1.0.3"
            Language="1033"
            Scope="perMachine"
            UpgradeCode="8F2E4A61-3B7C-4D0E-9A15-6C2D8E4F1B03">

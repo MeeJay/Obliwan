@@ -40,7 +40,7 @@
 
 import { build } from 'esbuild';
 import { execFileSync } from 'child_process';
-import { mkdirSync, copyFileSync, writeFileSync, rmSync, readFileSync } from 'fs';
+import { mkdirSync, copyFileSync, writeFileSync, rmSync, readFileSync, existsSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -50,6 +50,33 @@ const dist = join(serverRoot, 'dist-bench');
 const bundle = join(dist, 'bench.cjs');
 const blob = join(dist, 'bench.blob');
 const exe = join(dist, 'obliwan-bench.exe');
+
+/**
+ * Locate `signtool.exe` in the Windows SDK, preferring x64.
+ *
+ * Same search `D:\Sign\Sign.ps1` performs — duplicated rather than shared
+ * because that script lives outside every repository, and a build that depends
+ * on a file nobody can see from here is a build nobody can reproduce.
+ */
+function findSigntool() {
+  const roots = [
+    'C:\\Program Files (x86)\\Windows Kits\\10\\bin',
+    'C:\\Program Files\\Windows Kits\\10\\bin',
+  ];
+  const found = [];
+  for (const root of roots) {
+    if (!existsSync(root)) continue;
+    for (const ver of readdirSync(root)) {
+      for (const arch of ['x64', 'x86']) {
+        const p = join(root, ver, arch, 'signtool.exe');
+        if (existsSync(p)) found.push({ p, arch, ver });
+      }
+    }
+  }
+  if (found.length === 0) return null;
+  found.sort((a, b) => (a.arch === b.arch ? b.ver.localeCompare(a.ver) : a.arch === 'x64' ? -1 : 1));
+  return found[0].p;
+}
 
 // Read from `src/bench/VERSION`, the same convention Obliview and Obliance use
 // for their agents. A file rather than a field in package.json because the
@@ -153,6 +180,36 @@ execFileSync(process.execPath, ['--experimental-sea-config', seaConfig], { stdio
 
 console.log('[3/4] copying the node runtime…');
 copyFileSync(process.execPath, exe);
+
+// ┌─ STRIP NODE'S OWN AUTHENTICODE SIGNATURE BEFORE INJECTING ───────────────┐
+// │ `process.execPath` is the official node.exe and it ships SIGNED. Injecting│
+// │ the SEA blob invalidates that signature — postject says so out loud       │
+// │ ("warning: The signature seems corrupted!") — and it leaves a certificate │
+// │ table that no longer matches the file. `signtool` then REFUSES to re-sign │
+// │ it, which is what made the release fail after SimplySign had already      │
+// │ accepted the TOTP: the session was fine, the binary was not.             │
+// │                                                                          │
+// │ Node's own SEA documentation prescribes exactly this: remove the          │
+// │ signature, inject, sign. Doing it here rather than in the .bat keeps the  │
+// │ build self-contained — a binary this script produces is always signable.  │
+// │                                                                          │
+// │ Non-fatal: an unsigned node.exe (a custom or nightly build) has nothing   │
+// │ to remove, and that is not an error.                                      │
+// └──────────────────────────────────────────────────────────────────────────┘
+if (process.platform === 'win32') {
+  const signtool = findSigntool();
+  if (!signtool) {
+    console.log('  ! signtool.exe not found — skipping signature removal.');
+    console.log('    If the release then fails at "Signing exe", this is why.');
+  } else {
+    try {
+      execFileSync(signtool, ['remove', '/s', exe], { stdio: 'pipe' });
+      console.log("  node's own signature removed");
+    } catch {
+      console.log('  (no signature to remove)');
+    }
+  }
+}
 
 console.log('[4/4] injecting…');
 // `postject` is invoked through npx so the build host needs no global install.
