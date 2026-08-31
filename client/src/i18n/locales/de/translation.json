@@ -1620,7 +1620,8 @@
     "templates": "Vorlagen",
     "users": "Benutzer & Teams",
     "variables": "Variablen",
-    "workspaces": "Arbeitsbereiche"
+    "workspaces": "Arbeitsbereiche",
+    "addDevice": "Gerät hinzufügen"
   },
   "ncm": {
     "coverage": {

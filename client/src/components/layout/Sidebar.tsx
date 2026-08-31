@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   DndContext,
   PointerSensor,
@@ -10,8 +10,9 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import {
-  Activity,
   Archive,
+  Plus,
+  Activity,
   BellRing,
   Braces,
   Building2,
@@ -60,9 +61,7 @@ import { useDeviceStore } from '@/store/deviceStore';
 import { PresenceDot } from '@/components/fleet/PresenceDot';
 import { FleetTree } from '@/components/fleet/FleetTree';
 import toast from 'react-hot-toast';
-
 // ── localStorage helpers ─────────────────────────────────────────────────────
-
 function usePersisted<T>(key: string, initial: T): [T, (v: T | ((prev: T) => T)) => void] {
   const [value, setValue] = useState<T>(() => {
     try {
@@ -81,7 +80,6 @@ function usePersisted<T>(key: string, initial: T): [T, (v: T | ((prev: T) => T))
   }, [key]);
   return [value, set];
 }
-
 // ── Recursive group section ───────────────────────────────────────────────────
 //
 // M2: the group tree now carries the devices filed under each group, each with
@@ -89,31 +87,25 @@ function usePersisted<T>(key: string, initial: T): [T, (v: T | ((prev: T) => T))
 // socket writes directly — the tree repaints on `wan:site:presence` without a
 // refetch and without the fleet page being open. The sites → devices tree
 // (spec §4.1) sits below, in <FleetTree />.
-
 function GroupSection({ group, depth }: { group: GroupTreeNode; depth: number }) {
   const { t } = useTranslation();
   const location = useLocation();
   const [expanded, setExpanded] = usePersisted<boolean>(`sidebar:group-${group.id}-open`, true);
-
   const devices = useDeviceStore(s => s.devices);
   const livePresence = useDeviceStore(s => s.presence);
   const groupDevices = devices
     .filter(d => d.groupId === group.id)
     .sort((a, b) => a.name.localeCompare(b.name));
-
   const isGroupActive = location.pathname === `/group/${group.id}`;
   const hasContent = group.children.length > 0 || groupDevices.length > 0;
-
   const { setNodeRef: setDropRef, isOver } = useDroppable({
     id: `drop-group-${group.id}`,
     data: { type: 'group', groupId: group.id },
   });
-
   const { attributes, listeners, setNodeRef: setDragRef, isDragging } = useDraggable({
     id: `drag-group-${group.id}`,
     data: { type: 'group-drag', group },
   });
-
   return (
     <div
       ref={setDropRef}
@@ -136,7 +128,6 @@ function GroupSection({ group, depth }: { group: GroupTreeNode; depth: number })
         >
           <GripVertical size={10} />
         </div>
-
         <button
           onClick={() => setExpanded(v => !v)}
           className={cn(
@@ -146,7 +137,6 @@ function GroupSection({ group, depth }: { group: GroupTreeNode; depth: number })
         >
           {expanded ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
         </button>
-
         <Link
           to={`/group/${group.id}`}
           className={cn(
@@ -160,7 +150,6 @@ function GroupSection({ group, depth }: { group: GroupTreeNode; depth: number })
           <span className="truncate flex-1 font-medium">{anonHostname(group.name)}</span>
         </Link>
       </div>
-
       {expanded && groupDevices.map(device => {
         const presence = livePresence[device.id] ?? device.presence ?? null;
         const isDeviceActive = location.pathname === `/devices/${device.id}`;
@@ -182,16 +171,13 @@ function GroupSection({ group, depth }: { group: GroupTreeNode; depth: number })
           </Link>
         );
       })}
-
       {expanded && group.children.map(child => (
         <GroupSection key={child.id} group={child} depth={depth + 1} />
       ))}
     </div>
   );
 }
-
 // ── Droppable root (un-parent target) ─────────────────────────────────────────
-
 function DroppableRoot({ children }: { children: React.ReactNode }) {
   const { setNodeRef, isOver } = useDroppable({
     id: 'drop-group-root',
@@ -206,9 +192,7 @@ function DroppableRoot({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
 // ── Nav items ────────────────────────────────────────────────────────────────
-
 interface NavItem {
   label: string;
   path: string;
@@ -230,14 +214,12 @@ interface NavItem {
    */
   notBuilt?: boolean;
 }
-
 // ── Main Sidebar ──────────────────────────────────────────────────────────────
-
 export function Sidebar() {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, isAdmin, hasCapability } = useAuthStore();
-
   // Spec §4.1 — the full ObliWAN navigation. Entries carrying `notBuilt`
   // are shown disabled: their screen does not exist, whatever the API does.
   const navItems: NavItem[] = [
@@ -252,7 +234,7 @@ export function Sidebar() {
     { label: t('nav.configurations'), path: '/config',      icon: <FileCode size={18} />,         capability: CAPABILITIES.CONFIG_READ },
     { label: t('nav.drift'),          path: '/drift',       icon: <GitCompareArrows size={18} />, capability: CAPABILITIES.CONFIG_READ },
     { label: t('nav.templates'),      path: '/templates',   icon: <Layers size={18} />,           capability: CAPABILITIES.TEMPLATE_WRITE },
-    { label: t('nav.variables'),      path: '/variables',   icon: <Braces size={18} />,           capability: CAPABILITIES.TEMPLATE_WRITE, notBuilt: true },
+    { label: t('nav.variables'),      path: '/variables',   icon: <Braces size={18} />,           capability: CAPABILITIES.TEMPLATE_WRITE },
     // M11 (K4). Filed next to Templates rather than next to Changements on
     // purpose: composing an intent AUTHORS configuration, it does not push it.
     // §4.1 has no row for this screen — the spec's table stops at the pages
@@ -273,25 +255,23 @@ export function Sidebar() {
     // deduced draft into a real template is TEMPLATE_WRITE and is checked
     // inside the page, the same split /query uses for QUERY_RUN.
     { label: t('nav.baseline'),       path: '/baseline',    icon: <SquareStack size={18} />,      capability: CAPABILITIES.CONFIG_READ },
-    { label: t('nav.backups'),        path: '/backups',     icon: <Archive size={18} />,          capability: CAPABILITIES.CONFIG_READ,    notBuilt: true },
     // M10 unlocks TR-069 / ACS. The screen covers DrayTek + Zyxel CPE only
     // (D2) and says so in its first panel — the entry is NOT a claim that the
     // ACS reaches the whole fleet.
     { label: t('nav.acs'),            path: '/acs',         icon: <RadioTower size={18} />,       capability: CAPABILITIES.ACS_ADMIN },
     { label: t('nav.alerts'),         path: '/alerts',      icon: <BellRing size={18} /> },
     { label: t('nav.logs'),           path: '/logs',        icon: <ScrollText size={18} />,       capability: CAPABILITIES.DEVICE_READ },
-
     // ── admin section ──
     { label: t('nav.discoveries'),   path: '/admin/discoveries',   icon: <Radar size={18} />,       adminOnly: true },
     { label: t('nav.groups'),        path: '/admin/groups',        icon: <FolderTree size={18} />,  adminOnly: true },
     { label: t('nav.users'),         path: '/admin/users',         icon: <Users size={18} />,       adminOnly: true },
     { label: t('nav.workspaces'),    path: '/admin/tenants',       icon: <Building2 size={18} />,   adminOnly: true },
     { label: t('nav.notifications'), path: '/admin/notifications', icon: <Send size={18} />,        adminOnly: true },
-    { label: t('nav.audit'),         path: '/admin/audit',         icon: <ShieldCheck size={18} />, adminOnly: true, notBuilt: true },
+    { label: t('nav.backups'),        path: '/backups',     icon: <Archive size={18} />,          capability: CAPABILITIES.CONFIG_READ },
+    { label: t('nav.audit'),         path: '/admin/audit',         icon: <ShieldCheck size={18} />, adminOnly: true },
     { label: t('nav.importExport'),  path: '/admin/import-export', icon: <PackageOpen size={18} />, adminOnly: true },
     { label: t('nav.settings'),      path: '/admin/settings',      icon: <Settings size={18} />,    adminOnly: true },
   ];
-
   const {
     sidebarFloating,
     toggleSidebarFloating,
@@ -299,30 +279,23 @@ export function Sidebar() {
     toggleSidebarCollapsed,
   } = useUiStore();
   const { tree, fetchTree } = useGroupStore();
-
   const [search, setSearch] = useState('');
   const [adminMenuOpen, setAdminMenuOpen] = usePersisted<boolean>('sidebar:admin-open', true);
-
   const admin = isAdmin();
   const canManageGroups = admin || hasCapability(CAPABILITIES.GROUP_WRITE);
-
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
-
   useEffect(() => {
     void fetchTree();
   }, [fetchTree]);
-
   const handleGroupDragEnd = useCallback(
     async (event: DragEndEvent) => {
       if (!canManageGroups) return; // read-only members: no drag-to-move
       const { active, over } = event;
       if (!over) return;
-
       const dragData = active.data.current;
       const dropData = over.data.current;
-
       if (dragData?.type === 'group-drag' && dropData?.type === 'group') {
         const group = dragData.group as GroupTreeNode;
         const targetGroupId = dropData.groupId as number | null;
@@ -338,17 +311,14 @@ export function Sidebar() {
     },
     [fetchTree, canManageGroups, t],
   );
-
   const filteredNavItems = navItems.filter(item => {
     if (item.adminOnly && !admin) return false;
     if (item.capability && !admin && !hasCapability(item.capability)) return false;
     if (!search) return true;
     return item.label.toLowerCase().includes(search.toLowerCase());
   });
-
   const topNav = filteredNavItems.filter(item => !item.adminOnly);
   const adminNav = filteredNavItems.filter(item => item.adminOnly);
-
   const renderGroupTree = () => (
     <DndContext sensors={sensors} onDragEnd={handleGroupDragEnd}>
       <div className="mt-2 pt-2 border-t border-border">
@@ -356,7 +326,6 @@ export function Sidebar() {
           <Server size={12} />
           {t('nav.groups')}
         </div>
-
         <DroppableRoot>
           {tree.length === 0 ? (
             <div className="px-2 py-2 text-[12px] text-text-muted">
@@ -369,10 +338,8 @@ export function Sidebar() {
       </div>
     </DndContext>
   );
-
   const lockedTitle = (item: NavItem) =>
     `${item.label} — ${t('nav.screenNotBuilt', { defaultValue: 'screen not built yet (the server API exists)' })}`;
-
   // ── Collapsed mode (Obli Design v1) — 64 px icon-only column ─────────────
   if (sidebarCollapsed) {
     const allItems = [...topNav, ...adminNav];
@@ -387,7 +354,6 @@ export function Sidebar() {
             <ChevronsRight size={16} />
           </button>
         </div>
-
         <nav className="flex-1 overflow-y-auto px-2 pt-3 space-y-1">
           {allItems.map((item) => {
             if (item.notBuilt) {
@@ -421,7 +387,6 @@ export function Sidebar() {
             );
           })}
         </nav>
-
         <div className="p-2 space-y-1">
           <Link
             to="/profile"
@@ -446,9 +411,7 @@ export function Sidebar() {
       </aside>
     );
   }
-
   // ── Expanded mode ───────────────────────────────────────────────────────────
-
   const renderNavEntry = (item: NavItem) => {
     if (item.notBuilt) {
       return (
@@ -461,7 +424,6 @@ export function Sidebar() {
           {item.icon}
           <span className="flex-1 truncate">{item.label}</span>
           <Lock size={11} className="shrink-0" />
-          <span className="font-mono text-[10px] tracking-wider">{item.notBuilt}</span>
         </div>
       );
     }
@@ -485,10 +447,8 @@ export function Sidebar() {
       </Link>
     );
   };
-
   return (
     <aside className="flex h-full w-full flex-col bg-bg-secondary">
-
       {/* Sidebar head — collapse + float/pin toggles only. The logo and
           tenant selector live in the topbar (Header.tsx) so they remain
           visible when the sidebar is collapsed or floating. */}
@@ -517,6 +477,27 @@ export function Sidebar() {
           </button>
         </div>
       </div>
+      {/* ┌─ ADD A DEVICE — the first thing an operator needs, where Obliance
+              puts it ────────────────────────────────────────────────────────┐
+          It is in the SIDEBAR and not on the devices page on purpose: adding a
+          box is not something you do while already looking at the list, it is
+          how you START. Obliance puts its "Ajouter un agent" pill here for the
+          same reason, and muscle memory across the suite is worth more than a
+          locally clever placement.
+
+          Same capability as the form it opens — DEVICE_WRITE. A button that
+          leads to a 403 is worse than no button.                              */}
+      {(admin || hasCapability(CAPABILITIES.DEVICE_WRITE)) && (
+        <div className="px-3 pt-2">
+          <button
+            onClick={() => navigate('/devices?add=1')}
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-accent/12 px-3 py-2 text-[13px] font-medium text-accent transition-colors hover:bg-accent/20"
+          >
+            <Plus size={15} />
+            {t('nav.addDevice', { defaultValue: 'Add a device' })}
+          </button>
+        </div>
+      )}
 
       {/* Search */}
       <div className="px-3 py-2.5">
@@ -528,14 +509,12 @@ export function Sidebar() {
           className="w-full rounded-md bg-bg-tertiary px-3 py-2 text-[13px] text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent"
         />
       </div>
-
       {/* Main nav + group tree */}
       <div className="flex-1 overflow-y-auto px-2 min-h-0">
         <nav>{topNav.map(renderNavEntry)}</nav>
         {renderGroupTree()}
         {(admin || hasCapability(CAPABILITIES.DEVICE_READ)) && <FleetTree />}
       </div>
-
       {/* Admin section collapsible */}
       {admin && adminNav.length > 0 && (
         <>
@@ -547,11 +526,9 @@ export function Sidebar() {
             <ChevronDown size={12} className={cn('transition-transform duration-200', !adminMenuOpen && '-rotate-90')} />
             <div className="flex-1 h-px bg-border" />
           </button>
-
           {adminMenuOpen && <nav className="p-2 pt-0">{adminNav.map(renderNavEntry)}</nav>}
         </>
       )}
-
       {/* User section */}
       <div className="border-t border-border p-2">
         <Link

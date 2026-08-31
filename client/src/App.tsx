@@ -34,6 +34,9 @@ const QueryPage = lazy(() => import('@/pages/QueryPage').then((m) => ({ default:
 const AlertsPage = lazy(() => import('@/pages/AlertsPage').then((m) => ({ default: m.AlertsPage })));
 const SitesPage = lazy(() => import('@/pages/SitesPage').then((m) => ({ default: m.SitesPage })));
 const TemplatesPage = lazy(() => import('@/pages/TemplatesPage').then((m) => ({ default: m.TemplatesPage })));
+const VariablesPage = lazy(() => import('@/pages/VariablesPage').then((m) => ({ default: m.VariablesPage })));
+const AuditPage = lazy(() => import('@/pages/AuditPage').then((m) => ({ default: m.AuditPage })));
+const BackupsPage = lazy(() => import('@/pages/BackupsPage').then((m) => ({ default: m.BackupsPage })));
 const SiteDetailPage = lazy(() => import('@/pages/SiteDetailPage').then((m) => ({ default: m.SiteDetailPage })));
 const DiscoveriesPage = lazy(() => import('@/pages/DiscoveriesPage').then((m) => ({ default: m.DiscoveriesPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
@@ -126,6 +129,9 @@ export default function App() {
               <Route path="/devices/:id" element={<DeviceDetailPage />} />
               <Route path="/sites" element={<SitesPage />} />
               <Route path="/templates" element={<TemplatesPage />} />
+              <Route path="/variables" element={<VariablesPage />} />
+              <Route path="/admin/audit" element={<AuditPage />} />
+              <Route path="/backups" element={<BackupsPage />} />
               <Route path="/sites/:id" element={<SiteDetailPage />} />
               {/* Telemetry (M3). The thresholds screen sits UNDER /interfaces
                   rather than under a sidebar entry of its own: spec §4.1 gives

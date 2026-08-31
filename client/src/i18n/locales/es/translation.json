@@ -1620,7 +1620,8 @@
     "templates": "Plantillas",
     "users": "Usuarios y equipos",
     "variables": "Variables",
-    "workspaces": "Espacios de trabajo"
+    "workspaces": "Espacios de trabajo",
+    "addDevice": "Añadir un dispositivo"
   },
   "ncm": {
     "coverage": {

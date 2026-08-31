@@ -1620,7 +1620,8 @@
     "templates": "Szablony",
     "users": "Użytkownicy i zespoły",
     "variables": "Zmienne",
-    "workspaces": "Przestrzenie robocze"
+    "workspaces": "Przestrzenie robocze",
+    "addDevice": "Dodaj urządzenie"
   },
   "ncm": {
     "coverage": {

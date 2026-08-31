@@ -1620,7 +1620,8 @@
     "templates": "Mallar",
     "users": "Användare och team",
     "variables": "Variabler",
-    "workspaces": "Arbetsytor"
+    "workspaces": "Arbetsytor",
+    "addDevice": "Lägg till en enhet"
   },
   "ncm": {
     "coverage": {

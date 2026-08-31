@@ -1620,7 +1620,8 @@
     "templates": "Modelos",
     "users": "Usuários e times",
     "variables": "Variáveis",
-    "workspaces": "Espaços de trabalho"
+    "workspaces": "Espaços de trabalho",
+    "addDevice": "Adicionar dispositivo"
   },
   "ncm": {
     "coverage": {

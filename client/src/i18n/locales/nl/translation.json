@@ -1620,7 +1620,8 @@
     "templates": "Sjablonen",
     "users": "Gebruikers & teams",
     "variables": "Variabelen",
-    "workspaces": "Werkruimten"
+    "workspaces": "Werkruimten",
+    "addDevice": "Apparaat toevoegen"
   },
   "ncm": {
     "coverage": {

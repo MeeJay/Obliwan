@@ -1620,7 +1620,8 @@
     "templates": "Šablony",
     "users": "Uživatelé a týmy",
     "variables": "Proměnné",
-    "workspaces": "Pracovní prostory"
+    "workspaces": "Pracovní prostory",
+    "addDevice": "Přidat zařízení"
   },
   "ncm": {
     "coverage": {

@@ -1620,7 +1620,8 @@
     "templates": "Templates",
     "users": "Users & teams",
     "variables": "Variables",
-    "workspaces": "Workspaces"
+    "workspaces": "Workspaces",
+    "addDevice": "Add a device"
   },
   "ncm": {
     "coverage": {

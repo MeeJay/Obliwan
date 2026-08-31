@@ -21,6 +21,7 @@ import sitesRoutes from './sites.routes';
 import devicesRoutes from './devices.routes';
 import discoveriesRoutes from './discoveries.routes';
 import snmpRoutes from './snmp.routes';
+import backupsRoutes from './backups.routes';
 import configRoutes from './config.routes';
 import driftRoutes from './drift.routes';
 import templatesRoutes from './templates.routes';
@@ -110,6 +111,9 @@ tenantRouter.use('/snmp', snmpRoutes);
 // touches the fleet at all (`POST /config/devices/:id/collect`) runs
 // `/export terse show-sensitive=no` and nothing else, and sits behind
 // CONFIG_WRITE for that reason.
+// Pre-change backups (M6). READ ONLY, and it never returns the archive's
+// encryption password nor its storage path — see the box in backups.routes.ts.
+tenantRouter.use('/backups', backupsRoutes);
 tenantRouter.use('/config', configRoutes);
 tenantRouter.use('/drift', driftRoutes);
 

@@ -1620,7 +1620,8 @@
     "templates": "模板",
     "users": "用户与团队",
     "variables": "变量",
-    "workspaces": "工作区"
+    "workspaces": "工作区",
+    "addDevice": "添加设备"
   },
   "ncm": {
     "coverage": {

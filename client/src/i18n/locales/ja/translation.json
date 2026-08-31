@@ -1620,7 +1620,8 @@
     "templates": "テンプレート",
     "users": "ユーザーとチーム",
     "variables": "変数",
-    "workspaces": "ワークスペース"
+    "workspaces": "ワークスペース",
+    "addDevice": "機器を追加"
   },
   "ncm": {
     "coverage": {

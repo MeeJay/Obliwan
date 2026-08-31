@@ -1620,7 +1620,8 @@
     "templates": "Şablonlar",
     "users": "Kullanıcılar ve ekipler",
     "variables": "Değişkenler",
-    "workspaces": "Çalışma alanları"
+    "workspaces": "Çalışma alanları",
+    "addDevice": "Cihaz ekle"
   },
   "ncm": {
     "coverage": {

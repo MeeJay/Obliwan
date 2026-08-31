@@ -1620,7 +1620,8 @@
     "templates": "템플릿",
     "users": "사용자 및 팀",
     "variables": "변수",
-    "workspaces": "워크스페이스"
+    "workspaces": "워크스페이스",
+    "addDevice": "장치 추가"
   },
   "ncm": {
     "coverage": {

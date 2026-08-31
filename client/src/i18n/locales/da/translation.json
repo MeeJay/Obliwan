@@ -1620,7 +1620,8 @@
     "templates": "Skabeloner",
     "users": "Brugere og teams",
     "variables": "Variabler",
-    "workspaces": "Arbejdsområder"
+    "workspaces": "Arbejdsområder",
+    "addDevice": "Tilføj en enhed"
   },
   "ncm": {
     "coverage": {

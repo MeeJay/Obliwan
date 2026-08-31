@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Plus, Router, Radio, RotateCw, Search, X, Eye } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -91,7 +92,20 @@ export function DevicesPage() {
 
   const canWriteFleet = hasCapability(CAPABILITIES.DEVICE_WRITE);
 
-  const [showCreate, setShowCreate] = useState(false);
+  // The sidebar's "Add a device" pill lands here with ?add=1 and the form is
+  // already open. A button that only navigates, leaving the operator to hunt
+  // for a second button on the page it opened, is half a button.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showCreate, setShowCreate] = useState(searchParams.get('add') === '1');
+
+  // The parameter is consumed once: it opened the form, and leaving it in the
+  // URL would re-open it on every back-navigation to this page.
+  useEffect(() => {
+    if (searchParams.get('add') !== '1') return;
+    const next = new URLSearchParams(searchParams);
+    next.delete('add');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
   const [form, setForm] = useState<CreateForm>(emptyCreateForm);
   const [saving, setSaving] = useState(false);
 

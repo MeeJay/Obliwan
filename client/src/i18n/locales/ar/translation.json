@@ -1620,7 +1620,8 @@
     "templates": "القوالب",
     "users": "المستخدمون والفرق",
     "variables": "المتغيرات",
-    "workspaces": "مساحات العمل"
+    "workspaces": "مساحات العمل",
+    "addDevice": "إضافة جهاز"
   },
   "ncm": {
     "coverage": {
