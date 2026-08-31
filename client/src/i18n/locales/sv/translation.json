@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Hanterade enheter",
-    "emptyBody": "Parkinventeringen — platser, enheter, transportvägar och CHR-upptäckt — kommer i milstolpe M2. Fram till dess har den här översikten inget verkligt att visa.",
-    "emptyTitle": "Ingen utrustning ännu",
-    "m1Body": "Autentisering via Obligate SSO, arbetsytor, grupper, inställningar, aviseringar och teman är i drift. Parkfunktionerna är gråmarkerade i sidopanelen tillsammans med den milstolpe som låser upp dem.",
-    "m1Title": "Milstolpe M1",
+    "emptyBody": "Deklarera koncentratorn så fyller dess PPP-sessioner karantänen, eller registrera manuellt en direkt nåbar enhet.",
+    "emptyTitle": "Inga enheter ännu",
     "openDrift": "Öppna avvikelser",
     "runningJobs": "Pågående jobb",
     "sitesOnline": "Platser online",
-    "title": "Översikt"
+    "title": "Översikt",
+    "devices": "Enheter",
+    "sites": "Platser",
+    "drift": "Avvikelse",
+    "changes": "Ändringar",
+    "quarantined": "{{count}} i karantän",
+    "pending": "{{count}} väntar på koppling",
+    "openRuns": "se detaljer"
   },
   "devices": {
     "addTransport": "Lägg till en kanal",
@@ -794,7 +799,7 @@
       "family": "Familj",
       "firstSeen": "Först sedd",
       "group": "Grupp",
-      "host": "Värd",
+      "host": "Adress",
       "lastSeen": "Senast sedd",
       "managed": "Hanterad (planer får rikta sig mot den)",
       "model": "Modell",
@@ -814,10 +819,11 @@
       "systemIdentity": "Systemidentitet",
       "transport": "Kanal",
       "tunnelIp": "Tunnel-IP",
-      "useTls": "Använd TLS",
+      "useTls": "TLS",
       "username": "Användarnamn",
       "uuid": "UUID",
-      "wanPublicIp": "Publik WAN-IP"
+      "wanPublicIp": "Publik WAN-IP",
+      "password": "Lösenord"
     },
     "filters": {
       "allBrands": "Alla märken",
@@ -878,7 +884,11 @@
     "transportFailed": "Det gick inte att lägga till kanalen",
     "transportsUnavailable": "Servern exponerar ännu inte listan över kanaler.",
     "updated": "Enheten uppdaterad",
-    "vaultHint": "Inloggningsuppgifterna förvaras i plattformens valv. De skrivs en gång och läses aldrig tillbaka — den här skärmen vet bara att en hemlighet finns och vilken nyckelgeneration som krypterade den."
+    "vaultHint": "Inloggningsuppgifterna förvaras i plattformens valv. De skrivs en gång och läses aldrig tillbaka — den här skärmen vet bara att en hemlighet finns och vilken nyckelgeneration som krypterade den.",
+    "reachTitle": "Nåbarhet (valfritt)",
+    "reachHint": "Fyll i dem så ringer ObliWAN upp enheten nu, läser dess identitet och lägger uppgiften i valvet. Lämna tomt för att bara skapa en rad som ingen ringer upp. Oavsett vilket hamnar enheten i karantän tills en människa kopplar den.",
+    "enrolledIdentityRead": "Registrerad. Enheten svarade och uppgav sin identitet; den är i karantän tills du kopplar den.",
+    "enrolledNoIdentity": "Registrerad, men enheten uppgav VARKEN serienummer eller systemidentitet. All skrivning nekas tills en har lästs — kontrollera uppgiften och upprepa anslutningstestet."
   },
   "diff": {
     "copied": "Kopierat",

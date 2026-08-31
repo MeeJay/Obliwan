@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Yönetilen cihazlar",
-    "emptyBody": "Filo envanteri — sahalar, cihazlar, taşımalar ve CHR keşfi — M2 aşamasında geliyor. O zamana kadar bu panonun gösterecek gerçek bir şeyi yok.",
+    "emptyBody": "Yoğunlaştırıcıyı tanımlayın; PPP oturumları karantinayı dolduracaktır ya da doğrudan erişilebilen bir cihazı elle kaydedin.",
     "emptyTitle": "Henüz cihaz yok",
-    "m1Body": "Obligate SSO ile kimlik doğrulama, çalışma alanları, gruplar, ayarlar, bildirimler ve temalar çalışıyor. Filo özellikleri, kendilerini açacak aşama belirtilerek kenar çubuğunda soluk gösteriliyor.",
-    "m1Title": "Aşama M1",
     "openDrift": "Açık sapmalar",
     "runningJobs": "Çalışan işler",
     "sitesOnline": "Çevrimiçi sahalar",
-    "title": "Pano"
+    "title": "Pano",
+    "devices": "Cihazlar",
+    "sites": "Sahalar",
+    "drift": "Sapma",
+    "changes": "Değişiklikler",
+    "quarantined": "{{count}} karantinada",
+    "pending": "{{count}} bağlanmayı bekliyor",
+    "openRuns": "ayrıntıya bak"
   },
   "devices": {
     "addTransport": "Bir kanal ekle",
@@ -794,7 +799,7 @@
       "family": "Aile",
       "firstSeen": "İlk görülme",
       "group": "Grup",
-      "host": "Sunucu adresi",
+      "host": "Adres",
       "lastSeen": "Son görülme",
       "managed": "Yönetiliyor (planlar hedef alabilir)",
       "model": "Model",
@@ -814,10 +819,11 @@
       "systemIdentity": "Sistem kimliği",
       "transport": "Kanal",
       "tunnelIp": "Tünel IP'si",
-      "useTls": "TLS kullan",
+      "useTls": "TLS",
       "username": "Kullanıcı adı",
       "uuid": "UUID",
-      "wanPublicIp": "Genel WAN IP'si"
+      "wanPublicIp": "Genel WAN IP'si",
+      "password": "Parola"
     },
     "filters": {
       "allBrands": "Tüm markalar",
@@ -878,7 +884,11 @@
     "transportFailed": "Kanal eklenemedi",
     "transportsUnavailable": "Sunucu kanal listesini henüz sunmuyor.",
     "updated": "Cihaz güncellendi",
-    "vaultHint": "Kimlik bilgileri platform kasasında tutulur. Bir kez yazılır ve bir daha asla geri okunmaz — bu ekran yalnızca bir sırrın var olduğunu ve onu hangi anahtar kuşağının şifrelediğini bilir."
+    "vaultHint": "Kimlik bilgileri platform kasasında tutulur. Bir kez yazılır ve bir daha asla geri okunmaz — bu ekran yalnızca bir sırrın var olduğunu ve onu hangi anahtar kuşağının şifrelediğini bilir.",
+    "reachTitle": "Erişilebilirlik (isteğe bağlı)",
+    "reachHint": "Doldurun; ObliWAN cihazı şimdi arar, kimliğini okur ve kimlik bilgisini kasaya koyar. Boş bırakırsanız yalnızca kimsenin aramayacağı bir kayıt oluşur. Her durumda cihaz, bir insan bağlayana kadar karantinada kalır.",
+    "enrolledIdentityRead": "Kaydedildi. Cihaz yanıt verdi ve kimliğini bildirdi; siz bağlayana kadar karantinada.",
+    "enrolledNoIdentity": "Kaydedildi, ancak cihaz NE seri numarası NE de sistem kimliği bildirdi. Biri okunana kadar her yazma reddedilecek — kimlik bilgisini kontrol edip bağlantı testini yineleyin."
   },
   "diff": {
     "copied": "Kopyalandı",

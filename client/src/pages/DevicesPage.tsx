@@ -40,6 +40,21 @@ interface CreateForm {
   tunnelIp: string;
   model: string;
   serial: string;
+  /**
+   * Reachability. Filled in, the SERVER dials the box, reads its identity and
+   * keeps the credential in the vault. Left empty, this is a plain row that
+   * nobody will ever dial.
+   *
+   * One form, two verbs, and the fork is the presence of a credential — which
+   * is also the capability boundary on the server (`CREDENTIAL_MANAGE`). An
+   * operator adding their own router should not have to know which of two
+   * screens is the right one.
+   */
+  host: string;
+  port: string;
+  username: string;
+  password: string;
+  useTls: boolean;
 }
 
 const emptyCreateForm: CreateForm = {
@@ -52,6 +67,11 @@ const emptyCreateForm: CreateForm = {
   tunnelIp: '',
   model: '',
   serial: '',
+  host: '',
+  port: '',
+  username: '',
+  password: '',
+  useTls: false,
 };
 
 /**
@@ -114,6 +134,33 @@ export function DevicesPage() {
     e.preventDefault();
     setSaving(true);
     try {
+      // A credential turns "record a row" into "go and look". The server dials,
+      // reads the identity off the hardware and vaults the secret; the device
+      // still lands `pending`, because a row an operator typed is a claim about
+      // a box and a human confirms it afterwards (D5 / R4).
+      const willProbe = Boolean(form.host && form.username && form.password);
+      if (willProbe) {
+        const r = await devicesApi.enrollProbe({
+          name: form.name,
+          family: form.family,
+          host: form.host,
+          port: form.port ? Number(form.port) : undefined,
+          username: form.username,
+          password: form.password,
+          useTls: form.useTls,
+          siteId: form.siteId ? Number(form.siteId) : null,
+        });
+        // Said out loud rather than left to be discovered on the first push:
+        // without a serial or a system identity, `assertTargetBinding` refuses
+        // every write to this device, forever.
+        if (r.identityRead) toast.success(t('devices.enrolledIdentityRead'));
+        else toast.error(t('devices.enrolledNoIdentity'));
+        setShowCreate(false);
+        setForm(emptyCreateForm);
+        void fetchDevices();
+        return;
+      }
+
       await devicesApi.create({
         name: form.name,
         brand: form.brand,
@@ -268,6 +315,53 @@ export function DevicesPage() {
               placeholder="10.10.0.42"
             />
           </div>
+
+          {/* Reachability — optional, and the fork between the two verbs.
+              Filled in, ObliWAN dials the box now and vaults the credential.
+              Left empty, this stays a plain row nobody will dial. */}
+          <div className="mt-4 border-t border-border pt-4">
+            <h3 className="mb-1 text-sm font-semibold uppercase tracking-wide text-text-secondary">
+              {t('devices.reachTitle')}
+            </h3>
+            <p className="mb-3 text-xs text-text-muted">{t('devices.reachHint')}</p>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <Input
+                label={t('devices.fields.host')}
+                value={form.host}
+                onChange={(e) => setForm({ ...form, host: e.target.value })}
+                placeholder="192.168.88.1"
+              />
+              <Input
+                label={t('devices.fields.port')}
+                value={form.port}
+                onChange={(e) => setForm({ ...form, port: e.target.value })}
+                placeholder="8728"
+              />
+              <Input
+                label={t('devices.fields.username')}
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                placeholder="obliwan-svc"
+                autoComplete="off"
+              />
+              <Input
+                label={t('devices.fields.password')}
+                type="password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                autoComplete="new-password"
+              />
+              <label className="flex items-end gap-2 pb-2 text-sm text-text-secondary">
+                <input
+                  type="checkbox"
+                  checked={form.useTls}
+                  onChange={(e) => setForm({ ...form, useTls: e.target.checked })}
+                />
+                {t('devices.fields.useTls')}
+              </label>
+            </div>
+          </div>
+
           <p className="mt-3 text-xs text-text-muted">{t('devices.createHint')}</p>
           <div className="mt-3 flex gap-2">
             <Button type="submit" size="sm" loading={saving}>{t('common.create')}</Button>

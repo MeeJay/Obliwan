@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "관리 대상 장비",
-    "emptyBody": "장비군 인벤토리 — 사이트, 장비, 전송 경로, CHR 탐색 — 는 마일스톤 M2에서 제공됩니다. 그때까지 이 대시보드가 보여줄 실제 데이터는 없습니다.",
-    "emptyTitle": "아직 장비가 없습니다",
-    "m1Body": "Obligate SSO를 통한 인증, 워크스페이스, 그룹, 설정, 알림, 테마가 동작합니다. 장비군 기능은 사이드바에서 회색으로 표시되며 해제되는 마일스톤이 함께 적혀 있습니다.",
-    "m1Title": "마일스톤 M1",
+    "emptyBody": "집선 장치를 등록하면 해당 PPP 세션이 격리 목록을 채웁니다. 직접 접근 가능한 장치는 수동으로 등록하세요.",
+    "emptyTitle": "아직 장치가 없습니다",
     "openDrift": "미해결 드리프트",
     "runningJobs": "실행 중인 작업",
     "sitesOnline": "온라인 사이트",
-    "title": "대시보드"
+    "title": "대시보드",
+    "devices": "장치",
+    "sites": "사이트",
+    "drift": "드리프트",
+    "changes": "변경",
+    "quarantined": "{{count}}개 격리됨",
+    "pending": "{{count}}개 연결 대기",
+    "openRuns": "자세히 보기"
   },
   "devices": {
     "addTransport": "채널 추가",
@@ -794,7 +799,7 @@
       "family": "제품군",
       "firstSeen": "최초 관측",
       "group": "그룹",
-      "host": "호스트",
+      "host": "주소",
       "lastSeen": "마지막 관측",
       "managed": "관리 대상(계획이 대상으로 삼을 수 있음)",
       "model": "모델",
@@ -814,10 +819,11 @@
       "systemIdentity": "시스템 식별자",
       "transport": "채널",
       "tunnelIp": "터널 IP",
-      "useTls": "TLS 사용",
-      "username": "사용자명",
+      "useTls": "TLS",
+      "username": "사용자 이름",
       "uuid": "UUID",
-      "wanPublicIp": "WAN 공인 IP"
+      "wanPublicIp": "WAN 공인 IP",
+      "password": "비밀번호"
     },
     "filters": {
       "allBrands": "모든 제조사",
@@ -878,7 +884,11 @@
     "transportFailed": "채널을 추가하지 못했습니다",
     "transportsUnavailable": "서버가 아직 채널 목록을 제공하지 않습니다.",
     "updated": "장비를 수정했습니다",
-    "vaultHint": "인증 정보는 플랫폼 보관소가 관리합니다. 한 번 기록되면 다시 읽히지 않습니다. 이 화면은 비밀값이 존재한다는 사실과 그것을 암호화한 키 세대만 압니다."
+    "vaultHint": "인증 정보는 플랫폼 보관소가 관리합니다. 한 번 기록되면 다시 읽히지 않습니다. 이 화면은 비밀값이 존재한다는 사실과 그것을 암호화한 키 세대만 압니다.",
+    "reachTitle": "도달 가능성 (선택)",
+    "reachHint": "입력하면 ObliWAN이 지금 접속하여 식별 정보를 읽고 자격 증명을 금고에 저장합니다. 비워 두면 아무도 접속하지 않는 항목만 기록됩니다. 어느 경우든 사람이 연결할 때까지 장치는 격리됩니다.",
+    "enrolledIdentityRead": "등록되었습니다. 장치가 응답하고 식별 정보를 보고했습니다. 연결하기 전까지 격리 상태입니다.",
+    "enrolledNoIdentity": "기록되었으나 장치가 일련번호도 시스템 식별 정보도 보고하지 않았습니다. 둘 중 하나를 읽을 때까지 모든 쓰기가 거부됩니다. 자격 증명을 확인하고 연결 테스트를 다시 실행하세요."
   },
   "diff": {
     "copied": "복사됨",

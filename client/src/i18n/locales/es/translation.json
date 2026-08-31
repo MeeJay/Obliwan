@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Dispositivos gestionados",
-    "emptyBody": "El inventario del parque — sitios, dispositivos, transportes y descubrimiento CHR — llega en el hito M2. Hasta entonces este panel no tiene nada real que mostrar.",
-    "emptyTitle": "Aún no hay dispositivos",
-    "m1Body": "La autenticación mediante el SSO de Obligate, los espacios de trabajo, los grupos, los ajustes, las notificaciones y los temas están operativos. Las funciones de parque aparecen atenuadas en la barra lateral, junto al hito que las desbloquea.",
-    "m1Title": "Hito M1",
+    "emptyBody": "Declare el concentrador y sus sesiones PPP llenarán la cuarentena, o inscriba a mano un dispositivo accesible directamente.",
+    "emptyTitle": "Aún no hay equipos",
     "openDrift": "Derivas abiertas",
     "runningJobs": "Trabajos en curso",
     "sitesOnline": "Sitios en línea",
-    "title": "Panel de control"
+    "title": "Panel de control",
+    "devices": "Dispositivos",
+    "sites": "Sitios",
+    "drift": "Desviación",
+    "changes": "Cambios",
+    "quarantined": "{{count}} en cuarentena",
+    "pending": "{{count}} pendientes de vinculación",
+    "openRuns": "ver detalle"
   },
   "devices": {
     "addTransport": "Añadir un canal",
@@ -794,7 +799,7 @@
       "family": "Familia",
       "firstSeen": "Visto por primera vez",
       "group": "Grupo",
-      "host": "Host",
+      "host": "Dirección",
       "lastSeen": "Visto por última vez",
       "managed": "Gestionado (los planes pueden apuntarle)",
       "model": "Modelo",
@@ -814,10 +819,11 @@
       "systemIdentity": "Identidad de sistema",
       "transport": "Canal",
       "tunnelIp": "IP del túnel",
-      "useTls": "Usar TLS",
+      "useTls": "TLS",
       "username": "Usuario",
       "uuid": "UUID",
-      "wanPublicIp": "IP pública WAN"
+      "wanPublicIp": "IP pública WAN",
+      "password": "Contraseña"
     },
     "filters": {
       "allBrands": "Todas las marcas",
@@ -878,7 +884,11 @@
     "transportFailed": "No se ha podido añadir el canal",
     "transportsUnavailable": "El servidor todavía no expone la lista de canales.",
     "updated": "Dispositivo actualizado",
-    "vaultHint": "Las credenciales las guarda el cofre de la plataforma. Se escriben una sola vez y nunca se vuelven a leer — esta pantalla solo sabe que existe un secreto y qué generación de clave lo cifró."
+    "vaultHint": "Las credenciales las guarda el cofre de la plataforma. Se escriben una sola vez y nunca se vuelven a leer — esta pantalla solo sabe que existe un secreto y qué generación de clave lo cifró.",
+    "reachTitle": "Accesibilidad (opcional)",
+    "reachHint": "Rellénelos y ObliWAN marcará el dispositivo ahora, leerá su identidad y guardará la credencial en la caja fuerte. Déjelos vacíos para registrar solo una ficha que nadie marcará. En ambos casos el dispositivo queda en cuarentena hasta que un humano lo vincule.",
+    "enrolledIdentityRead": "Inscrito. El dispositivo respondió e informó su identidad; queda en cuarentena hasta que lo vincule.",
+    "enrolledNoIdentity": "Registrado, pero el dispositivo no informó NI número de serie NI identidad de sistema. Toda escritura será rechazada hasta leer una — revise la credencial y repita la prueba de conexión."
   },
   "diff": {
     "copied": "Copiado",

@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Dispositivi gestiti",
-    "emptyBody": "L'inventario del parco — siti, dispositivi, trasporti e scoperta CHR — arriva alla milestone M2. Fino ad allora questa dashboard non ha nulla di reale da mostrare.",
-    "emptyTitle": "Ancora nessun dispositivo",
-    "m1Body": "L'autenticazione tramite SSO Obligate, le aree di lavoro, i gruppi, le impostazioni, le notifiche e i temi sono operativi. Le funzioni di parco sono in grigio nella barra laterale, con la milestone che le sblocca.",
-    "m1Title": "Milestone M1",
+    "emptyBody": "Dichiara il concentratore e le sue sessioni PPP popoleranno la quarantena, oppure registra a mano un dispositivo raggiungibile direttamente.",
+    "emptyTitle": "Nessun dispositivo",
     "openDrift": "Derive aperte",
     "runningJobs": "Job in corso",
     "sitesOnline": "Siti in linea",
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "devices": "Dispositivi",
+    "sites": "Siti",
+    "drift": "Deriva",
+    "changes": "Modifiche",
+    "quarantined": "{{count}} in quarantena",
+    "pending": "{{count}} in attesa di associazione",
+    "openRuns": "vedi dettaglio"
   },
   "devices": {
     "addTransport": "Aggiungere un canale",
@@ -794,7 +799,7 @@
       "family": "Famiglia",
       "firstSeen": "Visto la prima volta",
       "group": "Gruppo",
-      "host": "Host",
+      "host": "Indirizzo",
       "lastSeen": "Visto l'ultima volta",
       "managed": "Gestito (i piani possono puntarlo)",
       "model": "Modello",
@@ -814,10 +819,11 @@
       "systemIdentity": "System identity",
       "transport": "Canale",
       "tunnelIp": "IP del tunnel",
-      "useTls": "Usare TLS",
-      "username": "Username",
+      "useTls": "TLS",
+      "username": "Nome utente",
       "uuid": "UUID",
-      "wanPublicIp": "IP pubblico WAN"
+      "wanPublicIp": "IP pubblico WAN",
+      "password": "Password"
     },
     "filters": {
       "allBrands": "Tutte le marche",
@@ -878,7 +884,11 @@
     "transportFailed": "Impossibile aggiungere il canale",
     "transportsUnavailable": "Il server non espone ancora l'elenco dei canali.",
     "updated": "Dispositivo aggiornato",
-    "vaultHint": "Le credenziali sono custodite dalla cassaforte della piattaforma. Vengono scritte una sola volta e mai rilette — questa schermata sa soltanto che un segreto esiste e quale generazione di chiave lo ha cifrato."
+    "vaultHint": "Le credenziali sono custodite dalla cassaforte della piattaforma. Vengono scritte una sola volta e mai rilette — questa schermata sa soltanto che un segreto esiste e quale generazione di chiave lo ha cifrato.",
+    "reachTitle": "Raggiungibilità (facoltativo)",
+    "reachHint": "Compilali e ObliWAN contatta subito il dispositivo, ne legge l’identità e ripone la credenziale nella cassaforte. Lasciali vuoti per registrare solo una scheda che nessuno contatterà. In entrambi i casi il dispositivo resta in quarantena finché un umano non lo associa.",
+    "enrolledIdentityRead": "Registrato. Il dispositivo ha risposto e comunicato la propria identità; resta in quarantena finché non lo associ.",
+    "enrolledNoIdentity": "Registrato, ma il dispositivo non ha fornito NÉ numero di serie NÉ identità di sistema. Ogni scrittura sarà rifiutata finché non se ne legge una — verifica la credenziale e ripeti il test di connessione."
   },
   "diff": {
     "copied": "Copiato",

@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { ApiResponse, DeviceBrand, DeviceStatus, DeviceRole } from '@obliwan/shared';
+import type { ApiResponse, DeviceBrand, DeviceStatus, DeviceRole, DeviceFamily } from '@obliwan/shared';
 import type {
   Device,
   DeviceDetail,
@@ -41,6 +41,27 @@ export const devicesApi = {
   async getById(id: number): Promise<DeviceDetail> {
     const res = await apiClient.get<ApiResponse<DeviceDetail>>(`/devices/${id}`);
     return res.data.data!;
+  },
+
+  /**
+   * Enrol a directly reachable device: the SERVER dials it, reads its identity
+   * and keeps the credential in the vault.
+   *
+   * Distinct from `create()` — which only records a row — and from the bench
+   * tool's `/enroll`, which transmits NO credential because a factory password
+   * never leaves the preparer's workstation. Here the operator types the one
+   * ObliWAN will keep, so the route demands CREDENTIAL_MANAGE.
+   *
+   * The device lands `pending` whatever happens: a row somebody typed is a
+   * CLAIM about a box, confirmed by a human afterwards with the identity the
+   * hardware actually reported in front of them (D5 / R4).
+   */
+  async enrollProbe(data: {
+    name: string; family: DeviceFamily; host: string; username: string; password: string;
+    port?: number; useTls?: boolean; siteId?: number | null; notes?: string | null;
+  }): Promise<{ device: DeviceDetail | null; identityRead: boolean; connection: unknown }> {
+    const res = await apiClient.post('/devices/enroll-probe', data);
+    return res.data.data;
   },
 
   async create(data: DeviceInput): Promise<Device> {

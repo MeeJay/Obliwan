@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "受管设备",
-    "emptyBody": "设备群清单 —— 站点、设备、传输方式和 CHR 发现 —— 将在里程碑 M2 交付。在那之前，本仪表盘没有真实内容可以展示。",
+    "emptyBody": "声明集中器后，其 PPP 会话将填充隔离区；也可手动录入可直连的设备。",
     "emptyTitle": "尚无设备",
-    "m1Body": "通过 Obligate SSO 的认证、工作区、分组、设置、通知和主题均已可用。设备群相关功能在侧栏中置灰，并标注了解锁它们的里程碑。",
-    "m1Title": "里程碑 M1",
     "openDrift": "未处理的漂移",
     "runningJobs": "运行中的作业",
     "sitesOnline": "在线站点",
-    "title": "仪表盘"
+    "title": "仪表盘",
+    "devices": "设备",
+    "sites": "站点",
+    "drift": "配置漂移",
+    "changes": "变更",
+    "quarantined": "{{count}} 台已隔离",
+    "pending": "{{count}} 台待绑定",
+    "openRuns": "查看详情"
   },
   "devices": {
     "addTransport": "添加通道",
@@ -794,7 +799,7 @@
       "family": "系列",
       "firstSeen": "首次出现",
       "group": "分组",
-      "host": "主机",
+      "host": "地址",
       "lastSeen": "最后一次出现",
       "managed": "受管（计划可以以它为目标）",
       "model": "型号",
@@ -814,10 +819,11 @@
       "systemIdentity": "系统标识",
       "transport": "通道",
       "tunnelIp": "隧道 IP",
-      "useTls": "使用 TLS",
+      "useTls": "TLS",
       "username": "用户名",
       "uuid": "UUID",
-      "wanPublicIp": "WAN 公网 IP"
+      "wanPublicIp": "WAN 公网 IP",
+      "password": "密码"
     },
     "filters": {
       "allBrands": "所有品牌",
@@ -878,7 +884,11 @@
     "transportFailed": "添加通道失败",
     "transportsUnavailable": "服务器尚未提供通道列表。",
     "updated": "设备已更新",
-    "vaultHint": "凭据由平台保险库保管。它们只写入一次，永不回读 —— 本页面只知道存在一个机密，以及是哪一代密钥加密了它。"
+    "vaultHint": "凭据由平台保险库保管。它们只写入一次，永不回读 —— 本页面只知道存在一个机密，以及是哪一代密钥加密了它。",
+    "reachTitle": "可达性（可选）",
+    "reachHint": "填写后，ObliWAN 立即拨号、读取身份并将凭据存入保险库。留空则仅登记一条无人拨号的记录。两种情况下，设备都会进入隔离区，直到有人完成绑定。",
+    "enrolledIdentityRead": "已登记。设备已响应并报告身份；在你完成绑定前处于隔离状态。",
+    "enrolledNoIdentity": "已记录，但设备既未报告序列号也未报告系统标识。在读取到其中之一之前，所有写入都会被拒绝——请检查凭据并重新测试连接。"
   },
   "diff": {
     "copied": "已复制",

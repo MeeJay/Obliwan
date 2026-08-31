@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Spravovaná zařízení",
-    "emptyBody": "Inventář parku — lokality, zařízení, přenosy a objevování CHR — přichází v milníku M2. Do té doby nemá tento přehled co skutečného zobrazit.",
+    "emptyBody": "Deklarujte koncentrátor a jeho PPP relace naplní karanténu, nebo ručně zaregistrujte přímo dostupné zařízení.",
     "emptyTitle": "Zatím žádná zařízení",
-    "m1Body": "Ověřování přes Obligate SSO, pracovní prostory, skupiny, nastavení, oznámení a motivy jsou v provozu. Funkce parku jsou v postranním panelu zašedlé spolu s milníkem, který je odemyká.",
-    "m1Title": "Milník M1",
     "openDrift": "Otevřené odchylky",
     "runningJobs": "Běžící úlohy",
     "sitesOnline": "Lokality online",
-    "title": "Přehled"
+    "title": "Přehled",
+    "devices": "Zařízení",
+    "sites": "Lokality",
+    "drift": "Odchylka",
+    "changes": "Změny",
+    "quarantined": "{{count}} v karanténě",
+    "pending": "{{count}} čeká na přiřazení",
+    "openRuns": "zobrazit detail"
   },
   "devices": {
     "addTransport": "Přidat kanál",
@@ -794,7 +799,7 @@
       "family": "Rodina",
       "firstSeen": "Poprvé viděno",
       "group": "Skupina",
-      "host": "Hostitel",
+      "host": "Adresa",
       "lastSeen": "Naposledy viděno",
       "managed": "Spravované (plány na ně mohou mířit)",
       "model": "Model",
@@ -814,10 +819,11 @@
       "systemIdentity": "Systémová identita",
       "transport": "Kanál",
       "tunnelIp": "IP tunelu",
-      "useTls": "Použít TLS",
+      "useTls": "TLS",
       "username": "Uživatelské jméno",
       "uuid": "UUID",
-      "wanPublicIp": "Veřejná IP WAN"
+      "wanPublicIp": "Veřejná IP WAN",
+      "password": "Heslo"
     },
     "filters": {
       "allBrands": "Všechny značky",
@@ -878,7 +884,11 @@
     "transportFailed": "Přidání kanálu selhalo",
     "transportsUnavailable": "Server zatím nezpřístupňuje seznam kanálů.",
     "updated": "Zařízení aktualizováno",
-    "vaultHint": "Přihlašovací údaje drží trezor platformy. Zapisují se jednou a nikdy se nečtou zpět — tato obrazovka ví pouze to, že tajemství existuje a která generace klíče jej zašifrovala."
+    "vaultHint": "Přihlašovací údaje drží trezor platformy. Zapisují se jednou a nikdy se nečtou zpět — tato obrazovka ví pouze to, že tajemství existuje a která generace klíče jej zašifrovala.",
+    "reachTitle": "Dostupnost (volitelné)",
+    "reachHint": "Vyplňte je a ObliWAN se nyní připojí, přečte identitu a uloží přihlašovací údaj do trezoru. Ponechte prázdné a vznikne jen záznam, ke kterému se nikdo nepřipojí. Tak či tak zařízení skončí v karanténě, dokud je člověk nepřiřadí.",
+    "enrolledIdentityRead": "Zaregistrováno. Zařízení odpovědělo a uvedlo svou identitu; zůstává v karanténě, dokud je nepřiřadíte.",
+    "enrolledNoIdentity": "Zaznamenáno, ale zařízení neuvedlo ANI sériové číslo, ANI systémovou identitu. Každý zápis bude odmítnut, dokud jedna z nich nebude načtena — zkontrolujte přihlašovací údaj a zopakujte test připojení."
   },
   "diff": {
     "copied": "Zkopírováno",

@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Beheerde apparaten",
-    "emptyBody": "De inventaris van het apparatenpark — locaties, apparaten, transporten en CHR-ontdekking — komt bij mijlpaal M2. Tot die tijd heeft dit dashboard niets echts te tonen.",
-    "emptyTitle": "Nog geen apparatuur",
-    "m1Body": "Aanmelden via de Obligate-SSO, werkruimten, groepen, instellingen, meldingen en thema's zijn in bedrijf. De functies voor het apparatenpark zijn in de zijbalk grijs gemaakt, met de mijlpaal die ze ontgrendelt.",
-    "m1Title": "Mijlpaal M1",
+    "emptyBody": "Declareer de concentrator — zijn PPP-sessies vullen de quarantaine — of registreer handmatig een direct bereikbaar apparaat.",
+    "emptyTitle": "Nog geen apparaten",
     "openDrift": "Openstaande drift",
     "runningJobs": "Lopende jobs",
     "sitesOnline": "Locaties online",
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "devices": "Apparaten",
+    "sites": "Locaties",
+    "drift": "Afwijking",
+    "changes": "Wijzigingen",
+    "quarantined": "{{count}} in quarantaine",
+    "pending": "{{count}} wachten op koppeling",
+    "openRuns": "details bekijken"
   },
   "devices": {
     "addTransport": "Een kanaal toevoegen",
@@ -794,14 +799,14 @@
       "family": "Familie",
       "firstSeen": "Eerst gezien",
       "group": "Groep",
-      "host": "Host",
+      "host": "Adres",
       "lastSeen": "Laatst gezien",
       "managed": "Beheerd (plannen mogen het als doel nemen)",
       "model": "Model",
       "name": "Naam",
       "notes": "Notities",
       "osVersion": "OS-versie",
-      "port": "Port",
+      "port": "Poort",
       "pppState": "PPP-sessie",
       "pppUsername": "PPP-gebruikersnaam",
       "pppUsernamePlaceholder": "het geheim waaronder de CHR hem kent",
@@ -814,10 +819,11 @@
       "systemIdentity": "Systeemidentiteit",
       "transport": "Kanaal",
       "tunnelIp": "Tunnel-IP",
-      "useTls": "TLS gebruiken",
+      "useTls": "TLS",
       "username": "Gebruikersnaam",
       "uuid": "UUID",
-      "wanPublicIp": "Publiek WAN-IP"
+      "wanPublicIp": "Publiek WAN-IP",
+      "password": "Wachtwoord"
     },
     "filters": {
       "allBrands": "Alle merken",
@@ -878,7 +884,11 @@
     "transportFailed": "Het kanaal kon niet worden toegevoegd",
     "transportsUnavailable": "De server biedt de kanalenlijst nog niet aan.",
     "updated": "Apparaat bijgewerkt",
-    "vaultHint": "De inloggegevens worden bewaard door de kluis van het platform. Zij worden eenmaal geschreven en nooit teruggelezen — dit scherm weet alleen dat er een geheim bestaat en welke sleutelgeneratie het heeft versleuteld."
+    "vaultHint": "De inloggegevens worden bewaard door de kluis van het platform. Zij worden eenmaal geschreven en nooit teruggelezen — dit scherm weet alleen dat er een geheim bestaat en welke sleutelgeneratie het heeft versleuteld.",
+    "reachTitle": "Bereikbaarheid (optioneel)",
+    "reachHint": "Ingevuld belt ObliWAN het apparaat nu, leest de identiteit en bewaart de referentie in de kluis. Leeg gelaten ontstaat slechts een regel die niemand belt. Hoe dan ook komt het apparaat in quarantaine tot een mens het koppelt.",
+    "enrolledIdentityRead": "Geregistreerd. Het apparaat antwoordde en meldde zijn identiteit; het blijft in quarantaine tot u het koppelt.",
+    "enrolledNoIdentity": "Vastgelegd, maar het apparaat meldde GEEN serienummer en geen systeemidentiteit. Elke schrijfactie wordt geweigerd tot er één is gelezen — controleer de referentie en herhaal de verbindingstest."
   },
   "diff": {
     "copied": "Gekopieerd",

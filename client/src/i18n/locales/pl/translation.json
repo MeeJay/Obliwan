@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Zarządzane urządzenia",
-    "emptyBody": "Inwentarz floty — lokalizacje, urządzenia, transporty i wykrywanie CHR — pojawia się w kamieniu milowym M2. Do tego czasu ten pulpit nie ma nic rzeczywistego do pokazania.",
+    "emptyBody": "Zadeklaruj koncentrator, a jego sesje PPP wypełnią kwarantannę, albo ręcznie zarejestruj urządzenie dostępne bezpośrednio.",
     "emptyTitle": "Brak urządzeń",
-    "m1Body": "Uwierzytelnianie przez SSO Obligate, przestrzenie robocze, grupy, ustawienia, powiadomienia i motywy działają. Funkcje floty są wyszarzone w panelu bocznym wraz z kamieniem milowym, który je odblokowuje.",
-    "m1Title": "Kamień milowy M1",
     "openDrift": "Otwarte dryfy",
     "runningJobs": "Zadania w toku",
     "sitesOnline": "Lokalizacje online",
-    "title": "Pulpit"
+    "title": "Pulpit",
+    "devices": "Urządzenia",
+    "sites": "Lokalizacje",
+    "drift": "Rozbieżność",
+    "changes": "Zmiany",
+    "quarantined": "{{count}} w kwarantannie",
+    "pending": "{{count}} oczekuje na powiązanie",
+    "openRuns": "zobacz szczegóły"
   },
   "devices": {
     "addTransport": "Dodaj kanał",
@@ -794,7 +799,7 @@
       "family": "Rodzina",
       "firstSeen": "Pierwsze pojawienie",
       "group": "Grupa",
-      "host": "Host",
+      "host": "Adres",
       "lastSeen": "Ostatnie pojawienie",
       "managed": "Zarządzane (plany mogą je obierać za cel)",
       "model": "Model",
@@ -814,10 +819,11 @@
       "systemIdentity": "Tożsamość systemowa",
       "transport": "Kanał",
       "tunnelIp": "IP tunelu",
-      "useTls": "Używaj TLS",
-      "username": "Użytkownik",
+      "useTls": "TLS",
+      "username": "Nazwa użytkownika",
       "uuid": "UUID",
-      "wanPublicIp": "Publiczny adres IP WAN"
+      "wanPublicIp": "Publiczny adres IP WAN",
+      "password": "Hasło"
     },
     "filters": {
       "allBrands": "Wszystkie marki",
@@ -878,7 +884,11 @@
     "transportFailed": "Nie udało się dodać kanału",
     "transportsUnavailable": "Serwer nie udostępnia jeszcze listy kanałów.",
     "updated": "Urządzenie zaktualizowane",
-    "vaultHint": "Poświadczenia są przechowywane w sejfie platformy. Zapisuje się je raz i nigdy nie odczytuje ponownie — ten ekran wie tylko, że sekret istnieje, i która generacja klucza go zaszyfrowała."
+    "vaultHint": "Poświadczenia są przechowywane w sejfie platformy. Zapisuje się je raz i nigdy nie odczytuje ponownie — ten ekran wie tylko, że sekret istnieje, i która generacja klucza go zaszyfrowała.",
+    "reachTitle": "Osiągalność (opcjonalnie)",
+    "reachHint": "Wypełnij, a ObliWAN połączy się teraz, odczyta tożsamość i umieści poświadczenie w sejfie. Pozostaw puste, aby zapisać tylko wpis, do którego nikt się nie połączy. Tak czy inaczej urządzenie trafia do kwarantanny, dopóki człowiek go nie powiąże.",
+    "enrolledIdentityRead": "Zarejestrowano. Urządzenie odpowiedziało i podało swoją tożsamość; pozostaje w kwarantannie do czasu powiązania.",
+    "enrolledNoIdentity": "Zapisano, ale urządzenie nie podało ANI numeru seryjnego, ANI tożsamości systemowej. Każdy zapis będzie odrzucany, dopóki jedna z nich nie zostanie odczytana — sprawdź poświadczenie i powtórz test połączenia."
   },
   "diff": {
     "copied": "Skopiowano",

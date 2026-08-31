@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Équipements gérés",
-    "emptyBody": "L'inventaire du parc — sites, équipements, transports et découverte CHR — arrive au jalon M2. D'ici là ce tableau de bord n'a rien de réel à afficher.",
+    "emptyBody": "Déclarez le concentrateur et ses sessions PPP rempliront la quarantaine, ou enrôlez à la main un équipement joignable en direct.",
     "emptyTitle": "Aucun équipement",
-    "m1Body": "L'authentification via le SSO Obligate, les espaces de travail, les groupes, les réglages, les notifications et les thèmes sont opérationnels. Les fonctions de parc sont grisées dans la barre latérale avec le jalon qui les débloque.",
-    "m1Title": "Jalon M1",
     "openDrift": "Dérives ouvertes",
     "runningJobs": "Travaux en cours",
     "sitesOnline": "Sites en ligne",
-    "title": "Tableau de bord"
+    "title": "Tableau de bord",
+    "devices": "Équipements",
+    "sites": "Sites",
+    "drift": "Dérive",
+    "changes": "Changements",
+    "quarantined": "{{count}} en quarantaine",
+    "pending": "{{count}} en attente de rattachement",
+    "openRuns": "voir le détail"
   },
   "devices": {
     "addTransport": "Ajouter un canal",
@@ -794,7 +799,7 @@
       "family": "Famille",
       "firstSeen": "Première apparition",
       "group": "Groupe",
-      "host": "Hôte",
+      "host": "Adresse",
       "lastSeen": "Dernière apparition",
       "managed": "Géré (les plans peuvent le cibler)",
       "model": "Modèle",
@@ -814,10 +819,11 @@
       "systemIdentity": "Identité système",
       "transport": "Canal",
       "tunnelIp": "IP de tunnel",
-      "useTls": "Utiliser TLS",
-      "username": "Utilisateur",
+      "useTls": "TLS",
+      "username": "Identifiant",
       "uuid": "UUID",
-      "wanPublicIp": "IP publique WAN"
+      "wanPublicIp": "IP publique WAN",
+      "password": "Mot de passe"
     },
     "filters": {
       "allBrands": "Toutes les marques",
@@ -878,7 +884,11 @@
     "transportFailed": "Échec de l’ajout du canal",
     "transportsUnavailable": "Le serveur n’expose pas encore la liste des canaux.",
     "updated": "Équipement mis à jour",
-    "vaultHint": "Les identifiants sont détenus par le coffre de la plateforme. Ils s’écrivent une fois et ne se relisent jamais — cet écran sait seulement qu’un secret existe et quelle génération de clé l’a chiffré."
+    "vaultHint": "Les identifiants sont détenus par le coffre de la plateforme. Ils s’écrivent une fois et ne se relisent jamais — cet écran sait seulement qu’un secret existe et quelle génération de clé l’a chiffré.",
+    "reachTitle": "Joignabilité (facultatif)",
+    "reachHint": "Renseignez-les et ObliWAN compose maintenant, lit l’identité et met l’identifiant au coffre. Laissez vide pour n’enregistrer qu’une fiche que personne ne composera. Dans les deux cas l’équipement arrive en quarantaine jusqu’à ce qu’un humain le rattache.",
+    "enrolledIdentityRead": "Enrôlé. L’équipement a répondu et donné son identité ; il est en quarantaine jusqu’à son rattachement.",
+    "enrolledNoIdentity": "Enregistré, mais l’équipement n’a rendu NI numéro de série NI identité système. Toute écriture sera refusée tant qu’aucun des deux n’est lu — vérifiez l’identifiant et relancez le test de connexion."
   },
   "diff": {
     "copied": "Copié",

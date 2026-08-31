@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Verwaltete Geräte",
-    "emptyBody": "Die Inventarisierung des Geräteparks — Standorte, Geräte, Transporte und CHR-Erkennung — kommt mit Meilenstein M2. Bis dahin hat dieses Dashboard nichts Echtes anzuzeigen.",
+    "emptyBody": "Deklarieren Sie den Konzentrator — seine PPP-Sitzungen füllen die Quarantäne — oder tragen Sie ein direkt erreichbares Gerät von Hand ein.",
     "emptyTitle": "Noch keine Geräte",
-    "m1Body": "Anmeldung über das Obligate-SSO, Arbeitsbereiche, Gruppen, Einstellungen, Benachrichtigungen und Designs sind in Betrieb. Die Funktionen zum Gerätepark sind in der Seitenleiste ausgegraut, mit dem Meilenstein, der sie freischaltet.",
-    "m1Title": "Meilenstein M1",
     "openDrift": "Offene Drifts",
     "runningJobs": "Laufende Jobs",
     "sitesOnline": "Standorte online",
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "devices": "Geräte",
+    "sites": "Standorte",
+    "drift": "Abweichung",
+    "changes": "Änderungen",
+    "quarantined": "{{count}} in Quarantäne",
+    "pending": "{{count}} warten auf Zuordnung",
+    "openRuns": "Details ansehen"
   },
   "devices": {
     "addTransport": "Kanal hinzufügen",
@@ -794,7 +799,7 @@
       "family": "Familie",
       "firstSeen": "Zuerst gesehen",
       "group": "Gruppe",
-      "host": "Host",
+      "host": "Adresse",
       "lastSeen": "Zuletzt gesehen",
       "managed": "Verwaltet (Pläne dürfen es adressieren)",
       "model": "Modell",
@@ -814,10 +819,11 @@
       "systemIdentity": "Systemidentität",
       "transport": "Kanal",
       "tunnelIp": "Tunnel-IP",
-      "useTls": "TLS verwenden",
+      "useTls": "TLS",
       "username": "Benutzername",
       "uuid": "UUID",
-      "wanPublicIp": "Öffentliche WAN-IP"
+      "wanPublicIp": "Öffentliche WAN-IP",
+      "password": "Passwort"
     },
     "filters": {
       "allBrands": "Alle Marken",
@@ -878,7 +884,11 @@
     "transportFailed": "Der Kanal konnte nicht hinzugefügt werden",
     "transportsUnavailable": "Der Server stellt die Kanalliste noch nicht bereit.",
     "updated": "Gerät aktualisiert",
-    "vaultHint": "Die Zugangsdaten liegen im Tresor der Plattform. Sie werden einmal geschrieben und nie zurückgelesen — dieser Bildschirm weiß nur, dass ein Geheimnis existiert und welche Schlüsselgeneration es verschlüsselt hat."
+    "vaultHint": "Die Zugangsdaten liegen im Tresor der Plattform. Sie werden einmal geschrieben und nie zurückgelesen — dieser Bildschirm weiß nur, dass ein Geheimnis existiert und welche Schlüsselgeneration es verschlüsselt hat.",
+    "reachTitle": "Erreichbarkeit (optional)",
+    "reachHint": "Ausgefüllt wählt ObliWAN das Gerät jetzt an, liest seine Identität und legt die Zugangsdaten im Tresor ab. Leer gelassen entsteht nur ein Eintrag, den niemand anwählt. In beiden Fällen landet das Gerät in Quarantäne, bis ein Mensch es zuordnet.",
+    "enrolledIdentityRead": "Aufgenommen. Das Gerät hat geantwortet und seine Identität gemeldet; es bleibt in Quarantäne, bis Sie es zuordnen.",
+    "enrolledNoIdentity": "Erfasst, aber das Gerät meldete WEDER Seriennummer NOCH Systemidentität. Jeder Schreibzugriff wird verweigert, bis eine davon gelesen wurde — prüfen Sie die Zugangsdaten und wiederholen Sie den Verbindungstest."
   },
   "diff": {
     "copied": "Kopiert",

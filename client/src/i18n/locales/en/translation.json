@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Managed devices",
-    "emptyBody": "The fleet inventory — sites, devices, transports and CHR discovery — arrives at milestone M2. Until then this dashboard has nothing real to show.",
+    "emptyBody": "Declare the concentrator and its PPP sessions will populate the quarantine, or enrol a directly reachable device by hand.",
     "emptyTitle": "No equipment yet",
-    "m1Body": "Authentication via Obligate SSO, workspaces, groups, settings, notifications and themes are live. Fleet features are greyed out in the sidebar with the milestone that unlocks them.",
-    "m1Title": "Milestone M1",
     "openDrift": "Open drift",
     "runningJobs": "Running jobs",
     "sitesOnline": "Sites online",
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "devices": "Devices",
+    "sites": "Sites",
+    "drift": "Drift",
+    "changes": "Changes",
+    "quarantined": "{{count}} quarantined",
+    "pending": "{{count}} awaiting binding",
+    "openRuns": "see detail"
   },
   "devices": {
     "addTransport": "Add a channel",
@@ -794,7 +799,7 @@
       "family": "Family",
       "firstSeen": "First seen",
       "group": "Group",
-      "host": "Host",
+      "host": "Address",
       "lastSeen": "Last seen",
       "managed": "Managed (plans may target it)",
       "model": "Model",
@@ -814,10 +819,11 @@
       "systemIdentity": "System identity",
       "transport": "Channel",
       "tunnelIp": "Tunnel IP",
-      "useTls": "Use TLS",
+      "useTls": "TLS",
       "username": "Username",
       "uuid": "UUID",
-      "wanPublicIp": "Public WAN IP"
+      "wanPublicIp": "Public WAN IP",
+      "password": "Password"
     },
     "filters": {
       "allBrands": "All brands",
@@ -878,7 +884,11 @@
     "transportFailed": "Failed to add the channel",
     "transportsUnavailable": "The server does not expose the channel list yet.",
     "updated": "Device updated",
-    "vaultHint": "Credentials are held by the platform vault. They are written once and never read back — this screen only knows that a secret exists and which key generation encrypted it."
+    "vaultHint": "Credentials are held by the platform vault. They are written once and never read back — this screen only knows that a secret exists and which key generation encrypted it.",
+    "reachTitle": "Reachability (optional)",
+    "reachHint": "Fill these in and ObliWAN dials the device now, reads its identity and stores the credential in the vault. Leave them empty to record a row nobody will dial. Either way the device lands in quarantine until a human binds it.",
+    "enrolledIdentityRead": "Enrolled. The device answered and reported its identity; it is in quarantine until you bind it.",
+    "enrolledNoIdentity": "Recorded, but the device reported NO serial and no system identity. Every write to it will be refused until one is read — check the credential and retry the connection test."
   },
   "diff": {
     "copied": "Copied",

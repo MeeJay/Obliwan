@@ -757,14 +757,19 @@
   },
   "dashboard": {
     "devicesManaged": "Administrerede enheder",
-    "emptyBody": "Anlægsopgørelsen — sites, enheder, transporter og CHR-opdagelse — kommer i milepæl M2. Indtil da har dette dashboard intet reelt at vise.",
-    "emptyTitle": "Endnu intet udstyr",
-    "m1Body": "Godkendelse via Obligate SSO, arbejdsområder, grupper, indstillinger, notifikationer og temaer er i drift. Anlægsfunktionerne er nedtonet i sidepanelet sammen med den milepæl, der låser dem op.",
-    "m1Title": "Milepæl M1",
+    "emptyBody": "Erklær koncentratoren, så dens PPP-sessioner fylder karantænen, eller tilmeld manuelt en direkte tilgængelig enhed.",
+    "emptyTitle": "Ingen enheder endnu",
     "openDrift": "Åben afvigelse",
     "runningJobs": "Kørende job",
     "sitesOnline": "Sites online",
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "devices": "Enheder",
+    "sites": "Lokationer",
+    "drift": "Afvigelse",
+    "changes": "Ændringer",
+    "quarantined": "{{count}} i karantæne",
+    "pending": "{{count}} afventer tilknytning",
+    "openRuns": "se detaljer"
   },
   "devices": {
     "addTransport": "Tilføj en kanal",
@@ -794,7 +799,7 @@
       "family": "Familie",
       "firstSeen": "Først set",
       "group": "Gruppe",
-      "host": "Vært",
+      "host": "Adresse",
       "lastSeen": "Sidst set",
       "managed": "Administreret (planer må rette sig mod den)",
       "model": "Model",
@@ -814,10 +819,11 @@
       "systemIdentity": "Systemidentitet",
       "transport": "Kanal",
       "tunnelIp": "Tunnel-IP",
-      "useTls": "Brug TLS",
+      "useTls": "TLS",
       "username": "Brugernavn",
       "uuid": "UUID",
-      "wanPublicIp": "Offentlig WAN-IP"
+      "wanPublicIp": "Offentlig WAN-IP",
+      "password": "Adgangskode"
     },
     "filters": {
       "allBrands": "Alle mærker",
@@ -878,7 +884,11 @@
     "transportFailed": "Kanalen kunne ikke tilføjes",
     "transportsUnavailable": "Serveren udstiller endnu ikke listen over kanaler.",
     "updated": "Enhed opdateret",
-    "vaultHint": "Legitimationsoplysningerne opbevares i platformens boks. De skrives én gang og læses aldrig tilbage — denne skærm ved kun, at der findes en hemmelighed, og hvilken nøglegeneration der har krypteret den."
+    "vaultHint": "Legitimationsoplysningerne opbevares i platformens boks. De skrives én gang og læses aldrig tilbage — denne skærm ved kun, at der findes en hemmelighed, og hvilken nøglegeneration der har krypteret den.",
+    "reachTitle": "Tilgængelighed (valgfrit)",
+    "reachHint": "Udfyld dem, og ObliWAN ringer op nu, læser identiteten og lægger legitimationsoplysningen i boksen. Lad dem stå tomme for kun at oprette en række, ingen ringer op. Uanset hvad havner enheden i karantæne, indtil et menneske tilknytter den.",
+    "enrolledIdentityRead": "Tilmeldt. Enheden svarede og oplyste sin identitet; den er i karantæne, indtil du tilknytter den.",
+    "enrolledNoIdentity": "Registreret, men enheden oplyste HVERKEN serienummer eller systemidentitet. Enhver skrivning afvises, indtil en er læst — tjek legitimationsoplysningen og gentag forbindelsestesten."
   },
   "diff": {
     "copied": "Kopieret",
