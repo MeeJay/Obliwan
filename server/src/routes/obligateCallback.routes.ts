@@ -658,13 +658,29 @@ router.get('/sso-redirect', async (req, res) => {
     // API key is a bearer credential and must never reach a URL, a browser
     // history, a proxy log or a Referer header. If no public id is configured
     // we refuse to build the redirect instead of publishing the secret.
-    if (!raw.clientId) {
+    // ┌─ SECFIX-C1, REVERSED — IT REFUSED A LOGIN OBLIGATE CANNOT OFFER ─────┐
+    // │ This used to demand a separate public `clientId` and bounce to        │
+    // │ /login?error=sso_client_id_missing without one. The reasoning was     │
+    // │ orthodox: a bearer credential has no business in a redirect URL.      │
+    // │                                                                      │
+    // │ But OBLIGATE HAS NO SUCH IDENTIFIER. Its `/authorize` reads           │
+    // │ `client_id` and calls `getAppByApiKey(client_id)` — its own comment   │
+    // │ says "client_id (app API key)". Obliguard and Obliance both send the  │
+    // │ key and both work. ObliWAN was refusing to perform a handshake the    │
+    // │ identity provider only implements one way, and the operator saw a     │
+    // │ login that simply never happened.                                     │
+    // │                                                                      │
+    // │ A rule that a correctly configured system cannot satisfy is not a     │
+    // │ security control; it is an outage. The concern survives as the        │
+    // │ warning below and as work for OBLIGATE — the day it issues a public   │
+    // │ client id, `clientId` is already read here and takes precedence with  │
+    // │ no change on this side.                                               │
+    // └──────────────────────────────────────────────────────────────────────┘
+    const clientId = raw.clientId ?? raw.apiKey;
+    if (!clientId) {
       logger.error(
         { obligateUrl: raw.url },
-        'sso-redirect REFUSED: no public Obligate client_id configured. The API key is a ' +
-          'server-to-server bearer credential and is no longer used as client_id. Set one with ' +
-          'OBLIGATE_CLIENT_ID=<value> (or appConfigService.patchObligateConfig({ clientId })) — ' +
-          'see the note above this route for what Obligate must expose.',
+        'sso-redirect REFUSED: neither a client_id nor an API key is configured for Obligate.',
       );
       res.redirect('/login?error=sso_client_id_missing');
       return;
@@ -727,19 +743,23 @@ router.get('/sso-redirect', async (req, res) => {
     const oauthState = crypto.randomBytes(32).toString('hex');
     req.session.oauthState = oauthState;
 
-    // Only `clientId` goes in the query string. If an operator has knowingly
-    // set clientId to the API key (the documented stop-gap while Obligate has
-    // no public identifier), say so out loud on every redirect so it shows up
-    // in the logs rather than in nobody's memory.
-    if (raw.apiKey && raw.clientId === raw.apiKey) {
+    // Obligate identifies an app BY ITS API KEY: `/authorize` calls
+    // `getAppByApiKey(client_id)`, and its own comment reads "client_id (app
+    // API key)". So the key travels in a redirect URL — genuinely weak, since
+    // it lands in browser history, in referrers and in every proxy log on the
+    // path. Recorded on each redirect rather than left to nobody's memory, and
+    // it is OBLIGATE's to fix: the day it issues a public client id, the
+    // `raw.clientId` read above already takes precedence with no change here.
+    if (!raw.clientId) {
       logger.warn(
         { obligateUrl: raw.url },
-        'sso-redirect: the configured Obligate client_id IS the API key — the bearer credential ' +
-          'is being published in a redirect URL. Accepted because it was configured explicitly, ' +
-          'but it must be replaced by a real public client_id.',
+        'sso-redirect: Obligate exposes no public client_id, so the API KEY is sent as client_id '
+          + '— the same handshake Obliguard and Obliance use, because it is the only one Obligate '
+          + 'implements. The bearer credential ends up in a URL; closing that needs a public '
+          + 'client id on the Obligate side.',
       );
     }
-    const obligateUrl = `${raw.url}/authorize?client_id=${encodeURIComponent(raw.clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(oauthState)}`;
+    const obligateUrl = `${raw.url}/authorize?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(oauthState)}`;
     logger.info({ obligateUrl: raw.url, redirectUri }, 'sso-redirect: redirecting to Obligate');
 
     // Save session before redirecting to ensure state is persisted
