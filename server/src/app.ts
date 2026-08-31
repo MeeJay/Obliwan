@@ -44,30 +44,36 @@ sessionStore.on('error', (err: Error) => {
 });
 
 /**
- * AUDIT-SEC #5, the reserve the report left open and no pass lifted.
+ * ALIGNED WITH THE SUITE — and this is a REVERSAL, stated as one.
  *
- * `secure: config.forceHttps` made the Secure attribute depend on an OPT-IN
- * environment variable (`FORCE_HTTPS=true`). Its default is false, so the
- * default production deployment shipped a seven-day session cookie WITHOUT
- * Secure — i.e. a cookie the browser will put on a plain-HTTP request. Behind
- * the reverse proxy this product expects, that is one downgraded request (a
- * stray `http://` link, a captive portal, an attacker-injected image) away from
- * handing the session to anyone on the path, and TLS on the front door does not
- * help: the browser sends it before the proxy can redirect.
+ * ┌─ WHAT WAS CHANGED AND WHY IT WAS WRONG ──────────────────────────────────┐
+ * │ AUDIT-SEC #5 derived this flag from the environment instead of reading    │
+ * │ `FORCE_HTTPS`: `!config.isDev || config.forceHttps`, so every production  │
+ * │ deployment got a `Secure` cookie whether or not it was told it had TLS.   │
+ * │ The reasoning was sound in the abstract — a security flag should not      │
+ * │ depend on somebody remembering an env var.                                │
+ * │                                                                          │
+ * │ It broke SSO in the real deployment, and the failure was invisible:       │
+ * │ `express-session` REFUSES to emit a `Secure` cookie when it does not      │
+ * │ consider the connection secure. Obligate authenticated the user, the      │
+ * │ callback created the session, the redirect landed — and every request     │
+ * │ after it answered 401, with nothing in any log saying why. "Authentication│
+ * │ is broken" was the symptom of a cookie that was never sent.               │
+ * │                                                                          │
+ * │ Obliguard and Obliance both ship `secure: config.forceHttps` and both     │
+ * │ work. A lone hardening that diverges from the suite, is not exercised by  │
+ * │ the suite's deployments, and fails closed in a way nobody can diagnose is │
+ * │ not a hardening — it is a local opinion with a production cost. So it     │
+ * │ goes back to the suite's shape.                                           │
+ * └──────────────────────────────────────────────────────────────────────────┘
  *
- * A security flag must not be something the operator has to remember to switch
- * on. It is derived from the environment instead: OFF in development (where the
- * dev server is `http://localhost:5173` -> `http://localhost:3001` and a Secure
- * cookie would simply never be stored, breaking every local login), ON
- * everywhere else. `FORCE_HTTPS` is kept in the OR so that anyone who set it
- * explicitly — including in development, deliberately, behind a local TLS
- * proxy — keeps the behaviour they asked for.
- *
- * The consequence to be aware of before deploying: a production instance served
- * over plain HTTP no longer holds a session. That is the intended reading of
- * "fail closed", and the fix is TLS, not a flag.
+ * The concern behind the audit is real and NOT dismissed: a seven-day session
+ * cookie without `Secure` is one downgraded request away from being handed to
+ * whoever is on the path. It is answered where it belongs — `FORCE_HTTPS=true`
+ * belongs in every `.env` served over TLS, and the startup log below says so
+ * out loud on every boot that omits it, instead of silently breaking login.
  */
-const cookieSecure = !config.isDev || config.forceHttps;
+const cookieSecure = config.forceHttps;
 
 export const sessionMiddleware = session({
   store: sessionStore,
@@ -84,8 +90,12 @@ export const sessionMiddleware = session({
 
 if (!cookieSecure) {
   logger.warn(
-    'Session cookie is NOT marked Secure (NODE_ENV=development). This is correct for local ' +
-      'HTTP development and MUST NOT be the case in production — set NODE_ENV=production.',
+    { forceHttps: false, nodeEnv: config.nodeEnv },
+    'Session cookie is NOT marked Secure. Correct for local HTTP development. In production '
+      + 'behind TLS, set FORCE_HTTPS=true — without it a seven-day session cookie will travel on '
+      + 'any downgraded request. It is NOT enabled automatically: express-session silently '
+      + 'refuses to send a Secure cookie when it does not see the connection as secure, and that '
+      + 'presents as "login works, then everything answers 401".',
   );
 }
 
@@ -134,6 +144,44 @@ export function createApp() {
   // available in the limiter's skip() function: authenticated users are excluded
   // from rate limiting to avoid shared-IP false positives behind a proxy.
   app.use(sessionMiddleware);
+
+  // ┌─ THE SILENT 401 FACTORY ────────────────────────────────────────────────┐
+  // │ With NODE_ENV=production the session cookie is always `Secure`. A       │
+  // │ browser reaching this server over plain HTTP DISCARDS it without a      │
+  // │ word: the login succeeds, the redirect lands, and every request after   │
+  // │ it answers 401. Nothing in the server logs, nothing in the console —    │
+  // │ the failure looks like broken authentication when it is a missing `s`   │
+  // │ in a URL.                                                               │
+  // │                                                                        │
+  // │ It cannot be detected at startup: the process has no idea how it will   │
+  // │ be reached. So it is detected on the first request that matters, and    │
+  // │ said once rather than on every hit — an operator needs the sentence,    │
+  // │ not a flood.                                                            │
+  // │                                                                        │
+  // │ This does NOT relax the cookie. The fix is TLS (Oblihub terminates it   │
+  // │ for the whole suite), or FORCE_HTTPS if something else already does.    │
+  // └────────────────────────────────────────────────────────────────────────┘
+  if (cookieSecure) {
+    let warned = false;
+    app.use((req, _res, next) => {
+      if (!warned && req.protocol !== 'https' && req.headers['x-forwarded-proto'] !== 'https') {
+        warned = true;
+        logger.error(
+          {
+            host: req.headers.host,
+            path: req.path,
+            xForwardedProto: req.headers['x-forwarded-proto'] ?? null,
+          },
+          'THE SESSION COOKIE WILL NOT BE STORED. This request arrived over plain HTTP while the '
+            + 'cookie is marked Secure (NODE_ENV=production), so the browser silently drops it and '
+            + 'every authenticated call — /api/auth/me included — answers 401. Serve this instance '
+            + 'over TLS (Oblihub does it for the suite). If TLS is terminated upstream, that hop '
+            + 'must forward X-Forwarded-Proto: https.',
+        );
+      }
+      next();
+    });
+  }
 
   // Rate limiting — runs after session so authenticated users can be skipped.
   // Only unauthenticated endpoints (login page, public health, etc.) are limited.

@@ -80,6 +80,32 @@ async function loadIdentity(userId: number): Promise<IdentityRow | null> {
 export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
   const userId = req.session?.userId;
   if (!userId) {
+    // ┌─ WHICH 401 IS THIS? ────────────────────────────────────────────────┐
+    // │ Two completely different failures answer 401 here and the response   │
+    // │ cannot tell them apart — deliberately, since it is unauthenticated:  │
+    // │                                                                     │
+    // │   NO COOKIE AT ALL   the browser sent nothing. The cookie was never  │
+    // │                      stored (Secure over plain HTTP), or it was      │
+    // │                      stored for a different host than the one being  │
+    // │                      called — the classic SSO case, where the        │
+    // │                      callback lands on one hostname and the app is   │
+    // │                      then used on another.                           │
+    // │   COOKIE, NO SESSION the browser sent an id the store does not have: │
+    // │                      the row expired, the store was wiped, or the    │
+    // │                      session was regenerated and this is the old id. │
+    // │                                                                     │
+    // │ Logged at debug so a normal anonymous hit does not spam production,  │
+    // │ and carrying the HOST, because "it works in one tab and 401s in      │
+    // │ another" is almost always two hostnames sharing one deployment.      │
+    // └─────────────────────────────────────────────────────────────────────┘
+    const sentCookie = typeof req.headers.cookie === 'string'
+      && /(^|;\s*)connect\.sid=/.test(req.headers.cookie);
+    logger.debug(
+      { path: req.path, host: req.headers.host, sentCookie, sessionId: req.sessionID },
+      sentCookie
+        ? '401: a session cookie arrived but no session backs it'
+        : '401: NO session cookie was sent by the browser',
+    );
     next(new AppError(401, 'Authentication required'));
     return;
   }
