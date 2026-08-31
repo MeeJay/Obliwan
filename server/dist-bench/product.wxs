@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ObliWAN Bench Tool — Windows MSI installer (M15).
+
+  Prerequisites (one-time, on the build host):
+    dotnet tool install -g wix
+
+  Build, from server/ :
+    node src/bench/build.mjs                                 -> dist-bench/obliwan-bench.exe
+    powershell -ExecutionPolicy Bypass -Command "& 'D:\Sign\Sign.ps1' -Targets 'dist-bench\obliwan-bench.exe'"
+    wix build src/bench/installer/product.wxs -b dist-bench -arch x64 -out dist-bench/obliwan-bench.msi
+    powershell -ExecutionPolicy Bypass -Command "& 'D:\Sign\Sign.ps1' -Targets 'dist-bench\obliwan-bench.msi'"
+
+  THE ORDER IS THE POINT: the exe is signed BEFORE the MSI is built, so the
+  binary embedded in the installer is itself signed; the MSI is then signed
+  separately. Same sequence as Obliview's `:BUILD_AGENT_WIN`.
+
+  ONE DELIBERATE DEVIATION FROM THE OTHER OBLI* PRODUCTS: there, a failed
+  signature is logged and the pipeline continues. Here it must ABORT. This
+  binary writes administrator accounts onto brand-new routers; an unsigned copy
+  reaching a preparation workstation is exactly what the signature exists to
+  prevent, and "Sign:ECHEC" in a summary nobody reads is not a control.
+
+  ┌─ WHAT THIS INSTALLER DELIBERATELY DOES NOT DO ─────────────────────────────┐
+  │ No service, no scheduled task, no autostart. The bench tool runs when a     │
+  │ preparer runs it and not one second longer: it is the only component of     │
+  │ ObliWAN allowed to write local accounts onto a device, and a thing with     │
+  │ that permission must not be resident.                                       │
+  │                                                                            │
+  │ It also stores NOTHING. No enrolment token in the registry, no URL in a     │
+  │ config file — both are typed, or come from the environment, per run. A      │
+  │ preparation workstation is a shared machine; a token left on it is a token  │
+  │ that outlives the person who typed it.                                      │
+  └────────────────────────────────────────────────────────────────────────────┘
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="ObliWAN Bench Tool"
+           Manufacturer="ObliWAN"
+           Version="1.0.2"
+           Language="1033"
+           Scope="perMachine"
+           UpgradeCode="8F2E4A61-3B7C-4D0E-9A15-6C2D8E4F1B03">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of the ObliWAN Bench Tool is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="ObliWAN Bench">
+        <Component Id="BenchExe" Guid="1D6B9C34-7E20-4A8F-B5C1-92E07A3D4F68">
+          <File Id="ObliwanBenchExe"
+                Source="obliwan-bench.exe"
+                Name="obliwan-bench.exe"
+                KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <!-- A Start-menu entry only. No Run key, no service: see the box above. -->
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="AppShortcutFolder" Name="ObliWAN">
+        <Component Id="BenchShortcut" Guid="4C81E7A2-95D3-46B8-8F70-B3A6D1902E5C">
+          <Shortcut Id="BenchStartMenu"
+                    Name="ObliWAN Bench Tool"
+                    Description="Prepare and enrol a new router"
+                    Target="[INSTALLFOLDER]obliwan-bench.exe"
+                    WorkingDirectory="INSTALLFOLDER" />
+          <RemoveFolder Id="RemoveAppShortcutFolder" Directory="AppShortcutFolder" On="uninstall" />
+          <RegistryValue Root="HKCU"
+                         Key="Software\ObliWAN\Bench"
+                         Name="installed"
+                         Type="integer"
+                         Value="1"
+                         KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="Main" Title="ObliWAN Bench Tool" Level="1">
+      <ComponentRef Id="BenchExe" />
+      <ComponentRef Id="BenchShortcut" />
+    </Feature>
+  </Package>
+</Wix>

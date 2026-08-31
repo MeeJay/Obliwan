@@ -1,0 +1,7 @@
+{
+  "main": "D:\\Obliwan\\server\\dist-bench\\bench.cjs",
+  "output": "D:\\Obliwan\\server\\dist-bench\\bench.blob",
+  "disableExperimentalSEAWarning": true,
+  "useSnapshot": false,
+  "useCodeCache": true
+}

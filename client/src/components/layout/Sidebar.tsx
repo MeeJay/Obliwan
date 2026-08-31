@@ -217,11 +217,18 @@ interface NavItem {
   /** Visible to non-admins holding this capability (admins always see it). */
   capability?: Capability;
   /**
-   * The page does not exist yet; it arrives at this milestone. Such entries are
-   * rendered greyed out and inert — never a <Link> — so a menu item can never
-   * point at a route that is not registered in App.tsx.
+   * THE SCREEN IS NOT BUILT. Rendered greyed out and inert — never a <Link> —
+   * so a menu item can never point at a route App.tsx does not register.
+   *
+   * It used to hold a milestone number ('M4', 'M5') and the tooltip read
+   * "coming in M5". Those milestones shipped; the SERVER routes behind these
+   * four entries are live. What is missing is client work that was never
+   * scoped, and a label naming a delivered milestone turned an honest padlock
+   * into a lie that survived ten milestones on the first screen of the app.
+   *
+   * A boolean cannot go stale the way a version number does.
    */
-  milestone?: string;
+  notBuilt?: boolean;
 }
 
 // ── Main Sidebar ──────────────────────────────────────────────────────────────
@@ -231,8 +238,8 @@ export function Sidebar() {
   const location = useLocation();
   const { user, isAdmin, hasCapability } = useAuthStore();
 
-  // Spec §4.1 — the full ObliWAN navigation. Entries carrying a `milestone`
-  // are shown disabled until that milestone lands.
+  // Spec §4.1 — the full ObliWAN navigation. Entries carrying `notBuilt`
+  // are shown disabled: their screen does not exist, whatever the API does.
   const navItems: NavItem[] = [
     { label: t('nav.dashboard'),      path: '/',            icon: <LayoutDashboard size={18} /> },
     { label: t('nav.devices'),        path: '/devices',     icon: <Router size={18} />,           capability: CAPABILITIES.DEVICE_READ },
@@ -244,8 +251,8 @@ export function Sidebar() {
     // exactly what the `milestone` field exists to prevent.
     { label: t('nav.configurations'), path: '/config',      icon: <FileCode size={18} />,         capability: CAPABILITIES.CONFIG_READ },
     { label: t('nav.drift'),          path: '/drift',       icon: <GitCompareArrows size={18} />, capability: CAPABILITIES.CONFIG_READ },
-    { label: t('nav.templates'),      path: '/templates',   icon: <Layers size={18} />,           capability: CAPABILITIES.TEMPLATE_WRITE, milestone: 'M5' },
-    { label: t('nav.variables'),      path: '/variables',   icon: <Braces size={18} />,           capability: CAPABILITIES.TEMPLATE_WRITE, milestone: 'M5' },
+    { label: t('nav.templates'),      path: '/templates',   icon: <Layers size={18} />,           capability: CAPABILITIES.TEMPLATE_WRITE },
+    { label: t('nav.variables'),      path: '/variables',   icon: <Braces size={18} />,           capability: CAPABILITIES.TEMPLATE_WRITE, notBuilt: true },
     // M11 (K4). Filed next to Templates rather than next to Changements on
     // purpose: composing an intent AUTHORS configuration, it does not push it.
     // §4.1 has no row for this screen — the spec's table stops at the pages
@@ -266,7 +273,7 @@ export function Sidebar() {
     // deduced draft into a real template is TEMPLATE_WRITE and is checked
     // inside the page, the same split /query uses for QUERY_RUN.
     { label: t('nav.baseline'),       path: '/baseline',    icon: <SquareStack size={18} />,      capability: CAPABILITIES.CONFIG_READ },
-    { label: t('nav.backups'),        path: '/backups',     icon: <Archive size={18} />,          capability: CAPABILITIES.CONFIG_READ,    milestone: 'M4' },
+    { label: t('nav.backups'),        path: '/backups',     icon: <Archive size={18} />,          capability: CAPABILITIES.CONFIG_READ,    notBuilt: true },
     // M10 unlocks TR-069 / ACS. The screen covers DrayTek + Zyxel CPE only
     // (D2) and says so in its first panel — the entry is NOT a claim that the
     // ACS reaches the whole fleet.
@@ -280,7 +287,7 @@ export function Sidebar() {
     { label: t('nav.users'),         path: '/admin/users',         icon: <Users size={18} />,       adminOnly: true },
     { label: t('nav.workspaces'),    path: '/admin/tenants',       icon: <Building2 size={18} />,   adminOnly: true },
     { label: t('nav.notifications'), path: '/admin/notifications', icon: <Send size={18} />,        adminOnly: true },
-    { label: t('nav.audit'),         path: '/admin/audit',         icon: <ShieldCheck size={18} />, adminOnly: true, milestone: 'M4' },
+    { label: t('nav.audit'),         path: '/admin/audit',         icon: <ShieldCheck size={18} />, adminOnly: true, notBuilt: true },
     { label: t('nav.importExport'),  path: '/admin/import-export', icon: <PackageOpen size={18} />, adminOnly: true },
     { label: t('nav.settings'),      path: '/admin/settings',      icon: <Settings size={18} />,    adminOnly: true },
   ];
@@ -364,7 +371,7 @@ export function Sidebar() {
   );
 
   const lockedTitle = (item: NavItem) =>
-    `${item.label} — ${t('nav.comingIn', { defaultValue: 'coming in' })} ${item.milestone}`;
+    `${item.label} — ${t('nav.screenNotBuilt', { defaultValue: 'screen not built yet (the server API exists)' })}`;
 
   // ── Collapsed mode (Obli Design v1) — 64 px icon-only column ─────────────
   if (sidebarCollapsed) {
@@ -383,7 +390,7 @@ export function Sidebar() {
 
         <nav className="flex-1 overflow-y-auto px-2 pt-3 space-y-1">
           {allItems.map((item) => {
-            if (item.milestone) {
+            if (item.notBuilt) {
               return (
                 <div
                   key={item.path}
@@ -443,7 +450,7 @@ export function Sidebar() {
   // ── Expanded mode ───────────────────────────────────────────────────────────
 
   const renderNavEntry = (item: NavItem) => {
-    if (item.milestone) {
+    if (item.notBuilt) {
       return (
         <div
           key={item.path}
@@ -454,7 +461,7 @@ export function Sidebar() {
           {item.icon}
           <span className="flex-1 truncate">{item.label}</span>
           <Lock size={11} className="shrink-0" />
-          <span className="font-mono text-[10px] tracking-wider">{item.milestone}</span>
+          <span className="font-mono text-[10px] tracking-wider">{item.notBuilt}</span>
         </div>
       );
     }

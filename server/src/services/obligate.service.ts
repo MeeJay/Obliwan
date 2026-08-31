@@ -111,14 +111,41 @@ export const obligateService = {
       return { obligateUrl: cfg.url, obligateReachable: false, obligateEnabled: cfg.enabled };
     }
 
-    // Quick reachability check (2s timeout)
+    // ┌─ THE TIMEOUT WAS 2 SECONDS, AND THAT WAS THE BUG ────────────────────┐
+    // │ This probe decides whether the login page shows "centralised auth is  │
+    // │ UNAVAILABLE, degraded local mode". Two seconds is fine on a LAN and   │
+    // │ far too short for the real deployment: Obligate sits behind Oblihub,  │
+    // │ so the first call of the day pays DNS, a cold TCP connect and a full  │
+    // │ TLS handshake through a reverse proxy. Exceeding 2 s there is normal, │
+    // │ not a failure — and the operator was told SSO was down while the      │
+    // │ redirect itself worked perfectly.                                     │
+    // │                                                                      │
+    // │ A banner that cries wolf on a healthy system is worse than no banner: │
+    // │ it is the one people learn to ignore before the day it is right.      │
+    // └──────────────────────────────────────────────────────────────────────┘
+    const PROBE_TIMEOUT_MS = 8000;
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 2000);
+      const timeout = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
       const res = await fetch(`${cfg.url}/health`, { signal: controller.signal });
       clearTimeout(timeout);
+      if (!res.ok) {
+        logger.warn(
+          { url: cfg.url, status: res.status },
+          'Obligate /health answered but not OK — the login page will offer degraded local mode',
+        );
+      }
       return { obligateUrl: cfg.url, obligateReachable: res.ok, obligateEnabled: true };
-    } catch {
+    } catch (err) {
+      // Logged, because "unreachable" used to be silent and an operator had no
+      // way to tell a DNS failure from a timeout from a wrong URL. This runs on
+      // a public, unauthenticated route: the reason goes to the log, never to
+      // the response.
+      logger.warn(
+        { url: cfg.url, err: err instanceof Error ? err.message : String(err), timeoutMs: PROBE_TIMEOUT_MS },
+        'Obligate reachability probe failed — check that the server CONTAINER can reach this URL, '
+          + 'not just your browser',
+      );
       return { obligateUrl: cfg.url, obligateReachable: false, obligateEnabled: true };
     }
   },

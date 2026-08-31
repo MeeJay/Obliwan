@@ -74,6 +74,62 @@ await build({
   // point: a preparation workstation has no npm install and no network to the
   // registry.
   external: [],
+  plugins: [
+    {
+      // ┌─ THE DATABASE IS REPLACED BY A MODULE THAT THROWS ─────────────────┐
+      // │ The bench tool must not carry a database, and the import graph      │
+      // │ disagreed: `registry` -> `draytek.driver` -> `cwmpInventory` ->     │
+      // │ `cwmp/inventory.service` -> `cwmp/paramMap.service` -> `db`, which  │
+      // │ drags in knex and its nine SQL drivers. The build died on           │
+      // │ `oracledb`, which is how the coupling was found at all.             │
+      // │                                                                    │
+      // │ That path is REAL on a server — a Vigor's inventory can come from   │
+      // │ its stored TR-069 parameters — and MEANINGLESS on a bench, where    │
+      // │ the router has never informed an ACS. So it is not excluded, it is  │
+      // │ STUBBED: reaching it raises a sentence naming the tool and the      │
+      // │ path, instead of a `Cannot find module 'pg'` at a customer site.    │
+      // │                                                                    │
+      // │ Marking it `external` would have been one word shorter and would    │
+      // │ have failed silently the first time somebody wired a query into a   │
+      // │ shared helper. A stub that throws is the version that stays true.   │
+      // └────────────────────────────────────────────────────────────────────┘
+      name: 'no-database-on-a-bench',
+      setup(b) {
+        b.onResolve({ filter: /(^|\/)db(\/index)?$/ }, (args) => {
+          if (!args.importer.includes(`${'src'}`)) return null;
+          return { path: 'obliwan-bench-no-db', namespace: 'stub' };
+        });
+        b.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({
+          // Inert on IMPORT, loud on USE. The first version threw during the
+          // CJS/ESM interop shim, which probes `__esModule`/`default` on every
+          // module it wraps — so the tool died at startup instead of at the
+          // query it was meant to catch. The interop keys are answered; every
+          // other access refuses.
+          contents: `
+            const refuse = () => {
+              throw new Error(
+                'The ObliWAN bench tool has no database. Something reached a query path — most ' +
+                'likely the CWMP inventory fallback, which is meaningless for a router that has ' +
+                'never informed an ACS. Read the identity over the device transport instead.'
+              );
+            };
+            const INTEROP = new Set(['__esModule', 'default', 'then', 'prototype', 'name', 'length']);
+            const stub = new Proxy(function () { refuse(); }, {
+              get(target, prop) {
+                if (typeof prop === 'symbol') return Reflect.get(target, prop);
+                if (prop === '__esModule') return false;
+                if (INTEROP.has(prop)) return undefined;
+                refuse();
+              },
+              apply: refuse,
+            });
+            module.exports = stub;
+          `,
+          loader: 'js',
+        }));
+      },
+    },
+  ],
   // Not minified. A tool that writes administrator accounts should stay
   // readable to whoever has to audit the binary they were handed.
   minify: false,

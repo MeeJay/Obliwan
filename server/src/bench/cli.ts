@@ -21,8 +21,8 @@
  * a preparation workstation is a shared machine.
  */
 
-import { createInterface } from 'readline/promises';
-import { stdin, stdout, argv, exit } from 'process';
+import { createInterface } from 'node:readline/promises';
+import { stdin, stdout, exit } from 'node:process';
 import type { DeviceFamily } from '@obliwan/shared';
 import { DEVICE_FAMILIES } from '@obliwan/shared';
 import { readBenchIdentity, buildEnrolment, submitEnrolment, type BenchTarget } from './enroll';
