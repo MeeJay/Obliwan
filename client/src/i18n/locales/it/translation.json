@@ -902,7 +902,9 @@
       "reset": "reset",
       "unreachable": "irraggiungibile",
       "timeout": "silenziosa"
-    }
+    },
+    "factsLearned": "{{count}} informazione/i letta/e dall’apparato e compilata/e.",
+    "factsConflict": "L’apparato dichiara un {{fields}} diverso da quello registrato. Nulla è stato sovrascritto: o l’unità è stata sostituita, o questo indirizzo appartiene ora a un altro apparato."
   },
   "diff": {
     "copied": "Copiato",
@@ -1219,7 +1221,8 @@
       "UP": "Tutti i segnali concordano: il dispositivo è raggiungibile.",
       "WAN_FAILOVER": "Il sito risponde attraverso un percorso pubblico diverso da quello nominale."
     },
-    "yes": "Sì"
+    "yes": "Sì",
+    "presenceNotApplicable": "Nessun tunnel — diretto"
   },
   "forgotPassword": {
     "backToLogin": "Torna al login",

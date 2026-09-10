@@ -902,7 +902,9 @@
       "reset": "reset",
       "unreachable": "unreachable",
       "timeout": "silent"
-    }
+    },
+    "factsLearned": "{{count}} fact(s) read from the equipment and filled in.",
+    "factsConflict": "The equipment reports a different {{fields}} than recorded. Nothing was overwritten — either the unit was replaced, or this address now belongs to another box."
   },
   "diff": {
     "copied": "Copied",
@@ -1219,7 +1221,8 @@
       "UP": "Every signal agrees: the device is reachable.",
       "WAN_FAILOVER": "The site answers through a different public path than the nominal one."
     },
-    "yes": "Yes"
+    "yes": "Yes",
+    "presenceNotApplicable": "No tunnel — direct"
   },
   "forgotPassword": {
     "backToLogin": "Back to login",

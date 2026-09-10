@@ -902,7 +902,9 @@
       "reset": "reset",
       "unreachable": "onbereikbaar",
       "timeout": "stil"
-    }
+    },
+    "factsLearned": "{{count}} gegeven(s) van de apparatuur gelezen en ingevuld.",
+    "factsConflict": "De apparatuur meldt een andere {{fields}} dan geregistreerd. Er is niets overschreven — of het toestel is vervangen, of dit adres hoort nu bij een ander apparaat."
   },
   "diff": {
     "copied": "Gekopieerd",
@@ -1219,7 +1221,8 @@
       "UP": "Alle signalen stemmen overeen: het apparaat is bereikbaar.",
       "WAN_FAILOVER": "De locatie antwoordt via een ander publiek pad dan het nominale."
     },
-    "yes": "Ja"
+    "yes": "Ja",
+    "presenceNotApplicable": "Geen tunnel — direct"
   },
   "forgotPassword": {
     "backToLogin": "Terug naar aanmelden",

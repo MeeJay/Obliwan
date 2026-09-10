@@ -902,7 +902,9 @@
       "reset": "reiniciada",
       "unreachable": "inalcançável",
       "timeout": "silenciosa"
-    }
+    },
+    "factsLearned": "{{count}} informação(ões) lida(s) do equipamento e preenchida(s).",
+    "factsConflict": "O equipamento informa um {{fields}} diferente do registrado. Nada foi sobrescrito — ou a unidade foi substituída, ou este endereço agora pertence a outro equipamento."
   },
   "diff": {
     "copied": "Copiado",
@@ -1219,7 +1221,8 @@
       "UP": "Todos os sinais concordam: o dispositivo está alcançável.",
       "WAN_FAILOVER": "O site responde por um caminho público diferente do nominal."
     },
-    "yes": "Sim"
+    "yes": "Sim",
+    "presenceNotApplicable": "Sem túnel — direto"
   },
   "forgotPassword": {
     "backToLogin": "Voltar para o login",

@@ -902,7 +902,9 @@
       "reset": "sıfırlandı",
       "unreachable": "ulaşılamaz",
       "timeout": "sessiz"
-    }
+    },
+    "factsLearned": "Cihazdan {{count}} bilgi okundu ve dolduruldu.",
+    "factsConflict": "Cihaz kayıtlıdan farklı bir {{fields}} bildiriyor. Hiçbir şey üzerine yazılmadı — ya birim değiştirildi ya da bu adres artık başka bir kutuya ait."
   },
   "diff": {
     "copied": "Kopyalandı",
@@ -1219,7 +1221,8 @@
       "UP": "Tüm sinyaller aynı fikirde: cihaza erişilebiliyor.",
       "WAN_FAILOVER": "Saha, olağan yolundan farklı bir genel yol üzerinden yanıt veriyor."
     },
-    "yes": "Evet"
+    "yes": "Evet",
+    "presenceNotApplicable": "Tünel yok — doğrudan"
   },
   "forgotPassword": {
     "backToLogin": "Girişe dön",

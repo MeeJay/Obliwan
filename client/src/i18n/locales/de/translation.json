@@ -902,7 +902,9 @@
       "reset": "zurückgesetzt",
       "unreachable": "nicht erreichbar",
       "timeout": "stumm"
-    }
+    },
+    "factsLearned": "{{count}} Angabe(n) vom Gerät gelesen und ergänzt.",
+    "factsConflict": "Das Gerät meldet ein anderes {{fields}} als hinterlegt. Nichts wurde überschrieben — entweder wurde die Einheit getauscht, oder diese Adresse gehört inzwischen einem anderen Gerät."
   },
   "diff": {
     "copied": "Kopiert",
@@ -1219,7 +1221,8 @@
       "UP": "Alle Signale stimmen überein: Das Gerät ist erreichbar.",
       "WAN_FAILOVER": "Der Standort antwortet über einen anderen öffentlichen Pfad als den nominalen."
     },
-    "yes": "Ja"
+    "yes": "Ja",
+    "presenceNotApplicable": "Kein Tunnel — direkt"
   },
   "forgotPassword": {
     "backToLogin": "Zurück zur Anmeldung",

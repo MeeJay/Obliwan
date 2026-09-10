@@ -902,7 +902,9 @@
       "reset": "nulstillet",
       "unreachable": "uopnåelig",
       "timeout": "tavs"
-    }
+    },
+    "factsLearned": "{{count}} oplysning(er) læst fra udstyret og udfyldt.",
+    "factsConflict": "Udstyret oplyser et andet {{fields}} end det registrerede. Intet blev overskrevet — enten er enheden udskiftet, eller også tilhører denne adresse nu en anden boks."
   },
   "diff": {
     "copied": "Kopieret",
@@ -1219,7 +1221,8 @@
       "UP": "Alle signaler er enige: enheden kan nås.",
       "WAN_FAILOVER": "Sitet svarer via en anden offentlig vej end den nominelle."
     },
-    "yes": "Ja"
+    "yes": "Ja",
+    "presenceNotApplicable": "Ingen tunnel — direkte"
   },
   "forgotPassword": {
     "backToLogin": "Tilbage til login",

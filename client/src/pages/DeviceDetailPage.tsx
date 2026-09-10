@@ -326,7 +326,7 @@ export function DeviceDetailPage() {
         // `learnDeviceFacts`: this is the event the binding check exists for.
         toast.error(
           t('devices.factsConflict', {
-            fields: learned.conflicts.map((c) => c.field).join(', '),
+            fields: learned.conflicts.map((c: { field: string }) => c.field).join(', '),
           }),
           { duration: 10_000 },
         );
@@ -560,11 +560,22 @@ export function DeviceDetailPage() {
             <dl className="grid grid-cols-2 gap-4">
               <Field
                 label={t('devices.fields.pppState')}
-                value={presence == null || presence.up === null
-                  ? <span className="italic text-text-muted">{t('fleet.presenceUnknown')}</span>
-                  : presence.up
-                    ? <span className="text-status-up">{t('fleet.presenceUp')}</span>
-                    : <span className="text-status-down">{t('fleet.presenceDown')}</span>}
+                // ── A device with no concentrator has no tunnel to cut ────────
+                // "Tunnel down", in red, next to "No concentrator" states a
+                // failure that cannot happen: presence comes from the CHR's
+                // `/ppp/active` (D4), and a standalone device is not in that
+                // list because it was never meant to be. Reading `false` as
+                // "down" here manufactured an alarm on every direct-attached
+                // router — the same distinction `pppApplicable` already makes
+                // in the reachability verdict, which is why this device shows
+                // `indeterminate` rather than DOWN.
+                value={device.concentratorId === null
+                  ? <span className="italic text-text-muted">{t('fleet.presenceNotApplicable')}</span>
+                  : presence == null || presence.up === null
+                    ? <span className="italic text-text-muted">{t('fleet.presenceUnknown')}</span>
+                    : presence.up
+                      ? <span className="text-status-up">{t('fleet.presenceUp')}</span>
+                      : <span className="text-status-down">{t('fleet.presenceDown')}</span>}
               />
               <Field label={t('fleet.lastChange')} value={presence?.at ? new Date(presence.at).toLocaleString() : null} />
               <Field label={t('devices.fields.tunnelIp')} value={presence?.tunnelIp ?? device.tunnelIp} mono />

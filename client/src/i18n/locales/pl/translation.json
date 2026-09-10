@@ -902,7 +902,9 @@
       "reset": "zresetowany",
       "unreachable": "nieosiągalny",
       "timeout": "milczy"
-    }
+    },
+    "factsLearned": "Odczytano z urządzenia i uzupełniono {{count}} informacj(i).",
+    "factsConflict": "Urządzenie podaje inny {{fields}} niż zapisany. Nic nie zostało nadpisane — albo wymieniono egzemplarz, albo ten adres należy teraz do innego urządzenia."
   },
   "diff": {
     "copied": "Skopiowano",
@@ -1219,7 +1221,8 @@
       "UP": "Wszystkie sygnały są zgodne: urządzenie jest osiągalne.",
       "WAN_FAILOVER": "Lokalizacja odpowiada inną ścieżką publiczną niż nominalna."
     },
-    "yes": "Tak"
+    "yes": "Tak",
+    "presenceNotApplicable": "Bez tunelu — bezpośrednio"
   },
   "forgotPassword": {
     "backToLogin": "Powrót do logowania",

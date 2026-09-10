@@ -902,7 +902,9 @@
       "reset": "重置",
       "unreachable": "不可达",
       "timeout": "无响应"
-    }
+    },
+    "factsLearned": "已从设备读取并填入 {{count}} 项信息。",
+    "factsConflict": "设备报告的 {{fields}} 与记录不符。未覆盖任何内容——要么设备被更换，要么该地址现在属于另一台设备。"
   },
   "diff": {
     "copied": "已复制",
@@ -1219,7 +1221,8 @@
       "UP": "所有信号一致：设备可达。",
       "WAN_FAILOVER": "站点通过与标称路径不同的公网路径应答。"
     },
-    "yes": "是"
+    "yes": "是",
+    "presenceNotApplicable": "无隧道——直连"
   },
   "forgotPassword": {
     "backToLogin": "返回登录",

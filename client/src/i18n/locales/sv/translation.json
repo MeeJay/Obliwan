@@ -902,7 +902,9 @@
       "reset": "återställd",
       "unreachable": "onåbar",
       "timeout": "tyst"
-    }
+    },
+    "factsLearned": "{{count}} uppgift(er) avlästa från utrustningen och ifyllda.",
+    "factsConflict": "Utrustningen uppger ett annat {{fields}} än det registrerade. Inget skrevs över — antingen har enheten bytts ut, eller så tillhör den här adressen nu en annan låda."
   },
   "diff": {
     "copied": "Kopierat",
@@ -1219,7 +1221,8 @@
       "UP": "Alla signaler stämmer överens: enheten går att nå.",
       "WAN_FAILOVER": "Platsen svarar via en annan publik väg än den nominella."
     },
-    "yes": "Ja"
+    "yes": "Ja",
+    "presenceNotApplicable": "Ingen tunnel — direkt"
   },
   "forgotPassword": {
     "backToLogin": "Tillbaka till inloggning",

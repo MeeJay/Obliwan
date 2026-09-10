@@ -902,7 +902,9 @@
       "reset": "resetovaný",
       "unreachable": "nedostupný",
       "timeout": "mlčí"
-    }
+    },
+    "factsLearned": "Ze zařízení přečteno a doplněno {{count}} údaj(ů).",
+    "factsConflict": "Zařízení hlásí jiný {{fields}}, než je zaznamenán. Nic nebylo přepsáno — buď byl kus vyměněn, nebo tato adresa nyní patří jiné krabici."
   },
   "diff": {
     "copied": "Zkopírováno",
@@ -1219,7 +1221,8 @@
       "UP": "Všechny signály se shodují: zařízení je dosažitelné.",
       "WAN_FAILOVER": "Lokalita odpovídá po jiné veřejné cestě než po té nominální."
     },
-    "yes": "Ano"
+    "yes": "Ano",
+    "presenceNotApplicable": "Bez tunelu — přímo"
   },
   "forgotPassword": {
     "backToLogin": "Zpět na přihlášení",

@@ -902,7 +902,9 @@
       "reset": "reiniciado",
       "unreachable": "inalcanzable",
       "timeout": "silencioso"
-    }
+    },
+    "factsLearned": "{{count}} dato(s) leído(s) del equipo y rellenado(s).",
+    "factsConflict": "El equipo declara un {{fields}} distinto del registrado. No se ha sobrescrito nada: o la unidad ha sido sustituida, o esta dirección pertenece ahora a otro equipo."
   },
   "diff": {
     "copied": "Copiado",
@@ -1219,7 +1221,8 @@
       "UP": "Todas las señales coinciden: el dispositivo es accesible.",
       "WAN_FAILOVER": "El sitio responde por una vía pública distinta de la nominal."
     },
-    "yes": "Sí"
+    "yes": "Sí",
+    "presenceNotApplicable": "Sin túnel — directo"
   },
   "forgotPassword": {
     "backToLogin": "Volver al inicio de sesión",

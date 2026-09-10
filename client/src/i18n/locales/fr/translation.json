@@ -902,7 +902,9 @@
       "reset": "coupé",
       "unreachable": "injoignable",
       "timeout": "silencieux"
-    }
+    },
+    "factsLearned": "{{count}} information(s) lue(s) sur l’équipement et complétée(s).",
+    "factsConflict": "L’équipement annonce un {{fields}} différent de celui enregistré. Rien n’a été écrasé — soit l’unité a été remplacée, soit cette adresse appartient désormais à une autre boîte."
   },
   "diff": {
     "copied": "Copié",
@@ -1219,7 +1221,8 @@
       "UP": "Tous les signaux concordent : l’équipement est joignable.",
       "WAN_FAILOVER": "Le site répond par un chemin public différent du chemin nominal."
     },
-    "yes": "Oui"
+    "yes": "Oui",
+    "presenceNotApplicable": "Pas de tunnel — en direct"
   },
   "forgotPassword": {
     "backToLogin": "Retour à la connexion",

@@ -902,7 +902,9 @@
       "reset": "끊김",
       "unreachable": "도달 불가",
       "timeout": "무응답"
-    }
+    },
+    "factsLearned": "장비에서 {{count}}건의 정보를 읽어 채웠습니다.",
+    "factsConflict": "장비가 기록과 다른 {{fields}}을(를) 보고합니다. 아무것도 덮어쓰지 않았습니다 — 장비가 교체되었거나, 이 주소가 이제 다른 장비의 것입니다."
   },
   "diff": {
     "copied": "복사됨",
@@ -1219,7 +1221,8 @@
       "UP": "모든 신호가 일치합니다. 장비에 도달할 수 있습니다.",
       "WAN_FAILOVER": "사이트가 본래 경로가 아닌 다른 공인 경로로 응답하고 있습니다."
     },
-    "yes": "예"
+    "yes": "예",
+    "presenceNotApplicable": "터널 없음 — 직접 연결"
   },
   "forgotPassword": {
     "backToLogin": "로그인으로 돌아가기",

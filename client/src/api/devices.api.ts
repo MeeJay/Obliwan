@@ -7,6 +7,7 @@ import type {
   DeviceTransport,
   DeviceTransportInput,
   DeviceDiagnosis,
+  LearnedFacts,
   TestConnectionResponse,
   TransportTestResult,
 } from '@/types/fleet';
