@@ -1522,7 +1522,18 @@
       "saturatedHint": "Interfaces medidas em 70 % da velocidade do enlace ou mais, em qualquer um dos sentidos.",
       "unmeasurable": "Saturação desconhecida",
       "unmeasurableHint": "Interfaces cuja velocidade de enlace nunca foi lida. Sua saturação não pode ser enunciada: elas não estão nem saudáveis nem saturadas."
-    }
+    },
+    "discoverNow": "Descobrir agora",
+    "discovering": "Descobrindo…",
+    "discoveryDone": "{{discovered}} interface(s) reportada(s) · {{created}} nova(s) · {{vanished}} desaparecida(s)",
+    "discoveryRemapped": "{{count}} interface(s) mudaram de ifIndex. Suas amostras estavam sendo atribuídas à porta errada até esta execução.",
+    "discoveryFailed": "Não foi possível executar a descoberta.",
+    "historyToggle": "Histórico ({{count}})",
+    "historyWhen": "Última descoberta: {{last}} · próxima prevista: {{next}}",
+    "historyNever": "nunca",
+    "historyFirstSeen": "vista pela primeira vez em {{at}}",
+    "historyVanished": "desapareceu em {{at}}",
+    "historyNeedsRediscovery": "ifIndex suspeito"
   },
   "login": {
     "clientVersion": "cliente v{{version}}",

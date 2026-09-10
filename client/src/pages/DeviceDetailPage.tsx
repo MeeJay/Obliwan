@@ -44,6 +44,8 @@ import { DeviceConfigTab } from '@/components/config/DeviceConfigTab';
 import { DeviceDriftTab } from '@/components/config/DeviceDriftTab';
 import { DeviceChangesTab } from '@/components/change/DeviceChangesTab';
 import { DeviceAcsTab } from '@/components/acs/DeviceAcsTab';
+import { DeviceBackupsTab } from '@/components/config/DeviceBackupsTab';
+import { DeviceLogsTab } from '@/components/telemetry/DeviceLogsTab';
 import type {
   DeviceDetail, DeviceDiagnosis, DeviceTransport, TransportTestResult,
 } from '@/types/fleet';
@@ -79,14 +81,14 @@ const TABS: TabDef[] = [
   { id: 'config',     labelKey: 'devices.tabs.config',     icon: <FileCode size={14} /> },
   { id: 'drift',      labelKey: 'devices.tabs.drift',      icon: <GitCompareArrows size={14} /> },
   { id: 'changes',    labelKey: 'devices.tabs.changes',    icon: <PlayCircle size={14} /> },
-  { id: 'backups',    labelKey: 'devices.tabs.backups',    icon: <Archive size={14} />,          milestone: 'M4' },
+  { id: 'backups',    labelKey: 'devices.tabs.backups',    icon: <Archive size={14} /> },
   // M10 unlocks TR-069. The tab is enabled for EVERY brand on purpose: on a
   // MikroTik or a SonicWall its content is the sentence "this platform ships no
   // CWMP client, use <transport> instead" (D2), and that sentence is exactly
   // what the operator came looking for. A tab greyed out on three quarters of
   // the fleet would leave him to guess it.
   { id: 'acs',        labelKey: 'devices.tabs.acs',        icon: <RadioTower size={14} /> },
-  { id: 'logs',       labelKey: 'devices.tabs.logs',       icon: <ScrollText size={14} />,       milestone: 'M8' },
+  { id: 'logs',       labelKey: 'devices.tabs.logs',       icon: <ScrollText size={14} /> },
   { id: 'settings',   labelKey: 'devices.tabs.settings',   icon: <SettingsIcon size={14} /> },
 ];
 
@@ -660,6 +662,23 @@ export function DeviceDetailPage() {
           checks ACS_ADMIN itself before it fetches anything. */}
       {tab === 'acs' && (
         <DeviceAcsTab deviceId={device.id} brand={device.brand} family={device.family} />
+      )}
+
+      {/* ── Backups ──
+          CONFIG_READ, not DEVICE_READ: knowing a device exists and reading its
+          configuration history are different privileges, and the capability
+          vocabulary keeps them apart precisely so config can be withheld. */}
+      {tab === 'backups' && (
+        hasCapability(CAPABILITIES.CONFIG_READ)
+          ? <DeviceBackupsTab deviceId={device.id} />
+          : <CapabilityNotice />
+      )}
+
+      {/* ── Logs ── */}
+      {tab === 'logs' && (
+        hasCapability(CAPABILITIES.SNMP_READ)
+          ? <DeviceLogsTab deviceId={device.id} />
+          : <CapabilityNotice />
       )}
 
       {/* ── Settings ── */}

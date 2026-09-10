@@ -1522,7 +1522,18 @@
       "saturatedHint": "Rozhraní změřená na 70 % rychlosti linky a více, v jednom nebo druhém směru.",
       "unmeasurable": "Nasycení neznámé",
       "unmeasurableHint": "Rozhraní, jejichž rychlost linky nebyla nikdy přečtena. Jejich nasycení nelze uvést: nejsou ani v pořádku, ani nasycená."
-    }
+    },
+    "discoverNow": "Objevit nyní",
+    "discovering": "Probíhá objevování…",
+    "discoveryDone": "Nahlášeno {{discovered}} rozhraní · {{created}} nových · {{vanished}} zmizelo",
+    "discoveryRemapped": "{{count}} rozhraní změnilo ifIndex. Jejich vzorky byly až do tohoto běhu přiřazovány špatnému portu.",
+    "discoveryFailed": "Objevování se nepodařilo spustit.",
+    "historyToggle": "Historie ({{count}})",
+    "historyWhen": "Poslední objevování: {{last}} · další naplánované: {{next}}",
+    "historyNever": "nikdy",
+    "historyFirstSeen": "poprvé viděno {{at}}",
+    "historyVanished": "zmizelo {{at}}",
+    "historyNeedsRediscovery": "podezřelý ifIndex"
   },
   "login": {
     "clientVersion": "klient v{{version}}",

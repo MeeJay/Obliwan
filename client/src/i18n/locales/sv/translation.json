@@ -1522,7 +1522,18 @@
       "saturatedHint": "Gränssnitt som mätts till 70 % av länkhastigheten eller mer, i endera riktningen.",
       "unmeasurable": "Mättnad okänd",
       "unmeasurableHint": "Gränssnitt vars länkhastighet aldrig har lästs. Deras mättnad kan inte anges: de är varken friska eller mättade."
-    }
+    },
+    "discoverNow": "Upptäck nu",
+    "discovering": "Upptäcker…",
+    "discoveryDone": "{{discovered}} gränssnitt rapporterade · {{created}} nya · {{vanished}} försvunna",
+    "discoveryRemapped": "{{count}} gränssnitt har bytt ifIndex. Deras mätvärden tillskrevs fel port fram till den här körningen.",
+    "discoveryFailed": "Upptäckten kunde inte köras.",
+    "historyToggle": "Historik ({{count}})",
+    "historyWhen": "Senaste upptäckt: {{last}} · nästa planerad: {{next}}",
+    "historyNever": "aldrig",
+    "historyFirstSeen": "först sedd {{at}}",
+    "historyVanished": "försvann {{at}}",
+    "historyNeedsRediscovery": "ifIndex misstänkt"
   },
   "login": {
     "clientVersion": "klient v{{version}}",

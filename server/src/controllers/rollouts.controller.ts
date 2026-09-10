@@ -57,6 +57,8 @@ import {
   resumeRollout,
   toRolloutSummary,
 } from '../services/change/rollout.service';
+import { changeExecutorReadiness } from '../services/change/apply.service';
+import { DEFAULT_WAVE_SIZES, HEALTH_GATE_KINDS } from '../services/change/healthGate';
 
 // ============================================================================
 // Parsing and error mapping
@@ -187,6 +189,40 @@ const listQuerySchema = z.object({
 // ============================================================================
 
 export const rolloutsController = {
+  /**
+   * What the Rollouts screen needs before it offers anything.
+   *
+   * `canLaunch` is answered by `changeExecutorReadiness()` rather than by a
+   * constant: a rollout is N writes, and a build whose renderer is unregistered
+   * refuses every one of them at the apply step (§8.2 — the queue hands the
+   * executor the REDACTED plan). Offering the button anyway would fail forty
+   * devices in one gesture to discover something this process already knew at
+   * boot, and logged.
+   *
+   * The warnings are forwarded verbatim. They name the missing piece — the
+   * executor, the renderer — and an operator who can read "no change RENDERER
+   * is registered" can act on it; "unavailable" sends them to open a ticket.
+   */
+  async config(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const readiness = await changeExecutorReadiness();
+      res.json({
+        success: true,
+        data: {
+          canLaunch: readiness.ready,
+          // No milestone. Every one of them shipped; a number here would be the
+          // same stale padlock this endpoint exists to remove.
+          milestone: null,
+          blockedReason: readiness.ready ? null : readiness.warnings.join(' '),
+          waveSizes: DEFAULT_WAVE_SIZES,
+          gates: HEALTH_GATE_KINDS,
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   /**
    * THE IMPACT SCREEN — §5/M7's "compilation des N plans AVANT lancement".
    *

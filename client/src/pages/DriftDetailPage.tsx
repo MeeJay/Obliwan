@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   FileCode,
   FileText,
-  Lock,
   RotateCw,
 } from 'lucide-react';
 import { CAPABILITIES } from '@obliwan/shared';
@@ -238,18 +237,25 @@ export function DriftDetailPage() {
               </Button>
             </Link>
           )}
-          {/* M5. Disabled, milestone announced — never omitted, never clickable. */}
-          <button
-            type="button"
-            disabled
-            aria-disabled="true"
-            title={t('drift.detail.planLocked', { milestone: 'M5' })}
-            className="inline-flex cursor-not-allowed select-none items-center gap-1.5 rounded-md border border-border bg-bg-tertiary px-3 py-1.5 text-sm text-text-muted opacity-50"
-          >
-            {t('drift.detail.generatePlan')}
-            <Lock size={11} />
-            <span className="font-mono text-[10px] tracking-wider">M5</span>
-          </button>
+          {/* Compiling a plan from a drift run.
+
+              This was a disabled button with an 'M5' padlock. M5 shipped:
+              POST /plan/devices/:id answers, planApi.compileDevice calls it,
+              and /plan/:deviceId renders the result. The padlock outlived the
+              condition it described — and a padlock is a stronger claim than an
+              empty pane, because it tells an operator the feature does not
+              exist, so they stop looking for it.
+
+              PLAN_CREATE, not DRIFT_MANAGE: compiling a plan is reading what a
+              change WOULD do. Pushing it is CHANGE_APPLY, behind /changes and
+              the queue (D3). */}
+          {hasCapability(CAPABILITIES.PLAN_CREATE) && (
+            <Link to={`/plan/${run.deviceId}`}>
+              <Button variant="secondary" size="sm">
+                {t('drift.detail.generatePlan')}
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 

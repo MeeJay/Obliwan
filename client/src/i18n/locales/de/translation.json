@@ -1522,7 +1522,18 @@
       "saturatedHint": "Schnittstellen, die in einer der beiden Richtungen mit 70 % der Leitungsgeschwindigkeit oder mehr gemessen wurden.",
       "unmeasurable": "Sättigung unbekannt",
       "unmeasurableHint": "Schnittstellen, deren Leitungsgeschwindigkeit nie gelesen wurde. Ihre Sättigung lässt sich nicht angeben: Sie sind weder gesund noch gesättigt."
-    }
+    },
+    "discoverNow": "Jetzt erkennen",
+    "discovering": "Erkennung läuft…",
+    "discoveryDone": "{{discovered}} Schnittstelle(n) gemeldet · {{created}} neu · {{vanished}} verschwunden",
+    "discoveryRemapped": "{{count}} Schnittstelle(n) haben den ifIndex gewechselt. Ihre Messwerte wurden bis zu diesem Lauf dem falschen Port zugeordnet.",
+    "discoveryFailed": "Die Erkennung konnte nicht ausgeführt werden.",
+    "historyToggle": "Verlauf ({{count}})",
+    "historyWhen": "Letzte Erkennung: {{last}} · nächste geplant: {{next}}",
+    "historyNever": "nie",
+    "historyFirstSeen": "erstmals gesehen {{at}}",
+    "historyVanished": "verschwunden {{at}}",
+    "historyNeedsRediscovery": "ifIndex fraglich"
   },
   "login": {
     "clientVersion": "Client v{{version}}",

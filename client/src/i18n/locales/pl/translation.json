@@ -1522,7 +1522,18 @@
       "saturatedHint": "Interfejsy zmierzone na 70 % prędkości łącza lub więcej, w jednym albo drugim kierunku.",
       "unmeasurable": "Saturacja nieznana",
       "unmeasurableHint": "Interfejsy, których prędkość łącza nigdy nie została odczytana. Ich saturacji nie da się podać: nie są ani zdrowe, ani wysycone."
-    }
+    },
+    "discoverNow": "Wykryj teraz",
+    "discovering": "Wykrywanie…",
+    "discoveryDone": "Zgłoszono {{discovered}} interfejs(ów) · {{created}} nowych · {{vanished}} zniknęło",
+    "discoveryRemapped": "{{count}} interfejs(ów) zmieniło ifIndex. Ich próbki były przypisywane do złego portu aż do tego przebiegu.",
+    "discoveryFailed": "Nie udało się uruchomić wykrywania.",
+    "historyToggle": "Historia ({{count}})",
+    "historyWhen": "Ostatnie wykrywanie: {{last}} · następne zaplanowane: {{next}}",
+    "historyNever": "nigdy",
+    "historyFirstSeen": "pierwszy raz widziany {{at}}",
+    "historyVanished": "zniknął {{at}}",
+    "historyNeedsRediscovery": "podejrzany ifIndex"
   },
   "login": {
     "clientVersion": "klient v{{version}}",

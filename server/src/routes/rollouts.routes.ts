@@ -40,6 +40,30 @@ import { requireCapability } from '../middleware/rbac';
  */
 const router = Router();
 
+/**
+ * `GET /rollouts/config` — "can this build actually launch a wave rollout?"
+ *
+ * ┌─ THIS ROUTE DID NOT EXIST, AND THE UI PAID FOR IT ───────────────────────┐
+ * │ `rolloutApi.config()` fails CLOSED on purpose — a client that decided for │
+ * │ itself that launching is possible would queue N writes against a server   │
+ * │ with no runner behind it. But the endpoint it asks was never written, so  │
+ * │ the fallback was not a safety net, it was the permanent answer: the        │
+ * │ Rollouts screen has been telling every operator "M7" since M7 shipped,     │
+ * │ over a compose / launch / advance / pause / resume surface that is all     │
+ * │ there and all reachable.                                                   │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * `canLaunch` is NOT hard-coded to true. It is `changeExecutorReadiness()` —
+ * the same check that logs at boot — because a rollout is N writes and a build
+ * with no registered renderer refuses every one of them at the apply step. A
+ * screen that offered to launch anyway would fail forty devices in one gesture
+ * to discover something the server already knew. `blockedReason` carries the
+ * server's own sentence so the UI does not have to invent one.
+ *
+ * Declared before `/:id` so the literal path is not swallowed by the parameter.
+ */
+router.get('/config', requireCapability(CAPABILITIES.PLAN_CREATE), rolloutsController.config);
+
 // ── Reads, and the impact screen ─────────────────────────────────────────────
 router.get('/', requireCapability(CAPABILITIES.PLAN_CREATE), rolloutsController.list);
 // Literal path before the parameterised one, so `/preview` can never be

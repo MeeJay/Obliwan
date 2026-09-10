@@ -1522,7 +1522,18 @@
       "saturatedHint": "任一方向上实测达到线路速率 70 % 及以上的接口。",
       "unmeasurable": "饱和度未知",
       "unmeasurableHint": "从未读到线路速率的接口。它们的饱和度无法给出：既不算健康，也不算饱和。"
-    }
+    },
+    "discoverNow": "立即发现",
+    "discovering": "发现中…",
+    "discoveryDone": "报告 {{discovered}} 个接口 · 新增 {{created}} · 消失 {{vanished}}",
+    "discoveryRemapped": "{{count}} 个接口的 ifIndex 发生变化。在本次运行之前，它们的采样一直被归到了错误的端口。",
+    "discoveryFailed": "无法执行发现。",
+    "historyToggle": "历史 ({{count}})",
+    "historyWhen": "上次发现：{{last}} · 下次计划：{{next}}",
+    "historyNever": "从未",
+    "historyFirstSeen": "首次发现于 {{at}}",
+    "historyVanished": "消失于 {{at}}",
+    "historyNeedsRediscovery": "ifIndex 存疑"
   },
   "login": {
     "clientVersion": "客户端 v{{version}}",

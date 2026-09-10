@@ -473,6 +473,10 @@ export interface RolloutConfig {
    *  writes against a server with no rollout runner behind it. */
   canLaunch: boolean;
   milestone: string | null;
+  /** The SERVER's sentence for why not — it names the missing piece (executor,
+   *  renderer). `null` when launching is possible. Never invented here: a
+   *  client-authored reason is a guess about a server it cannot see. */
+  blockedReason?: string | null;
   /** Default canary ladder, server-owned so it is not a constant duplicated
    *  in the client. */
   waveSizes: number[];
@@ -481,7 +485,13 @@ export interface RolloutConfig {
 
 export const ROLLOUT_CONFIG_FAIL_CLOSED: RolloutConfig = {
   canLaunch: false,
-  milestone: 'M7',
+  // `null`, not 'M7'. The endpoint this falls back from did not exist until
+  // now, so the fallback WAS the permanent answer and the screen announced a
+  // milestone that had long shipped over a fully working compose / launch /
+  // advance / pause surface. A fail-closed default may say "not now"; it may
+  // not explain why with a number, because it does not know why — the server
+  // does, and sends `blockedReason`.
+  milestone: null,
   waveSizes: [1, 3],
   gates: [...HEALTH_GATE_KINDS],
 };
@@ -509,6 +519,7 @@ export const rolloutApi = {
       return {
         canLaunch: pick(row, 'canLaunch') === true,
         milestone: s(pick(row, 'milestone')) ?? null,
+        blockedReason: s(pick(row, 'blockedReason')) ?? null,
         waveSizes: sizes.length > 0 ? sizes : ROLLOUT_CONFIG_FAIL_CLOSED.waveSizes,
         gates: gates.length > 0 ? gates : ROLLOUT_CONFIG_FAIL_CLOSED.gates,
       };

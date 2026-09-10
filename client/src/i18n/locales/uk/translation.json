@@ -1522,7 +1522,18 @@
       "saturatedHint": "Інтерфейси, виміряні на 70 % швидкості каналу або більше, у будь-якому з напрямків.",
       "unmeasurable": "Насичення невідоме",
       "unmeasurableHint": "Інтерфейси, швидкість каналу яких ніколи не читалася. Їхнє насичення назвати неможливо: вони ані здорові, ані насичені."
-    }
+    },
+    "discoverNow": "Виявити зараз",
+    "discovering": "Триває виявлення…",
+    "discoveryDone": "Повідомлено інтерфейсів: {{discovered}} · нових: {{created}} · зникло: {{vanished}}",
+    "discoveryRemapped": "У {{count}} інтерфейс(ів) змінився ifIndex. До цього запуску їхні відліки приписувались не тому порту.",
+    "discoveryFailed": "Не вдалося виконати виявлення.",
+    "historyToggle": "Історія ({{count}})",
+    "historyWhen": "Останнє виявлення: {{last}} · наступне заплановане: {{next}}",
+    "historyNever": "ніколи",
+    "historyFirstSeen": "уперше помічено {{at}}",
+    "historyVanished": "зник {{at}}",
+    "historyNeedsRediscovery": "ifIndex під підозрою"
   },
   "login": {
     "clientVersion": "клієнт v{{version}}",

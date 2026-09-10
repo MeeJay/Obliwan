@@ -1522,7 +1522,18 @@
       "saturatedHint": "Grænseflader målt til 70 % af linjehastigheden eller derover, i den ene eller den anden retning.",
       "unmeasurable": "Mætning ukendt",
       "unmeasurableHint": "Grænseflader, hvis linjehastighed aldrig er blevet aflæst. Deres mætning kan ikke fastslås: de er hverken sunde eller mættede."
-    }
+    },
+    "discoverNow": "Opdag nu",
+    "discovering": "Opdager…",
+    "discoveryDone": "{{discovered}} grænseflade(r) rapporteret · {{created}} nye · {{vanished}} forsvundet",
+    "discoveryRemapped": "{{count}} grænseflade(r) har skiftet ifIndex. Deres målinger blev tilskrevet den forkerte port indtil denne kørsel.",
+    "discoveryFailed": "Opdagelsen kunne ikke køres.",
+    "historyToggle": "Historik ({{count}})",
+    "historyWhen": "Seneste opdagelse: {{last}} · næste planlagt: {{next}}",
+    "historyNever": "aldrig",
+    "historyFirstSeen": "først set {{at}}",
+    "historyVanished": "forsvundet {{at}}",
+    "historyNeedsRediscovery": "ifIndex mistænkt"
   },
   "login": {
     "clientVersion": "klient v{{version}}",

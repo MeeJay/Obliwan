@@ -1522,7 +1522,18 @@
       "saturatedHint": "Interfaces measured at 70 % of line speed or more, in either direction.",
       "unmeasurable": "Saturation unknown",
       "unmeasurableHint": "Interfaces whose line speed was never read. Their saturation cannot be stated — they are neither healthy nor saturated."
-    }
+    },
+    "discoverNow": "Discover now",
+    "discovering": "Discovering…",
+    "discoveryDone": "{{discovered}} interface(s) reported · {{created}} new · {{vanished}} vanished",
+    "discoveryRemapped": "{{count}} interface(s) changed ifIndex. Their samples were being attributed to the wrong port until this run caught it.",
+    "discoveryFailed": "Discovery could not be run.",
+    "historyToggle": "History ({{count}})",
+    "historyWhen": "Last discovery: {{last}} · next scheduled: {{next}}",
+    "historyNever": "never",
+    "historyFirstSeen": "first seen {{at}}",
+    "historyVanished": "vanished {{at}}",
+    "historyNeedsRediscovery": "ifIndex under suspicion"
   },
   "login": {
     "clientVersion": "client v{{version}}",

@@ -1522,7 +1522,18 @@
       "saturatedHint": "Интерфейсы, измеренные на 70 % скорости канала или выше, в любом из направлений.",
       "unmeasurable": "Насыщение неизвестно",
       "unmeasurableHint": "Интерфейсы, скорость канала которых никогда не читалась. Их насыщение назвать невозможно: они ни здоровы, ни насыщены."
-    }
+    },
+    "discoverNow": "Обнаружить сейчас",
+    "discovering": "Идёт обнаружение…",
+    "discoveryDone": "Сообщено интерфейсов: {{discovered}} · новых: {{created}} · исчезло: {{vanished}}",
+    "discoveryRemapped": "У {{count}} интерфейс(ов) изменился ifIndex. До этого запуска их отсчёты приписывались не тому порту.",
+    "discoveryFailed": "Не удалось выполнить обнаружение.",
+    "historyToggle": "История ({{count}})",
+    "historyWhen": "Последнее обнаружение: {{last}} · следующее запланировано: {{next}}",
+    "historyNever": "никогда",
+    "historyFirstSeen": "впервые замечен {{at}}",
+    "historyVanished": "исчез {{at}}",
+    "historyNeedsRediscovery": "ifIndex под подозрением"
   },
   "login": {
     "clientVersion": "клиент v{{version}}",

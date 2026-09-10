@@ -252,6 +252,32 @@ export async function captureBaselines(
 // ============================================================================
 
 /** What the gate observes once the wave's jobs are terminal. */
+/**
+ * The gates a wave is judged on, named rather than numbered.
+ *
+ * "Gate 3 failed" is a support ticket; "no NEW ifInErrors: FAILED on 2 of 5
+ * devices" is a diagnosis. The operator has to be able to read WHICH signal
+ * refused, which is why these are strings and why they are exposed by
+ * `GET /rollouts/config` instead of being duplicated as a client constant.
+ *
+ * Each one corresponds to a field of `PostWaveSignals` below — this list and
+ * that interface must not drift apart, because a gate advertised here and never
+ * measured there is a check an operator believes is protecting them.
+ */
+export const HEALTH_GATE_KINDS = [
+  'ppp_session',   // the PPP session came back up on the concentrator (D4)
+  'oper_status',   // ifOperStatus up on the interfaces that were up before
+  'if_errors',     // no NEW ifInErrors / ifOutErrors since the apply
+  'rtt_baseline',  // RTT within tolerance of the baseline
+  'no_boot',       // no unexpected reboot — sysUpTime went backwards
+  'netwatch',      // §8.4 — the CUSTOMER's own service is still answering
+] as const;
+export type HealthGateKind = (typeof HEALTH_GATE_KINDS)[number];
+
+/** The canary ladder: one device, then three. Server-owned so the client does
+ *  not carry a second copy free to disagree with it. */
+export const DEFAULT_WAVE_SIZES: readonly number[] = [1, 3];
+
 export interface PostWaveSignals {
   deviceId: number;
   /** `null` when the device has no concentrator (see `readPppUp`). */

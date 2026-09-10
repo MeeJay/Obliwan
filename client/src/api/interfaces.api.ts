@@ -122,3 +122,58 @@ export const interfacesApi = {
     }
   },
 };
+
+// ── Discovery: forcing one, and reading what past ones found ────────────────
+
+export interface DiscoveryHistoryEntry {
+  ifName: string;
+  ifDescr: string | null;
+  ifIndex: number;
+  state: string;
+  firstSeenAt: string;
+  lastSeenAt: string | null;
+  vanishedAt: string | null;
+  needsRediscovery: boolean;
+}
+
+export interface DiscoveryHistory {
+  lastDiscoveryAt: string | null;
+  nextDiscoveryAt: string | null;
+  activeCount: number;
+  vanishedCount: number;
+  entries: DiscoveryHistoryEntry[];
+}
+
+export interface ForcedDiscovery {
+  deviceId: number;
+  discovered: number;
+  created: number;
+  updated: number;
+  /** Interfaces whose ifIndex moved. Never zero after a reboot on some
+   *  platforms — R12 is the reason the coherence check exists. */
+  remapped: number;
+  vanished: number;
+  durationMs: number;
+}
+
+export const discoveryApi = {
+  /** Walk the ifTable now. Runs the same code path the poller runs. */
+  async force(deviceId: number): Promise<ForcedDiscovery> {
+    const res = await apiClient.post<ApiResponse<ForcedDiscovery>>(
+      `/snmp/devices/${deviceId}/discover`,
+    );
+    return res.data.data!;
+  },
+
+  /** `null` = this build does not serve discovery history. */
+  async history(deviceId: number): Promise<DiscoveryHistory | null> {
+    try {
+      const res = await apiClient.get<ApiResponse<DiscoveryHistory>>(
+        `/snmp/devices/${deviceId}/discovery`,
+      );
+      return res.data.data ?? null;
+    } catch {
+      return null;
+    }
+  },
+};

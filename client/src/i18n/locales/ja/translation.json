@@ -1522,7 +1522,18 @@
       "saturatedHint": "いずれかの方向で回線速度の 70 % 以上と測定されたインターフェース。",
       "unmeasurable": "飽和度が不明",
       "unmeasurableHint": "回線速度が一度も読み取られていないインターフェースです。飽和度を述べることはできません。健全でも飽和でもありません。"
-    }
+    },
+    "discoverNow": "今すぐ探索",
+    "discovering": "探索中…",
+    "discoveryDone": "{{discovered}} 個のインターフェイスを検出 · 新規 {{created}} · 消失 {{vanished}}",
+    "discoveryRemapped": "{{count}} 個のインターフェイスで ifIndex が変わりました。この実行まで、それらのサンプルは誤ったポートに帰属していました。",
+    "discoveryFailed": "探索を実行できませんでした。",
+    "historyToggle": "履歴 ({{count}})",
+    "historyWhen": "前回の探索: {{last}} · 次回予定: {{next}}",
+    "historyNever": "なし",
+    "historyFirstSeen": "初回検出 {{at}}",
+    "historyVanished": "消失 {{at}}",
+    "historyNeedsRediscovery": "ifIndex に疑いあり"
   },
   "login": {
     "clientVersion": "クライアント v{{version}}",

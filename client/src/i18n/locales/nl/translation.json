@@ -1522,7 +1522,18 @@
       "saturatedHint": "Interfaces die in een van beide richtingen op 70 % van de lijnsnelheid of meer zijn gemeten.",
       "unmeasurable": "Verzadiging onbekend",
       "unmeasurableHint": "Interfaces waarvan de lijnsnelheid nooit is gelezen. Hun verzadiging kan niet worden gesteld: zij zijn noch gezond noch verzadigd."
-    }
+    },
+    "discoverNow": "Nu ontdekken",
+    "discovering": "Bezig met ontdekken…",
+    "discoveryDone": "{{discovered}} interface(s) gemeld · {{created}} nieuw · {{vanished}} verdwenen",
+    "discoveryRemapped": "{{count}} interface(s) hebben een andere ifIndex gekregen. Hun metingen werden tot deze run aan de verkeerde poort toegeschreven.",
+    "discoveryFailed": "De ontdekking kon niet worden uitgevoerd.",
+    "historyToggle": "Geschiedenis ({{count}})",
+    "historyWhen": "Laatste ontdekking: {{last}} · volgende gepland: {{next}}",
+    "historyNever": "nooit",
+    "historyFirstSeen": "voor het eerst gezien op {{at}}",
+    "historyVanished": "verdwenen op {{at}}",
+    "historyNeedsRediscovery": "ifIndex verdacht"
   },
   "login": {
     "clientVersion": "client v{{version}}",

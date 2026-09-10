@@ -1522,7 +1522,18 @@
       "saturatedHint": "Interfacce misurate al 70 % della velocità di linea o più, in una delle due direzioni.",
       "unmeasurable": "Saturazione sconosciuta",
       "unmeasurableHint": "Interfacce la cui velocità di linea non è mai stata letta. La loro saturazione non può essere affermata — non sono né sane né sature."
-    }
+    },
+    "discoverNow": "Scopri ora",
+    "discovering": "Scoperta in corso…",
+    "discoveryDone": "{{discovered}} interfaccia/e riportata/e · {{created}} nuova/e · {{vanished}} scomparsa/e",
+    "discoveryRemapped": "{{count}} interfaccia/e hanno cambiato ifIndex. I loro campioni venivano attribuiti alla porta sbagliata fino a questa esecuzione.",
+    "discoveryFailed": "Impossibile eseguire la scoperta.",
+    "historyToggle": "Cronologia ({{count}})",
+    "historyWhen": "Ultima scoperta: {{last}} · prossima prevista: {{next}}",
+    "historyNever": "mai",
+    "historyFirstSeen": "vista per la prima volta il {{at}}",
+    "historyVanished": "scomparsa il {{at}}",
+    "historyNeedsRediscovery": "ifIndex sospetto"
   },
   "login": {
     "clientVersion": "client v{{version}}",

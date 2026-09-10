@@ -43,6 +43,11 @@ import * as credentials from '../services/snmp/credential.service';
 import * as series from '../services/snmp/series.service';
 import * as thresholds from '../services/snmp/threshold.service';
 import { schedulerStats } from '../services/snmp/scheduler';
+import {
+  discoveryHistory,
+  forceDiscovery,
+  DiscoveryUnavailableError,
+} from '../services/snmp/forceDiscovery';
 import { writerStats } from '../services/snmp/writer';
 import { trapStats } from '../services/snmp/trapReceiver';
 import { syslogStats } from '../services/snmp/syslogReceiver';
@@ -315,6 +320,38 @@ export const snmpController = {
       if (!deleted) throw new AppError(404, 'No SNMP target for this device');
       res.json({ success: true });
     } catch (err) {
+      next(err);
+    }
+  },
+
+  // -- Discovery -----------------------------------------------------------
+
+  /** GET /api/snmp/devices/:deviceId/discovery — every interface this device
+   *  has ever reported, vanished ones included. See `forceDiscovery.ts` for why
+   *  there is no separate event table. */
+  async discoveryHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const history = await discoveryHistory(req.tenantId, parseId(req.params.deviceId));
+      if (!history) throw new AppError(404, 'Device not found');
+      res.json({ success: true, data: history });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /** POST /api/snmp/devices/:deviceId/discover — walk the ifTable now. */
+  async forceDiscovery(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await forceDiscovery(req.tenantId, parseId(req.params.deviceId));
+      res.json({ success: true, data: result });
+    } catch (err) {
+      if (err instanceof DiscoveryUnavailableError) {
+        // 409, not 500: the request was well formed and the server understood
+        // it perfectly. What is missing is a precondition on the device, and
+        // the message names which one — "no target" and "no community" send an
+        // operator to two different screens.
+        return next(new AppError(err.reason === 'no_target' ? 404 : 409, err.message));
+      }
       next(err);
     }
   },

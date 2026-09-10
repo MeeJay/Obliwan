@@ -1522,7 +1522,18 @@
       "saturatedHint": "Interfaces mesurées à 70 % de la vitesse de lien ou plus, dans un sens ou dans l'autre.",
       "unmeasurable": "Saturation inconnue",
       "unmeasurableHint": "Interfaces dont la vitesse de lien n'a jamais été lue. Leur saturation ne peut pas être énoncée : elles ne sont ni saines ni saturées."
-    }
+    },
+    "discoverNow": "Découvrir maintenant",
+    "discovering": "Découverte en cours…",
+    "discoveryDone": "{{discovered}} interface(s) rapportée(s) · {{created}} nouvelle(s) · {{vanished}} disparue(s)",
+    "discoveryRemapped": "{{count}} interface(s) ont changé d’ifIndex. Leurs échantillons étaient attribués au mauvais port jusqu’à cette exécution.",
+    "discoveryFailed": "La découverte n’a pas pu être lancée.",
+    "historyToggle": "Historique ({{count}})",
+    "historyWhen": "Dernière découverte : {{last}} · prochaine prévue : {{next}}",
+    "historyNever": "jamais",
+    "historyFirstSeen": "vue pour la première fois le {{at}}",
+    "historyVanished": "disparue le {{at}}",
+    "historyNeedsRediscovery": "ifIndex suspect"
   },
   "login": {
     "clientVersion": "client v{{version}}",

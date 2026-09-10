@@ -71,6 +71,25 @@ router.delete(
   snmpController.deleteTarget,
 );
 
+/**
+ * Discovery — reading its history is SNMP_READ, running one is SNMP_ADMIN.
+ *
+ * Forcing a walk is not a read: it puts packets on a customer's equipment and
+ * it RECONCILES — an interface that has genuinely disappeared is marked
+ * vanished, which retires its series. That is a change to what the fleet
+ * believes, so it sits with the other gestures that change what is polled.
+ */
+router.get(
+  '/devices/:deviceId/discovery',
+  requireCapability(CAPABILITIES.SNMP_READ),
+  snmpController.discoveryHistory,
+);
+router.post(
+  '/devices/:deviceId/discover',
+  requireCapability(CAPABILITIES.SNMP_ADMIN),
+  snmpController.forceDiscovery,
+);
+
 // -- Interfaces and series --------------------------------------------------
 router.get(
   '/devices/:deviceId/interfaces',

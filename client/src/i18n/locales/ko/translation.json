@@ -1522,7 +1522,18 @@
       "saturatedHint": "어느 방향으로든 회선 속도의 70 % 이상으로 측정된 인터페이스.",
       "unmeasurable": "포화도 불명",
       "unmeasurableHint": "회선 속도를 한 번도 읽지 못한 인터페이스입니다. 포화도를 말할 수 없습니다. 건강하지도 포화되지도 않았습니다."
-    }
+    },
+    "discoverNow": "지금 탐색",
+    "discovering": "탐색 중…",
+    "discoveryDone": "인터페이스 {{discovered}}개 보고 · 신규 {{created}}개 · 사라짐 {{vanished}}개",
+    "discoveryRemapped": "{{count}}개 인터페이스의 ifIndex가 바뀌었습니다. 이번 실행 전까지 해당 샘플은 잘못된 포트에 귀속되고 있었습니다.",
+    "discoveryFailed": "탐색을 실행할 수 없습니다.",
+    "historyToggle": "기록 ({{count}})",
+    "historyWhen": "마지막 탐색: {{last}} · 다음 예정: {{next}}",
+    "historyNever": "없음",
+    "historyFirstSeen": "최초 확인 {{at}}",
+    "historyVanished": "사라짐 {{at}}",
+    "historyNeedsRediscovery": "ifIndex 의심"
   },
   "login": {
     "clientVersion": "클라이언트 v{{version}}",

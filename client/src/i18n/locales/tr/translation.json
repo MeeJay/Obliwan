@@ -1522,7 +1522,18 @@
       "saturatedHint": "Herhangi bir yönde hat hızının %70'i veya üzerinde ölçülen arayüzler.",
       "unmeasurable": "Doygunluk bilinmiyor",
       "unmeasurableHint": "Hat hızı hiç okunmamış arayüzler. Doygunlukları söylenemez: ne sağlıklı ne de doygundurlar."
-    }
+    },
+    "discoverNow": "Şimdi keşfet",
+    "discovering": "Keşfediliyor…",
+    "discoveryDone": "{{discovered}} arayüz bildirildi · {{created}} yeni · {{vanished}} kayboldu",
+    "discoveryRemapped": "{{count}} arayüzün ifIndex’i değişti. Örnekleri bu çalıştırmaya kadar yanlış porta atfediliyordu.",
+    "discoveryFailed": "Keşif çalıştırılamadı.",
+    "historyToggle": "Geçmiş ({{count}})",
+    "historyWhen": "Son keşif: {{last}} · sonraki planlanan: {{next}}",
+    "historyNever": "hiç",
+    "historyFirstSeen": "ilk görülme {{at}}",
+    "historyVanished": "kayboldu {{at}}",
+    "historyNeedsRediscovery": "ifIndex şüpheli"
   },
   "login": {
     "clientVersion": "istemci v{{version}}",

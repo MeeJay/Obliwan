@@ -1522,7 +1522,18 @@
       "saturatedHint": "الواجهات المقيسة عند 70 % من سرعة الخط أو أكثر، في أي من الاتجاهين.",
       "unmeasurable": "الإشباع غير معروف",
       "unmeasurableHint": "الواجهات التي لم تُقرأ سرعة خطها قط. لا يمكن ذكر إشباعها: فهي ليست سليمة وليست مشبعة."
-    }
+    },
+    "discoverNow": "اكتشف الآن",
+    "discovering": "جارٍ الاكتشاف…",
+    "discoveryDone": "تم الإبلاغ عن {{discovered}} واجهة · {{created}} جديدة · {{vanished}} اختفت",
+    "discoveryRemapped": "تغيّر ifIndex لـ {{count}} واجهة. كانت عيّناتها تُنسب إلى المنفذ الخطأ حتى هذا التشغيل.",
+    "discoveryFailed": "تعذّر تشغيل الاكتشاف.",
+    "historyToggle": "السجل ({{count}})",
+    "historyWhen": "آخر اكتشاف: {{last}} · التالي المُجدوَل: {{next}}",
+    "historyNever": "أبدًا",
+    "historyFirstSeen": "شوهدت أول مرة في {{at}}",
+    "historyVanished": "اختفت في {{at}}",
+    "historyNeedsRediscovery": "ifIndex مشبوه"
   },
   "login": {
     "clientVersion": "العميل v{{version}}",
