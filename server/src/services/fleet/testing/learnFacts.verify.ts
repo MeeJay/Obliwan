@@ -17,6 +17,16 @@
 
 /* eslint-disable no-console */
 
+// Type-only, and load-bearing twice over. It ties the mirrored merge below to
+// the shape the service actually returns, so a change there breaks this file
+// instead of letting it drift into testing a fiction — and it makes this file a
+// MODULE. Without a single import or export, TypeScript compiles a `.ts` file
+// as a global script: two such files both declaring `passed` at top level are a
+// redeclaration error, which is exactly how this broke the Docker build. The
+// other sixteen verify files never hit it because each imports the code it
+// exercises; these two mirror pure predicates and imported nothing.
+import type { LearnedFacts } from '../deviceBinding.service';
+
 let passed = 0;
 let failed = 0;
 
@@ -36,12 +46,9 @@ const LEARNABLE = ['model', 'serial', 'os_version', 'system_identity'] as const;
 function merge(
   current: Record<string, string | null>,
   observed: Record<string, string | null>,
-): {
-  patch: Record<string, string>;
-  conflicts: Array<{ field: string; stored: string; observed: string }>;
-} {
+): { patch: Record<string, string>; conflicts: LearnedFacts['conflicts'] } {
   const patch: Record<string, string> = {};
-  const conflicts: Array<{ field: string; stored: string; observed: string }> = [];
+  const conflicts: LearnedFacts['conflicts'] = [];
   for (const field of LEARNABLE) {
     const seen = observed[field]?.trim();
     if (!seen) continue;

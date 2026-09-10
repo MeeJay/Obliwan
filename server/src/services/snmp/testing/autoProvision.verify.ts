@@ -27,6 +27,14 @@
 
 /* eslint-disable no-console */
 
+// Type-only, and it earns its place twice: it binds this harness to the shape
+// `provisionMissingTargets` actually reports, and it makes this file a MODULE.
+// A `.ts` file with no import and no export compiles as a global script, so two
+// of them declaring `passed` at top level collide — which is precisely how this
+// and `learnFacts.verify.ts` broke the Docker build while `tsx` ran both
+// happily. See the note there.
+import type { ProvisionOutcome } from '../autoProvision';
+
 let passed = 0;
 let failed = 0;
 
@@ -110,6 +118,30 @@ function main(): void {
   check(
     'a device with neither tunnel IP nor transport host is skipped, not given a target that can never work',
     !nowhere.provisionable,
+  );
+
+  console.log('\nSNMP auto-provisioning — the outcome is counted, not summarised\n');
+
+  // Every skipped device lands in exactly one bucket. A device that fell
+  // through none of them would be a silent no-op, which is the one outcome an
+  // operator can neither see nor act on.
+  const outcome: ProvisionOutcome = {
+    created: 3, awaitingCredential: 2, danglingCredential: 1, noAddress: 1,
+  };
+  const buckets = Object.keys(outcome).sort();
+  check(
+    'the outcome has exactly the four buckets the sweep knows how to report',
+    buckets.join(',') === 'awaitingCredential,created,danglingCredential,noAddress',
+    buckets.join(','),
+  );
+  // Adding a fifth reason to skip a device without teaching `startSnmpAutoProvision`
+  // to log it would make that reason invisible — a device silently never polled,
+  // which is the failure this whole file exists to prevent. The line above fails
+  // the moment the shape grows, which is the reminder.
+  check(
+    'a device counted as created is not also counted as skipped',
+    outcome.created + outcome.awaitingCredential + outcome.danglingCredential
+      + outcome.noAddress === 7,
   );
 
   console.log('\nSNMP auto-provisioning — the credential gate\n');
