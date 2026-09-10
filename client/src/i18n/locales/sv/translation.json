@@ -904,7 +904,8 @@
       "timeout": "tyst"
     },
     "factsLearned": "{{count}} uppgift(er) avlästa från utrustningen och ifyllda.",
-    "factsConflict": "Utrustningen uppger ett annat {{fields}} än det registrerade. Inget skrevs över — antingen har enheten bytts ut, eller så tillhör den här adressen nu en annan låda."
+    "factsConflict": "Utrustningen uppger ett annat {{fields}} än det registrerade. Inget skrevs över — antingen har enheten bytts ut, eller så tillhör den här adressen nu en annan låda.",
+    "snmpChannelHint": "En ”snmp”-kanal här används av drivrutinen för att identifiera enheten. Den startar INTE gränssnittspollning — det ställs in en gång för hela flottan i"
   },
   "diff": {
     "copied": "Kopierat",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "community satt",
     "hasAuthKey": "nycklar satta",
     "noneOption": "Ingen — skapa inte mål automatiskt"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }

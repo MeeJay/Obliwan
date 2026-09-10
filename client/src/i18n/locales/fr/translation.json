@@ -904,7 +904,8 @@
       "timeout": "silencieux"
     },
     "factsLearned": "{{count}} information(s) lue(s) sur l’équipement et complétée(s).",
-    "factsConflict": "L’équipement annonce un {{fields}} différent de celui enregistré. Rien n’a été écrasé — soit l’unité a été remplacée, soit cette adresse appartient désormais à une autre boîte."
+    "factsConflict": "L’équipement annonce un {{fields}} différent de celui enregistré. Rien n’a été écrasé — soit l’unité a été remplacée, soit cette adresse appartient désormais à une autre boîte.",
+    "snmpChannelHint": "Un canal « snmp » ici sert au pilote à identifier l’équipement. Il ne démarre PAS l’interrogation des interfaces — cela se règle une seule fois, pour tout le parc, dans"
   },
   "diff": {
     "copied": "Copié",
@@ -2364,7 +2365,69 @@
       "usernameLabel": "Identifiant"
     },
     "title": "Paramètres globaux",
-    "systemInfoError": "Impossible de charger les informations système."
+    "systemInfoError": "Impossible de charger les informations système.",
+    "keys": {
+      "notification_cooldown": {
+        "label": "Délai entre notifications",
+        "description": "Temps minimum entre deux notifications répétées pour le même événement"
+      },
+      "presence_grace_period": {
+        "label": "Délai de grâce de présence",
+        "description": "Durée pendant laquelle une session PPP peut rester coupée avant que l’équipement soit déclaré HORS LIGNE"
+      },
+      "device_timeout": {
+        "label": "Délai d’attente équipement",
+        "description": "Temps avant d’abandonner une tentative de connexion à un équipement"
+      },
+      "snmp_poll_interval": {
+        "label": "Intervalle d’interrogation SNMP",
+        "description": "Fréquence de relève des compteurs d’interface"
+      },
+      "snmp_timeout": {
+        "label": "Délai d’attente SNMP",
+        "description": "Temps au bout duquel une requête SNMP est considérée perdue"
+      },
+      "snmp_retries": {
+        "label": "Nouvelles tentatives SNMP",
+        "description": "Tentatives par requête SNMP avant de marquer l’interrogation en échec"
+      },
+      "snmp_auto_target_credential": {
+        "label": "Identifiant SNMP automatique",
+        "description": "Interroge tout équipement confirmé avec cet identifiant SNMP, sans configurer une cible par équipement. 0 désactive les cibles automatiques. Héritable par groupe, pour qu’un client soit interrogé avec sa propre communauté."
+      },
+      "snapshot_interval": {
+        "label": "Intervalle de capture",
+        "description": "Minutes entre deux captures de configuration du même équipement"
+      },
+      "drift_interval": {
+        "label": "Intervalle de détection de dérive",
+        "description": "Minutes entre deux analyses de dérive"
+      },
+      "commit_confirm_timeout": {
+        "label": "Délai de l’homme mort",
+        "description": "Secondes que l’homme mort embarqué attend avant de restaurer la configuration précédente"
+      },
+      "apply_soak_seconds": {
+        "label": "Durée d’observation après application",
+        "description": "Secondes d’observation après application avant de désarmer l’homme mort"
+      },
+      "max_concurrent_jobs": {
+        "label": "Travaux simultanés maximum",
+        "description": "Nombre maximum de travaux de changement exécutés en parallèle sur le parc"
+      },
+      "timeseries_retention_days": {
+        "label": "Rétention des séries temporelles",
+        "description": "Jours de conservation des échantillons de télémétrie"
+      },
+      "config_retention_days": {
+        "label": "Rétention des configurations",
+        "description": "Jours de conservation des captures de configuration"
+      },
+      "audit_retention_days": {
+        "label": "Rétention de l’audit",
+        "description": "Jours de conservation des entrées d’audit"
+      }
+    }
   },
   "sites": {
     "backToSites": "Retour aux sites",
@@ -2648,5 +2711,19 @@
     "hasCommunity": "communauté définie",
     "hasAuthKey": "clés définies",
     "noneOption": "Aucun — ne pas créer de cibles automatiquement"
+  },
+  "snmpTarget": {
+    "title": "Supervision SNMP",
+    "credential": "Identifiant",
+    "inheritOption": "Hériter du parc ({{name}})",
+    "inheritNothing": "aucun désigné",
+    "effective": "Interrogé avec {{name}} — {{source}}.",
+    "effectiveNone": "Rien ne sera interrogé : aucun identifiant épinglé ici, aucun désigné pour le parc.",
+    "noTarget": "Pas encore de cible. Elle est créée dès que l’équipement est confirmé et qu’un identifiant est disponible.",
+    "fromFleet": "hérité",
+    "pinned": "épinglé sur cet équipement",
+    "saved": "Supervision SNMP mise à jour.",
+    "saveFailed": "Impossible de mettre à jour la supervision SNMP.",
+    "failures": "{{count}} échec(s) consécutif(s)."
   }
 }

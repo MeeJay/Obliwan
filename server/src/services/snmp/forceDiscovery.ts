@@ -33,6 +33,7 @@ import { openSnmpConnection } from '../transport/snmp.transport';
 import { discoverDevice } from './discovery';
 import { getTargetForDevice, markDiscovered, resolveTarget, type SnmpInterfaceRow } from './targets';
 import { snmpConfig } from './config';
+import { provisionTargetForDevice, type ProvisionReason } from './autoProvision';
 
 export class DiscoveryUnavailableError extends Error {
   readonly reason: 'no_target' | 'disabled' | 'no_address' | 'no_credential';
@@ -40,6 +41,47 @@ export class DiscoveryUnavailableError extends Error {
     super(message);
     this.name = 'DiscoveryUnavailableError';
     this.reason = reason;
+  }
+}
+
+/**
+ * Three different problems, three different screens.
+ *
+ * The single sentence these replaced ("name a credential in Settings") was
+ * advice for exactly one of the cases and noise for the other three. An
+ * operator who HAS named one and gets told to name one concludes, reasonably,
+ * that the product is not listening.
+ */
+function refusalFor(
+  attempt: { reason: ProvisionReason; credentialId?: number; resolvedFrom?: string },
+): string {
+  // What the SERVER actually resolved, appended to every refusal that turns on
+  // a setting. When the screen shows a credential selected and the server says
+  // none is named, this line is the only thing that ends the argument.
+  const seen = attempt.resolvedFrom
+    ? ` (the server resolved this setting to ${attempt.credentialId ?? 0} from scope: ${attempt.resolvedFrom})`
+    : '';
+
+  switch (attempt.reason) {
+    case 'not_confirmed':
+      return 'This device is not confirmed yet, so it is never polled: its recorded address may '
+        + 'today belong to a different box, and counters read from it would be written down as '
+        + "this device's history (D5). Assert its identity first — the Overview tab does it — and "
+        + 'a target is created for it automatically.';
+    case 'no_credential_named':
+      return 'No SNMP credential is selected for this device. Creating one is not enough: it must '
+        + 'also be CHOSEN in Settings → "Automatic SNMP target credential", which is the setting '
+        + 'that turns polling on. It is inheritable, so setting it once at tenant level covers the '
+        + 'whole fleet — or set it on this device\'s group to give that customer its own community.'
+        + seen;
+    case 'credential_missing':
+      return `Settings name SNMP credential #${attempt.credentialId}, but no such credential exists `
+        + 'in this tenant any more. It was probably deleted. Pick another one in Settings.' + seen;
+    case 'no_address':
+      return 'This device has neither a tunnel IP nor a transport host, so there is no address to '
+        + 'send SNMP to.';
+    default:
+      return 'This device has no SNMP target and one could not be created.';
   }
 }
 
@@ -72,13 +114,21 @@ export async function forceDiscovery(
     .first<{ id: number } | undefined>('id');
   if (!device) throw new DiscoveryUnavailableError('no_target', 'Device not found');
 
-  const resolved = await getTargetForDevice(deviceId);
+  // ── No target? Try to make one, rather than explaining the paperwork ──────
+  // The operator's gesture means "poll this box". If the settings already
+  // allow it — a credential is named and the device is confirmed — the correct
+  // answer is to provision and walk, not to send them to a screen they have
+  // very possibly just come from. Only a real precondition failure refuses,
+  // and it names WHICH one.
+  let resolved = await getTargetForDevice(deviceId);
   if (!resolved) {
-    throw new DiscoveryUnavailableError(
-      'no_target',
-      'This device has no SNMP target. Name an SNMP credential in Settings and confirmed devices '
-        + 'are given one automatically — or create one for this device alone.',
-    );
+    const attempt = await provisionTargetForDevice(tenantId, deviceId);
+    if (attempt.reason === 'created' || attempt.reason === 'already_had_one') {
+      resolved = await getTargetForDevice(deviceId);
+    }
+    if (!resolved) {
+      throw new DiscoveryUnavailableError('no_target', refusalFor(attempt));
+    }
   }
   if (!resolved.target.enabled) {
     throw new DiscoveryUnavailableError('disabled', 'This device\'s SNMP target is disabled.');

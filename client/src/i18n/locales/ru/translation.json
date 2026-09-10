@@ -904,7 +904,8 @@
       "timeout": "молчит"
     },
     "factsLearned": "С оборудования считано и заполнено сведений: {{count}}.",
-    "factsConflict": "Оборудование сообщает {{fields}}, отличный от записанного. Ничего не перезаписано — либо устройство заменили, либо этот адрес теперь принадлежит другой коробке."
+    "factsConflict": "Оборудование сообщает {{fields}}, отличный от записанного. Ничего не перезаписано — либо устройство заменили, либо этот адрес теперь принадлежит другой коробке.",
+    "snmpChannelHint": "Канал «snmp» здесь нужен драйверу для опознания устройства. Он НЕ запускает опрос интерфейсов — он настраивается один раз для всего парка в разделе"
   },
   "diff": {
     "copied": "Скопировано",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "community задан",
     "hasAuthKey": "ключи заданы",
     "noneOption": "Нет — не создавать цели автоматически"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }

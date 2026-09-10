@@ -18,7 +18,9 @@ import type {
   SnmpPrivProtocol,
   InterfaceState,
 } from '@obliwan/shared';
+import { SETTINGS_KEYS } from '@obliwan/shared';
 import { db } from '../../db';
+import { settingsService } from '../settings.service';
 import { decrypt } from '../secretVault.service';
 import { logger } from '../../utils/logger';
 import type { SnmpTarget } from '../transport/snmp.transport';
@@ -158,13 +160,67 @@ function targetQuery(exec: Knex | Knex.Transaction = db) {
     );
 }
 
+/**
+ * Attach each target's credential, resolving the INHERITED ones as it goes.
+ *
+ * ┌─ `credential_id IS NULL` MEANS "INHERIT", NOT "NONE" ────────────────────┐
+ * │ A target created automatically does not pin a credential. It stays NULL   │
+ * │ and the answer is looked up at poll time from the settings tree — global, │
+ * │ tenant, group, device — so that changing the fleet's SNMP credential in   │
+ * │ one place actually changes what the fleet is polled with. Pinning the     │
+ * │ resolved value at creation time looked equivalent and is not: the setting │
+ * │ would become a default that applied only to devices enrolled after it,    │
+ * │ and an operator rotating a community would silently leave 400 targets on  │
+ * │ the old one.                                                              │
+ * │                                                                          │
+ * │ An operator who picks a credential for ONE device writes it here, and     │
+ * │ that pin then wins over the setting for that device — which is the whole  │
+ * │ point of being able to pick one.                                          │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * The settings lookup is cached per (tenant, group) FOR THIS BATCH only. A
+ * fleet of 500 in one group costs one resolution, not 500; and the cache dies
+ * with the call, so a setting changed between two poll cycles takes effect on
+ * the next one rather than at the next restart.
+ */
 async function attachCredentials(rows: TargetJoinRow[]): Promise<ResolvedTarget[]> {
-  const ids = [...new Set(rows.map((r) => r.credential_id).filter((v): v is number => v !== null))];
+  const inheritedBy = new Map<string, number>();
+  const needsInherit = rows.filter((r) => r.credential_id === null);
+
+  if (needsInherit.length > 0) {
+    const seen = new Map<string, Promise<number>>();
+    await Promise.all(
+      needsInherit.map(async (r) => {
+        const key = `${r._tenant_id}:${r._group_id ?? 0}:${r.device_id}`;
+        let p = seen.get(key);
+        if (!p) {
+          p = settingsService
+            .resolveForDevice(r._tenant_id, r.device_id, r._group_id)
+            .then((s) => Number(s[SETTINGS_KEYS.SNMP_AUTO_TARGET_CREDENTIAL]?.value ?? 0))
+            .catch(() => 0);
+          seen.set(key, p);
+        }
+        inheritedBy.set(key, await p);
+      }),
+    );
+  }
+
+  const idFor = (r: TargetJoinRow): number | null => {
+    if (r.credential_id !== null) return r.credential_id;
+    const id = inheritedBy.get(`${r._tenant_id}:${r._group_id ?? 0}:${r.device_id}`) ?? 0;
+    return id > 0 ? id : null;
+  };
+
+  const ids = [...new Set(rows.map(idFor).filter((v): v is number => v !== null))];
   const creds = ids.length
     ? await db<SnmpCredentialRow>('snmp_credentials').whereIn('id', ids)
     : [];
   const byId = new Map(creds.map((c) => [c.id, c]));
-  return rows.map((r) => toResolved(r, r.credential_id ? (byId.get(r.credential_id) ?? null) : null));
+
+  return rows.map((r) => {
+    const id = idFor(r);
+    return toResolved(r, id !== null ? (byId.get(id) ?? null) : null);
+  });
 }
 
 export async function getTarget(targetId: number): Promise<ResolvedTarget | null> {

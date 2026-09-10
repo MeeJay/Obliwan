@@ -904,7 +904,8 @@
       "timeout": "صامت"
     },
     "factsLearned": "تمت قراءة {{count}} معلومة من الجهاز وتعبئتها.",
-    "factsConflict": "يُعلن الجهاز عن {{fields}} مختلف عن المسجَّل. لم يُستبدل أي شيء — إمّا أن الوحدة قد استُبدلت، أو أن هذا العنوان يخصّ الآن جهازًا آخر."
+    "factsConflict": "يُعلن الجهاز عن {{fields}} مختلف عن المسجَّل. لم يُستبدل أي شيء — إمّا أن الوحدة قد استُبدلت، أو أن هذا العنوان يخصّ الآن جهازًا آخر.",
+    "snmpChannelHint": "قناة «snmp» هنا تتيح للمشغّل التعرّف على الجهاز. وهي لا تبدأ استعلام الواجهات — يُضبط ذلك مرة واحدة للأسطول كله في"
   },
   "diff": {
     "copied": "نُسخ",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "المجتمع محدَّد",
     "hasAuthKey": "المفاتيح محدَّدة",
     "noneOption": "لا شيء — لا تُنشئ أهدافًا تلقائيًا"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }

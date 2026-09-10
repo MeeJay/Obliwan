@@ -75,3 +75,54 @@ export const snmpApi = {
     await apiClient.delete(`/snmp/credentials/${id}`);
   },
 };
+
+// ── Per-device target ───────────────────────────────────────────────────────
+
+export interface SnmpTargetSummary {
+  id: number;
+  deviceId: number;
+  /** `null` = INHERIT from the fleet setting. Not "none". */
+  credentialId: number | null;
+  /** What the poller will actually use, pin or inheritance resolved. */
+  effectiveCredentialId: number | null;
+  effectiveCredentialName: string | null;
+  inherited: boolean;
+  host: string | null;
+  port: number;
+  enabled: boolean;
+  pollIntervalSec: number | null;
+  lastOkAt: string | null;
+  lastError: string | null;
+  consecutiveFailures: number;
+  lastDiscoveryAt: string | null;
+}
+
+export const snmpTargetApi = {
+  /** `null` = this device has no target yet. */
+  async get(deviceId: number): Promise<SnmpTargetSummary | null> {
+    try {
+      const res = await apiClient.get<ApiResponse<SnmpTargetSummary>>(
+        `/snmp/devices/${deviceId}/target`,
+      );
+      return res.data.data ?? null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * `credentialId: null` restores inheritance — it does not clear supervision.
+   * That distinction is the whole feature: a device follows the fleet until
+   * somebody decides it should not.
+   */
+  async put(
+    deviceId: number,
+    input: { credentialId?: number | null; enabled?: boolean; pollIntervalSec?: number | null },
+  ): Promise<SnmpTargetSummary> {
+    const res = await apiClient.put<ApiResponse<SnmpTargetSummary>>(
+      `/snmp/devices/${deviceId}/target`,
+      input,
+    );
+    return res.data.data!;
+  },
+};

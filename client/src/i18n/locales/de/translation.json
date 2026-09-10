@@ -904,7 +904,8 @@
       "timeout": "stumm"
     },
     "factsLearned": "{{count}} Angabe(n) vom Gerät gelesen und ergänzt.",
-    "factsConflict": "Das Gerät meldet ein anderes {{fields}} als hinterlegt. Nichts wurde überschrieben — entweder wurde die Einheit getauscht, oder diese Adresse gehört inzwischen einem anderen Gerät."
+    "factsConflict": "Das Gerät meldet ein anderes {{fields}} als hinterlegt. Nichts wurde überschrieben — entweder wurde die Einheit getauscht, oder diese Adresse gehört inzwischen einem anderen Gerät.",
+    "snmpChannelHint": "Ein „snmp“-Kanal dient hier dazu, dass der Treiber das Gerät identifiziert. Er startet KEINE Schnittstellenabfrage — die wird einmalig für die gesamte Flotte eingestellt unter"
   },
   "diff": {
     "copied": "Kopiert",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "Community gesetzt",
     "hasAuthKey": "Schlüssel gesetzt",
     "noneOption": "Keine — keine Ziele automatisch anlegen"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }

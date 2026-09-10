@@ -904,7 +904,8 @@
       "timeout": "무응답"
     },
     "factsLearned": "장비에서 {{count}}건의 정보를 읽어 채웠습니다.",
-    "factsConflict": "장비가 기록과 다른 {{fields}}을(를) 보고합니다. 아무것도 덮어쓰지 않았습니다 — 장비가 교체되었거나, 이 주소가 이제 다른 장비의 것입니다."
+    "factsConflict": "장비가 기록과 다른 {{fields}}을(를) 보고합니다. 아무것도 덮어쓰지 않았습니다 — 장비가 교체되었거나, 이 주소가 이제 다른 장비의 것입니다.",
+    "snmpChannelHint": "여기의 ‘snmp’ 채널은 드라이버가 장치를 식별하는 데 쓰입니다. 인터페이스 폴링을 시작하지 않습니다 — 그것은 전체 장비에 대해 한 번만 설정합니다:"
   },
   "diff": {
     "copied": "복사됨",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "커뮤니티 설정됨",
     "hasAuthKey": "키 설정됨",
     "noneOption": "없음 — 대상을 자동으로 만들지 않음"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }

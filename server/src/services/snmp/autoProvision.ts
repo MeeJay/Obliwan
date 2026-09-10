@@ -154,7 +154,15 @@ export async function provisionMissingTargets(limit = 500): Promise<ProvisionOut
     const inserted = await db('snmp_targets')
       .insert({
         device_id: device.id,
-        credential_id: credentialId,
+        // NULL, not `credentialId`. NULL means INHERIT, and `attachCredentials`
+        // resolves it from the settings tree on every poll. Writing today's
+        // resolved value here would look identical and behave differently: the
+        // setting would become a default that applied only to devices enrolled
+        // after it, and rotating a community would leave 400 targets pinned to
+        // the old one with nothing on any screen to say so. The credential id
+        // was still resolved above — as a PRECONDITION, so a target is never
+        // created for a fleet that has named nothing.
+        credential_id: null,
         host,
         enabled: true,
         // Interval, timeout and retries stay NULL / at their column defaults so
@@ -175,6 +183,112 @@ export async function provisionMissingTargets(limit = 500): Promise<ProvisionOut
   }
 
   return out;
+}
+
+// ============================================================================
+// One device, on demand
+// ============================================================================
+
+export type ProvisionReason =
+  | 'created'
+  | 'already_had_one'
+  | 'not_confirmed'
+  | 'no_credential_named'
+  | 'credential_missing'
+  | 'no_address';
+
+/**
+ * Provision THIS device's target now, and say precisely why if it cannot.
+ *
+ * ┌─ WHY THIS EXISTS SEPARATELY FROM THE SWEEP ──────────────────────────────┐
+ * │ "Discover now" used to refuse a device with no target by telling the      │
+ * │ operator to go and name a credential in Settings — advice that is useless │
+ * │ to somebody who just did, and insulting to somebody who did it an hour    │
+ * │ ago and is waiting on a five-minute sweep they cannot see.                │
+ * │                                                                          │
+ * │ The gesture means "poll this box". If the settings already allow it, the  │
+ * │ correct answer is to DO it, not to describe the paperwork. The sweep is   │
+ * │ for the other 499 devices; this is for the one in front of you.           │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * The refusals it can still return are separated on purpose — "you named no
+ * credential", "the one you named is gone" and "this device is not confirmed
+ * yet" send an operator to three different places, and the message that lumped
+ * them together sent everyone to the wrong one.
+ */
+export async function provisionTargetForDevice(
+  tenantId: number,
+  deviceId: number,
+): Promise<{ reason: ProvisionReason; credentialId?: number; resolvedFrom?: string }> {
+  const device = await db('devices as d')
+    .leftJoin('snmp_targets as t', 't.device_id', 'd.id')
+    .where({ 'd.id': deviceId, 'd.tenant_id': tenantId })
+    .first<
+      | {
+          id: number; tenant_id: number; group_id: number | null; status: string;
+          tunnel_ip: string | null; target_id: number | null;
+        }
+      | undefined
+    >(
+      'd.id', 'd.tenant_id', 'd.group_id', 'd.status',
+      db.raw('host(d.tunnel_ip) as tunnel_ip'),
+      't.id as target_id',
+    );
+  if (!device) throw new Error(`Device ${deviceId} does not exist in this tenant`);
+  if (device.target_id !== null) return { reason: 'already_had_one' };
+
+  // Same rule as the sweep, and for the same reason: an unconfirmed device's
+  // address may today belong to somebody else's router, and its counters would
+  // be written down as this device's history (D5).
+  if (device.status !== 'active') return { reason: 'not_confirmed' };
+
+  const settings = await settingsService.resolveForDevice(
+    device.tenant_id, device.id, device.group_id,
+  );
+  const setting = settings[SETTINGS_KEYS.SNMP_AUTO_TARGET_CREDENTIAL];
+  const credentialId = Number(setting?.value ?? 0);
+
+  // The RESOLVED value and where it came from, reported to the caller.
+  //
+  // Not decoration: "no credential is named" is a claim about a setting the
+  // operator can see set on their own screen, and when the two disagree the
+  // only way out of the argument is for the server to say what IT resolved and
+  // from which scope. Guessing on the operator's behalf — "did you really save
+  // it?" — is how a support conversation goes three rounds without evidence.
+  const resolvedFrom = setting
+    ? `${setting.source}${setting.sourceName ? ` (${setting.sourceName})` : ''}`
+    : 'default';
+
+  if (!credentialId) return { reason: 'no_credential_named', resolvedFrom };
+
+  const cred = await db('snmp_credentials')
+    .where({ id: credentialId, tenant_id: device.tenant_id })
+    .first('id');
+  if (!cred) return { reason: 'credential_missing', credentialId, resolvedFrom };
+
+  const transport = await db('device_transports')
+    .where({ device_id: deviceId })
+    .orderBy('priority')
+    .first<{ host: string | null } | undefined>('host');
+
+  // NULL host when there is a tunnel, so the target follows `devices.tunnel_ip`
+  // instead of freezing an address a PPP pool will reassign (R4).
+  const host = device.tunnel_ip ? null : (transport?.host ?? null);
+  if (!device.tunnel_ip && !host) return { reason: 'no_address' };
+
+  // NULL = inherit, resolved at poll time. See the sweep above and
+  // `attachCredentials`: the operator pins one from the device screen when they
+  // want THIS box polled differently; otherwise the fleet setting stays live.
+  await db('snmp_targets')
+    .insert({ device_id: deviceId, credential_id: null, host, enabled: true })
+    .onConflict('device_id')
+    .ignore();
+
+  logger.info(
+    { deviceId, credentialId, host: host ?? '(tunnel ip)' },
+    'SNMP target provisioned on demand',
+  );
+  return { reason: 'created', credentialId };
 }
 
 // ============================================================================

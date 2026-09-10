@@ -904,7 +904,8 @@
       "timeout": "silent"
     },
     "factsLearned": "{{count}} fact(s) read from the equipment and filled in.",
-    "factsConflict": "The equipment reports a different {{fields}} than recorded. Nothing was overwritten — either the unit was replaced, or this address now belongs to another box."
+    "factsConflict": "The equipment reports a different {{fields}} than recorded. Nothing was overwritten — either the unit was replaced, or this address now belongs to another box.",
+    "snmpChannelHint": "An “snmp” channel here lets the driver identify the box. It does NOT start interface polling — that is configured once, for the whole fleet, in"
   },
   "diff": {
     "copied": "Copied",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "community set",
     "hasAuthKey": "keys set",
     "noneOption": "None — do not create targets automatically"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }

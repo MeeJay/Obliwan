@@ -904,7 +904,8 @@
       "timeout": "无响应"
     },
     "factsLearned": "已从设备读取并填入 {{count}} 项信息。",
-    "factsConflict": "设备报告的 {{fields}} 与记录不符。未覆盖任何内容——要么设备被更换，要么该地址现在属于另一台设备。"
+    "factsConflict": "设备报告的 {{fields}} 与记录不符。未覆盖任何内容——要么设备被更换，要么该地址现在属于另一台设备。",
+    "snmpChannelHint": "此处的“snmp”通道用于驱动识别设备，并不会启动接口轮询——轮询在以下位置为整个设备群一次性配置："
   },
   "diff": {
     "copied": "已复制",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "已设置团体名",
     "hasAuthKey": "已设置密钥",
     "noneOption": "无 — 不自动创建目标"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }

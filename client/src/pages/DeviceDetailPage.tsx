@@ -46,6 +46,7 @@ import { DeviceChangesTab } from '@/components/change/DeviceChangesTab';
 import { DeviceAcsTab } from '@/components/acs/DeviceAcsTab';
 import { DeviceBackupsTab } from '@/components/config/DeviceBackupsTab';
 import { DeviceLogsTab } from '@/components/telemetry/DeviceLogsTab';
+import { DeviceSnmpCard } from '@/components/telemetry/DeviceSnmpCard';
 import type {
   DeviceDetail, DeviceDiagnosis, DeviceTransport, TransportTestResult,
 } from '@/types/fleet';
@@ -844,10 +845,37 @@ function SettingsTab({ device, canWrite, transports, transportsUnavailable, onCh
         </form>
       </Card>
 
+      {/* Supervision for THIS device — and where the answer comes from when it
+          has not been decided here. Placed above the channels panel on purpose:
+          it is the question an operator arrives with, and the panel below is
+          the one that used to answer it wrongly. */}
+      <DeviceSnmpCard deviceId={device.id} canWrite={canWrite} />
+
       <Card title={t('devices.sections.transports')}>
         <div className="mb-3 flex items-start gap-2 rounded-md border border-accent/20 bg-accent/5 p-3">
           <KeyRound size={14} className="mt-0.5 shrink-0 text-accent" />
           <p className="text-xs text-text-secondary">{t('devices.vaultHint')}</p>
+        </div>
+
+        {/* ── A TRAP THIS PANEL SETS, SAID OUT LOUD ──────────────────────────
+            "Add a channel" offers `snmp` like any other transport, and an
+            operator who wants supervision will reasonably pick it, type a
+            community, save — and nothing will ever be polled. Interface
+            polling reads `snmp_targets` + `snmp_credentials`; this panel writes
+            `device_transports`. Two credential stores, one purpose each, and
+            only one of them starts a graph.
+
+            The channel here is not useless — the driver uses it to identify a
+            box that has no API — but it is not supervision, and the screen must
+            not let that be discovered by waiting for a graph that never comes. */}
+        <div className="mb-3 flex items-start gap-2 rounded-md border border-border bg-bg-tertiary p-3">
+          <Radio size={14} className="mt-0.5 shrink-0 text-text-muted" />
+          <p className="text-xs text-text-muted">
+            {t('devices.snmpChannelHint')}{' '}
+            <Link to="/settings" className="text-accent hover:underline">
+              {t('nav.settings')}
+            </Link>
+          </p>
         </div>
 
         {transportsUnavailable ? (

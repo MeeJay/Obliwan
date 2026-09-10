@@ -904,7 +904,8 @@
       "timeout": "無応答"
     },
     "factsLearned": "機器から {{count}} 件の情報を読み取り、補完しました。",
-    "factsConflict": "機器が記録と異なる {{fields}} を報告しています。何も上書きしていません — 筐体が交換されたか、このアドレスが別の機器のものになったかのどちらかです。"
+    "factsConflict": "機器が記録と異なる {{fields}} を報告しています。何も上書きしていません — 筐体が交換されたか、このアドレスが別の機器のものになったかのどちらかです。",
+    "snmpChannelHint": "ここでの「snmp」チャネルはドライバが機器を識別するためのものです。インターフェイスの監視は開始しません — それは全機器に対して一度だけ設定します："
   },
   "diff": {
     "copied": "コピーしました",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "コミュニティ設定済み",
     "hasAuthKey": "キー設定済み",
     "noneOption": "なし — ターゲットを自動作成しない"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }

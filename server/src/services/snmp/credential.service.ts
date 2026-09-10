@@ -26,7 +26,9 @@ import type {
   SnmpSecurityLevel,
   SnmpVersion,
 } from '@obliwan/shared';
+import { SETTINGS_KEYS } from '@obliwan/shared';
 import { db } from '../../db';
+import { settingsService } from '../settings.service';
 import { currentKeyVersion, encrypt } from '../secretVault.service';
 import type { SnmpCredentialRow, SnmpTargetRow } from './targets';
 
@@ -330,16 +332,59 @@ export async function upsertTarget(
   return toTargetSummary(row as SnmpTargetRow);
 }
 
+/**
+ * This device's target, PLUS what its inheritance actually resolves to.
+ *
+ * `credentialId === null` means "inherit", and a screen that showed only that
+ * would be telling an operator "inherited" without saying inherited FROM WHAT —
+ * which is the same non-answer as showing nothing. `effectiveCredentialId` is
+ * what the poller will really use, resolved through the same settings tree, and
+ * `effectiveCredentialName` is what a human can check against the credential
+ * they think they chose.
+ *
+ * Both are also correct when there is a pin: they then simply echo it, so the
+ * UI has one field to render whatever the case.
+ */
 export async function getTargetSummary(
   tenantId: number,
   deviceId: number,
-): Promise<TargetSummary | null> {
+): Promise<(TargetSummary & {
+  effectiveCredentialId: number | null;
+  effectiveCredentialName: string | null;
+  inherited: boolean;
+}) | null> {
   const row = await db<SnmpTargetRow>('snmp_targets')
     .join('devices', 'devices.id', 'snmp_targets.device_id')
     .where('devices.tenant_id', tenantId)
     .where('snmp_targets.device_id', deviceId)
     .first('snmp_targets.*');
-  return row ? toTargetSummary(row) : null;
+  if (!row) return null;
+
+  let effectiveId = row.credential_id;
+  const inherited = row.credential_id === null;
+  if (inherited) {
+    const device = await db('devices')
+      .where({ id: deviceId, tenant_id: tenantId })
+      .first<{ group_id: number | null } | undefined>('group_id');
+    const settings = await settingsService.resolveForDevice(
+      tenantId, deviceId, device?.group_id ?? null,
+    );
+    const id = Number(settings[SETTINGS_KEYS.SNMP_AUTO_TARGET_CREDENTIAL]?.value ?? 0);
+    effectiveId = id > 0 ? id : null;
+  }
+
+  const cred = effectiveId
+    ? await db('snmp_credentials')
+      .where({ id: effectiveId, tenant_id: tenantId })
+      .first<{ name: string } | undefined>('name')
+    : undefined;
+
+  return {
+    ...toTargetSummary(row),
+    effectiveCredentialId: effectiveId,
+    effectiveCredentialName: cred?.name ?? null,
+    inherited,
+  };
 }
 
 export async function deleteTarget(tenantId: number, deviceId: number): Promise<boolean> {

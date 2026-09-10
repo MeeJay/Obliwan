@@ -904,7 +904,8 @@
       "timeout": "silencioso"
     },
     "factsLearned": "{{count}} dato(s) leído(s) del equipo y rellenado(s).",
-    "factsConflict": "El equipo declara un {{fields}} distinto del registrado. No se ha sobrescrito nada: o la unidad ha sido sustituida, o esta dirección pertenece ahora a otro equipo."
+    "factsConflict": "El equipo declara un {{fields}} distinto del registrado. No se ha sobrescrito nada: o la unidad ha sido sustituida, o esta dirección pertenece ahora a otro equipo.",
+    "snmpChannelHint": "Un canal «snmp» aquí sirve para que el controlador identifique el equipo. NO inicia el sondeo de interfaces — eso se configura una sola vez, para todo el parque, en"
   },
   "diff": {
     "copied": "Copiado",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "comunidad definida",
     "hasAuthKey": "claves definidas",
     "noneOption": "Ninguna — no crear objetivos automáticamente"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }

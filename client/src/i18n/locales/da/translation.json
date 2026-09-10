@@ -904,7 +904,8 @@
       "timeout": "tavs"
     },
     "factsLearned": "{{count}} oplysning(er) læst fra udstyret og udfyldt.",
-    "factsConflict": "Udstyret oplyser et andet {{fields}} end det registrerede. Intet blev overskrevet — enten er enheden udskiftet, eller også tilhører denne adresse nu en anden boks."
+    "factsConflict": "Udstyret oplyser et andet {{fields}} end det registrerede. Intet blev overskrevet — enten er enheden udskiftet, eller også tilhører denne adresse nu en anden boks.",
+    "snmpChannelHint": "En „snmp“-kanal her bruges af driveren til at identificere enheden. Den starter IKKE grænsefladeforespørgsler — det indstilles én gang for hele flåden i"
   },
   "diff": {
     "copied": "Kopieret",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "community sat",
     "hasAuthKey": "nøgler sat",
     "noneOption": "Ingen — opret ikke mål automatisk"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }

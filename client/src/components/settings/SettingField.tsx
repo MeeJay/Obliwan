@@ -86,7 +86,7 @@ export function SettingField({
       {/* Label and description */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-text-primary">{definition.label}</span>
+          <span className="text-sm font-medium text-text-primary">{t(`settings.keys.${definition.key}.label`, { defaultValue: definition.label })}</span>
           {scope !== 'global' && (
             isOverriding ? (
               <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-500">
@@ -97,7 +97,7 @@ export function SettingField({
             )
           )}
         </div>
-        <p className="text-xs text-text-muted mt-0.5">{definition.description}</p>
+        <p className="text-xs text-text-muted mt-0.5">{t(`settings.keys.${definition.key}.description`, { defaultValue: definition.description })}</p>
       </div>
 
       {/* Value input */}

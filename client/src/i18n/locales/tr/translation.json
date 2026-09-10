@@ -904,7 +904,8 @@
       "timeout": "sessiz"
     },
     "factsLearned": "Cihazdan {{count}} bilgi okundu ve dolduruldu.",
-    "factsConflict": "Cihaz kayıtlıdan farklı bir {{fields}} bildiriyor. Hiçbir şey üzerine yazılmadı — ya birim değiştirildi ya da bu adres artık başka bir kutuya ait."
+    "factsConflict": "Cihaz kayıtlıdan farklı bir {{fields}} bildiriyor. Hiçbir şey üzerine yazılmadı — ya birim değiştirildi ya da bu adres artık başka bir kutuya ait.",
+    "snmpChannelHint": "Buradaki “snmp” kanalı sürücünün cihazı tanımasına yarar. Arayüz yoklamasını BAŞLATMAZ — o, tüm filo için bir kez şurada ayarlanır:"
   },
   "diff": {
     "copied": "Kopyalandı",
@@ -2648,5 +2649,19 @@
     "hasCommunity": "community ayarlı",
     "hasAuthKey": "anahtarlar ayarlı",
     "noneOption": "Yok — hedefleri otomatik oluşturma"
+  },
+  "snmpTarget": {
+    "title": "SNMP supervision",
+    "credential": "Credential",
+    "inheritOption": "Inherit from the fleet ({{name}})",
+    "inheritNothing": "none selected",
+    "effective": "Polled with {{name}} — {{source}}.",
+    "effectiveNone": "Nothing will be polled: no credential is pinned here and none is selected for the fleet.",
+    "noTarget": "No target yet. One is created as soon as the device is confirmed and a credential is available.",
+    "fromFleet": "inherited",
+    "pinned": "pinned on this device",
+    "saved": "SNMP supervision updated.",
+    "saveFailed": "Could not update SNMP supervision.",
+    "failures": "{{count}} consecutive failure(s)."
   }
 }
