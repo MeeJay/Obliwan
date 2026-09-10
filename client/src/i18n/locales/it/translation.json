@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} campione/i consecutivi scartati — {{reason}}. Un grafico vuoto qui significa «non misurato», non «nessun traffico».",
     "empty": "Non è ancora stata scoperta alcuna interfaccia.",
-    "emptyHint": "Le interfacce compaiono una volta configurato un target SNMP ed eseguita la prima scoperta IF-MIB.",
+    "emptyHint": "Le interfacce compaiono da sole: un dispositivo confermato riceve automaticamente un target SNMP e poi arriva la prima scoperta IF-MIB. Solo due condizioni: il dispositivo dev’essere confermato (uno in attesa non viene mai interrogato, il suo indirizzo potrebbe non essere il suo) e una credenziale SNMP va indicata una volta nelle Impostazioni.",
     "endpointUnavailable": "Questo deployment non serve ancora la rotta delle interfacce.",
     "filters": {
       "allDevices": "Tutti i dispositivi",

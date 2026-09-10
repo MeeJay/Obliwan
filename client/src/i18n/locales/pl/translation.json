@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "Odrzucono {{count}} kolejnych próbek — {{reason}}. Pusty wykres oznacza tu „niezmierzone”, a nie „brak ruchu”.",
     "empty": "Nie wykryto jeszcze żadnego interfejsu.",
-    "emptyHint": "Interfejsy pojawiają się, gdy skonfigurowany zostanie cel SNMP i wykona się pierwsze wykrywanie IF-MIB.",
+    "emptyHint": "Interfejsy pojawiają się same: potwierdzone urządzenie automatycznie otrzymuje cel SNMP, a potem następuje pierwsze wykrywanie IF-MIB. Tylko dwa warunki — urządzenie musi być potwierdzone (oczekujące nigdy nie jest odpytywane, jego adres może nie należeć do niego) i trzeba raz wskazać poświadczenie SNMP w Ustawieniach.",
     "endpointUnavailable": "To wdrożenie nie udostępnia jeszcze punktu końcowego interfejsów.",
     "filters": {
       "allDevices": "Wszystkie urządzenia",

@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} po sobě jdoucích vzorků zahozeno — {{reason}}. Prázdný graf zde znamená „neměřeno“, ne „žádný provoz“.",
     "empty": "Zatím nebylo objeveno žádné rozhraní.",
-    "emptyHint": "Rozhraní se objeví, jakmile je nastaven cíl SNMP a proběhne první objevení IF-MIB.",
+    "emptyHint": "Rozhraní se objeví sama: potvrzené zařízení automaticky dostane SNMP cíl a pak přijde první IF-MIB objevování. Jen dvě podmínky — zařízení musí být potvrzené (čekající se nikdy nedotazuje, jeho adresa nemusí být jeho vlastní) a v Nastavení je třeba jednou určit SNMP přihlašovací údaje.",
     "endpointUnavailable": "Toto nasazení zatím neposkytuje koncový bod rozhraní.",
     "filters": {
       "allDevices": "Všechna zařízení",

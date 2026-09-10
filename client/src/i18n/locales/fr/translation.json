@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} échantillon(s) consécutif(s) écarté(s) — {{reason}}. Un graphe vide ici signifie « non mesuré », pas « pas de trafic ».",
     "empty": "Aucune interface n'a encore été découverte.",
-    "emptyHint": "Les interfaces apparaissent dès qu'une cible SNMP est configurée et que la première découverte IF-MIB a tourné.",
+    "emptyHint": "Les interfaces apparaissent d’elles-mêmes : un équipement confirmé reçoit automatiquement une cible SNMP, puis la première découverte IF-MIB suit. Deux conditions seulement — l’équipement doit être confirmé (un équipement en attente n’est jamais interrogé, son adresse n’est peut-être pas la sienne), et un identifiant SNMP doit être désigné une fois dans les Réglages.",
     "endpointUnavailable": "Ce déploiement ne sert pas encore le point d'entrée des interfaces.",
     "filters": {
       "allDevices": "Tous les équipements",

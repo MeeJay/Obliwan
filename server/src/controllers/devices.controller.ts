@@ -2,11 +2,13 @@ import type { EnrollDeviceInput } from '../validators/device.schema';
 import type { Request, Response, NextFunction } from 'express';
 import { FAMILY_BRAND, type DeviceFamily, type TransportKind } from '@obliwan/shared';
 import { AppError } from '../middleware/errorHandler';
+import { logger } from '../utils/logger';
 import * as deviceService from '../services/fleet/device.service';
 import { toDeviceDetailDto, toDeviceDto } from '../services/fleet/dto';
 import {
   assertTargetBinding,
   BindingAssertionError,
+  learnDeviceFacts,
 } from '../services/fleet/deviceBinding.service';
 import { pppPresence } from '../services/fleet/pppPresence.service';
 import { assessDevice } from '../services/fleet/reachability.service';
@@ -362,10 +364,30 @@ export const devicesController = {
     try {
       const id = parseId(req.params.id);
       const results = await deviceService.testAllTransports(req.tenantId, id);
+
+      // ── The test already talked to the box; do not throw away what it said ──
+      // Model, serial, OS version and system identity were on the wire during
+      // the probe. Leaving the page showing "—" for a device the server just
+      // reached is asking an operator to retype, by hand, facts the hardware
+      // had already reported. Blanks only — see `learnDeviceFacts`.
+      let learned: Awaited<ReturnType<typeof learnDeviceFacts>> | null = null;
+      if (results.some((r) => r.ok)) {
+        try {
+          learned = await learnDeviceFacts(req.tenantId, id);
+        } catch (err) {
+          // A failed second round trip must not turn a SUCCESSFUL test into an
+          // error: the operator asked "can we reach it", and the answer is yes.
+          logger.warn({ err, deviceId: id }, 'Could not learn device facts after a successful test');
+        }
+      }
+
       res.json({
         success: true,
         data: {
           deviceId: id,
+          learned: learned && (Object.keys(learned.filled).length > 0 || learned.conflicts.length > 0)
+            ? learned
+            : null,
           results: results.map((r) => ({
             transport: r.transport,
             ok: r.ok,

@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} muestra(s) consecutivas descartadas — {{reason}}. Un gráfico vacío aquí significa «no medido», no «sin tráfico».",
     "empty": "Todavía no se ha descubierto ninguna interfaz.",
-    "emptyHint": "Las interfaces aparecen en cuanto hay un destino SNMP configurado y se ha ejecutado el primer descubrimiento IF-MIB.",
+    "emptyHint": "Las interfaces aparecen solas: un dispositivo confirmado recibe automáticamente un objetivo SNMP y después llega el primer descubrimiento IF-MIB. Solo dos condiciones: el dispositivo debe estar confirmado (uno pendiente nunca se sondea, su dirección puede no ser suya) y hay que designar una credencial SNMP una vez en los Ajustes.",
     "endpointUnavailable": "Este despliegue todavía no sirve la ruta de interfaces.",
     "filters": {
       "allDevices": "Todos los dispositivos",

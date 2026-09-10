@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} opeenvolgend(e) monster(s) verworpen — {{reason}}. Een lege grafiek betekent hier “niet gemeten”, niet “geen verkeer”.",
     "empty": "Er is nog geen interface ontdekt.",
-    "emptyHint": "Interfaces verschijnen zodra er een SNMP-doel is ingesteld en de eerste IF-MIB-ontdekking heeft gedraaid.",
+    "emptyHint": "Interfaces verschijnen vanzelf: een bevestigd apparaat krijgt automatisch een SNMP-doel en daarna volgt de eerste IF-MIB-ontdekking. Slechts twee voorwaarden: het apparaat moet bevestigd zijn (een apparaat in afwachting wordt nooit bevraagd, zijn adres is mogelijk niet van hem) en er moet één keer een SNMP-inloggegeven worden aangewezen in de Instellingen.",
     "endpointUnavailable": "Deze installatie biedt de interfaces-API nog niet aan.",
     "filters": {
       "allDevices": "Alle apparaten",

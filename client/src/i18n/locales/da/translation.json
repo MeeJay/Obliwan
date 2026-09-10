@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} på hinanden følgende stikprøve(r) kasseret — {{reason}}. En tom graf her betyder \"ikke målt\", ikke \"ingen trafik\".",
     "empty": "Der er endnu ikke opdaget nogen grænseflade.",
-    "emptyHint": "Grænseflader dukker op, når et SNMP-mål er konfigureret, og den første IF-MIB-opdagelse har kørt.",
+    "emptyHint": "Grænseflader dukker op af sig selv: en bekræftet enhed får automatisk et SNMP-mål, og den første IF-MIB-opdagelse følger. Kun to betingelser — enheden skal være bekræftet (en afventende bliver aldrig forespurgt, dens adresse er måske ikke dens egen), og en SNMP-legitimation skal udpeges én gang i Indstillinger.",
     "endpointUnavailable": "Denne installation serverer endnu ikke grænsefladepunktet for interfaces.",
     "filters": {
       "allDevices": "Alle enheder",

@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} aufeinanderfolgende(r) Messwert(e) verworfen — {{reason}}. Ein leeres Diagramm bedeutet hier „nicht gemessen“, nicht „kein Verkehr“.",
     "empty": "Es wurde noch keine Schnittstelle entdeckt.",
-    "emptyHint": "Schnittstellen erscheinen, sobald ein SNMP-Ziel konfiguriert ist und die erste IF-MIB-Erkundung gelaufen ist.",
+    "emptyHint": "Schnittstellen erscheinen von selbst: Ein bestätigtes Gerät erhält automatisch ein SNMP-Ziel, danach folgt die erste IF-MIB-Erkennung. Nur zwei Bedingungen — das Gerät muss bestätigt sein (ein ausstehendes wird nie abgefragt, seine Adresse gehört ihm womöglich nicht), und in den Einstellungen muss einmal eine SNMP-Zugangsdatei benannt werden.",
     "endpointUnavailable": "Dieses Deployment stellt die Schnittstellen-API noch nicht bereit.",
     "filters": {
       "allDevices": "Alle Geräte",

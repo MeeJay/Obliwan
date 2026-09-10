@@ -35,6 +35,7 @@
 import { logger } from '../../utils/logger';
 import { ensureAllPartitions, startPartitionMaintenance, stopPartitionMaintenance } from './partition.service';
 import { startScheduler, stopScheduler } from './scheduler';
+import { startSnmpAutoProvision, stopSnmpAutoProvision } from './autoProvision';
 import { startRollups, stopRollups } from './rollup.service';
 import { startTrapReceiver, stopTrapReceiver } from './trapReceiver';
 import { startSyslogReceiver, stopSyslogReceiver } from './syslogReceiver';
@@ -73,6 +74,9 @@ export async function startSnmpRuntime(): Promise<void> {
   startPartitionMaintenance();
   startRollups();
   startScheduler();
+  // Leader-gated like the scheduler: it writes rows, and two nodes racing to
+  // create the same target would be two pollers on one device.
+  startSnmpAutoProvision();
 
   startTrapReceiver();
   startSyslogReceiver();
@@ -83,6 +87,7 @@ export async function startSnmpRuntime(): Promise<void> {
 export async function stopSnmpRuntime(): Promise<void> {
   armed = false;
   stopScheduler();
+  stopSnmpAutoProvision();
   stopRollups();
   stopPartitionMaintenance();
   stopTrapReceiver();
@@ -106,6 +111,7 @@ export * from './rollup.service';
 export * from './threshold.service';
 export * from './series.service';
 export * from './credential.service';
+export * from './autoProvision';
 export * from './trapReceiver';
 export * from './syslogReceiver';
 export { snmpConfig } from './config';

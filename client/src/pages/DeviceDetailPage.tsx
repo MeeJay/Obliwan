@@ -307,8 +307,30 @@ export function DeviceDetailPage() {
     setTestResults(null);
     setDiagnosis(null);
     try {
-      const results = await devicesApi.testConnection(device.id);
+      const { results, learned } = await devicesApi.testConnection(device.id);
       setTestResults(results);
+
+      // ── The page must stop contradicting itself ─────────────────────────────
+      // "Reachable, 80 ms" next to a transport health card still reading
+      // "circuit open — timed out" is one screen telling an operator two
+      // opposite things, and the stale half is the one that looks official.
+      // The health row and the identity columns both changed server-side
+      // during the test; reload so the page shows the device as it is NOW.
+      if (results.some((r) => r.ok)) void load();
+
+      if (learned && Object.keys(learned.filled).length > 0) {
+        toast.success(t('devices.factsLearned', { count: Object.keys(learned.filled).length }));
+      }
+      if (learned && learned.conflicts.length > 0) {
+        // Deliberately an error, and deliberately not auto-applied. See
+        // `learnDeviceFacts`: this is the event the binding check exists for.
+        toast.error(
+          t('devices.factsConflict', {
+            fields: learned.conflicts.map((c) => c.field).join(', '),
+          }),
+          { duration: 10_000 },
+        );
+      }
       if (results.length === 0) {
         toast(
           !transports || transports.length === 0

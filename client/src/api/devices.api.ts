@@ -157,13 +157,26 @@ export const devicesApi = {
     return res.data.data!;
   },
 
-  async testConnection(deviceId: number): Promise<TransportTestResult[]> {
+  /**
+   * Returns the channel results AND whatever the probe taught us about the box.
+   *
+   * `learned` is null when nothing changed. It is not cosmetic: a device the
+   * server has just talked to should stop showing "—" for facts that were on
+   * the wire during the test, and a CONFLICT — the box reporting a serial that
+   * contradicts the record — is something an operator must be told about
+   * rather than left to discover when a write is refused (D5 / R4).
+   */
+  async testConnection(
+    deviceId: number,
+  ): Promise<{ results: TransportTestResult[]; learned: LearnedFacts | null }> {
     const res = await apiClient.post<ApiResponse<TestConnectionResponse | TransportTestResult[]>>(
       `/devices/${deviceId}/test-connection`,
     );
     const payload = res.data.data;
-    if (Array.isArray(payload)) return payload;
-    if (payload && Array.isArray(payload.results)) return payload.results;
-    return [];
+    if (Array.isArray(payload)) return { results: payload, learned: null };
+    if (payload && Array.isArray(payload.results)) {
+      return { results: payload.results, learned: payload.learned ?? null };
+    }
+    return { results: [], learned: null };
   },
 };

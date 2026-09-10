@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} ardışık örnek atıldı — {{reason}}. Buradaki boş bir grafik “ölçülmedi” demektir, “trafik yok” değil.",
     "empty": "Henüz hiçbir arayüz keşfedilmedi.",
-    "emptyHint": "Bir SNMP hedefi yapılandırıldığında ve ilk IF-MIB keşfi çalıştığında arayüzler görünür.",
+    "emptyHint": "Arayüzler kendiliğinden görünür: onaylanmış bir cihaza otomatik olarak bir SNMP hedefi verilir, ardından ilk IF-MIB keşfi gelir. Yalnızca iki koşul — cihaz onaylanmış olmalı (beklemede olan asla sorgulanmaz, adresi kendisine ait olmayabilir) ve Ayarlar’da bir kez SNMP kimlik bilgisi belirtilmelidir.",
     "endpointUnavailable": "Bu kurulum arayüz uç noktasını henüz sunmuyor.",
     "filters": {
       "allDevices": "Tüm cihazlar",

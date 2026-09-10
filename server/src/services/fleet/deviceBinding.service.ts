@@ -325,6 +325,125 @@ async function loadTarget(deviceId: number, transport: TransportKind): Promise<T
   return row;
 }
 
+// ============================================================================
+// Learning what the box says about itself
+// ============================================================================
+
+export interface LearnedFacts {
+  /** Columns that were empty and are now filled. */
+  filled: Record<string, string>;
+  /** Columns whose stored value CONTRADICTS what the box reported. Never
+   *  written — see the doctrine below. */
+  conflicts: Array<{ field: string; stored: string; observed: string }>;
+}
+
+const LEARNABLE = ['model', 'serial', 'os_version', 'system_identity'] as const;
+
+/**
+ * Fill in what we did not know, and refuse to change what we did.
+ *
+ * ┌─ THE ONE RULE, AND IT IS NOT A DETAIL ───────────────────────────────────┐
+ * │ An EMPTY column means "we have never been told". A FILLED one is a claim  │
+ * │ that `assertTargetBinding()` checks before every write (D5 / R4).         │
+ * │                                                                          │
+ * │ So this fills blanks and NEVER overwrites. A probe that reports a serial  │
+ * │ different from the stored one is not an update — it is the exact event    │
+ * │ the binding check exists to catch: the box at this address is not the box │
+ * │ we think. Silently writing the new value would make ObliWAN helpfully     │
+ * │ rewrite its own records to match an impostor, and the guard would then    │
+ * │ pass forever. The conflict is RETURNED and logged instead.                │
+ * │                                                                          │
+ * │ `ppp_username` is deliberately not learnable here: none of these families │
+ * │ can be asked what account they dial with — only the concentrator knows    │
+ * │ (D4) — so a null from the box is ignorance, not an answer.                │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * Called after a SUCCESSFUL connection test. That is the moment an operator
+ * expects the page to stop saying "—" about a device the server just talked to:
+ * the round trip has already happened and the facts were already on the wire.
+ */
+export async function learnDeviceFacts(
+  tenantId: number,
+  deviceId: number,
+  timeoutMs = 15_000,
+): Promise<LearnedFacts> {
+  const out: LearnedFacts = { filled: {}, conflicts: [] };
+
+  const device = await db('devices')
+    .where({ id: deviceId, tenant_id: tenantId })
+    .first<{ family: string } | undefined>('family');
+  if (!device) return out;
+
+  const transport = BINDING_TRANSPORT[FAMILY_BRAND[device.family as DeviceFamily] ?? ''];
+  if (!transport) return out;
+
+  const target = await loadTarget(deviceId, transport);
+  if (!target.username || !target.secret_enc) return out;
+
+  const resolved: ResolvedTransport = {
+    transport,
+    enabled: true,
+    priority: 0,
+    host: target.host ?? target.tunnel_ip,
+    port: target.port,
+    useTls: target.use_tls === true,
+    tlsFingerprintSha256: target.tls_fingerprint_sha256,
+    params: target.params ?? {},
+    credentials: {
+      username: target.username,
+      password: decrypt(target.secret_enc),
+    },
+  };
+
+  const inventory = await getDriver(target.family).getInventory({
+    deviceId: target.id,
+    tenantId: target.tenant_id,
+    family: target.family as DeviceFamily,
+    transports: [resolved],
+    timeoutMs,
+  } as DriverContext);
+
+  const observed: Record<string, string | null> = {
+    model: inventory.model ?? inventory.boardName ?? null,
+    serial: inventory.serial ?? null,
+    os_version: inventory.osVersion ?? null,
+    system_identity: inventory.systemIdentity ?? null,
+  };
+
+  const current = await db('devices')
+    .where({ id: deviceId })
+    .first<Record<string, string | null>>('model', 'serial', 'os_version', 'system_identity');
+
+  const patch: Record<string, string> = {};
+  for (const field of LEARNABLE) {
+    const seen = observed[field]?.trim();
+    if (!seen) continue;
+    const stored = current?.[field]?.trim();
+    if (!stored) {
+      patch[field] = seen;
+      out.filled[field] = seen;
+    } else if (stored !== seen) {
+      out.conflicts.push({ field, stored, observed: seen });
+    }
+  }
+
+  if (Object.keys(patch).length > 0) {
+    await db('devices').where({ id: deviceId }).update({ ...patch, updated_at: db.fn.now() });
+    logger.info({ deviceId, learned: Object.keys(patch) }, 'Device facts learned from a live probe');
+  }
+  if (out.conflicts.length > 0) {
+    // Not an error here — `assertTargetBinding` is what refuses the write. This
+    // is the early warning, recorded where somebody reading logs will see it.
+    logger.warn(
+      { deviceId, conflicts: out.conflicts },
+      'The device reported facts that CONTRADICT its record. Nothing was overwritten: this is '
+        + 'either a replaced unit or an address that now belongs to another box (D5 / R4).',
+    );
+  }
+
+  return out;
+}
+
 export interface AssertOptions {
   /** Quarantine the device on mismatch. Default true — a box that answered
    *  with the wrong identity must not stay targetable. */

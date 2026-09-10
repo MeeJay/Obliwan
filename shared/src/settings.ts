@@ -29,6 +29,16 @@ export const SETTINGS_KEYS = {
   SNMP_POLL_INTERVAL: 'snmp_poll_interval',
   SNMP_TIMEOUT: 'snmp_timeout',
   SNMP_RETRIES: 'snmp_retries',
+  /**
+   * The `snmp_credentials` row new devices are polled with — 0 means "do not
+   * create targets automatically".
+   *
+   * ONE setting rather than an on/off plus a credential, because the pair has
+   * an invalid combination — enabled with no credential — that would present as
+   * "supervision is on and nothing is ever polled". Here that state cannot be
+   * written down: 0 IS off, and any other value names the credential.
+   */
+  SNMP_AUTO_TARGET_CREDENTIAL: 'snmp_auto_target_credential',
 
   // ── Configuration collection & drift (M4) ──────────────────────────────
   /** Minutes between two config snapshots of the same device. */
@@ -146,6 +156,23 @@ export const SETTINGS_DEFINITIONS: SettingDefinition[] = [
     max: 10,
   },
   {
+    key: SETTINGS_KEYS.SNMP_AUTO_TARGET_CREDENTIAL,
+    category: 'snmp',
+    label: 'Automatic SNMP target credential',
+    description:
+      'Poll every confirmed device with this SNMP credential, without configuring one target '
+      + 'per device. 0 disables automatic targets. Inheritable per group, so one customer can '
+      + 'be polled with its own community.',
+    type: 'number',
+    unit: 'credential id',
+    // 0, and not a working default: a community string is a shared secret, and
+    // guessing one for a customer's fleet is not a default anybody may pick on
+    // an operator's behalf. The fleet is polled once a human names it — once.
+    default: 0,
+    min: 0,
+    max: 2147483647,
+  },
+  {
     key: SETTINGS_KEYS.SNAPSHOT_INTERVAL,
     category: 'configuration',
     label: 'Snapshot interval',
@@ -242,6 +269,9 @@ export const HARDCODED_DEFAULTS: Record<SettingsKey, number> = {
   [SETTINGS_KEYS.SNMP_POLL_INTERVAL]: 60,
   [SETTINGS_KEYS.SNMP_TIMEOUT]: 5000,
   [SETTINGS_KEYS.SNMP_RETRIES]: 2,
+  // 0 = off. See the key's comment: a community string is not guessable on an
+  // operator's behalf, so supervision waits for one human decision.
+  [SETTINGS_KEYS.SNMP_AUTO_TARGET_CREDENTIAL]: 0,
   [SETTINGS_KEYS.SNAPSHOT_INTERVAL]: 1440,
   [SETTINGS_KEYS.DRIFT_INTERVAL]: 1440,
   [SETTINGS_KEYS.COMMIT_CONFIRM_TIMEOUT]: 600,

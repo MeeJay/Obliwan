@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} prov i följd kasserade — {{reason}}. En tom graf här betyder ”ej mätt”, inte ”ingen trafik”.",
     "empty": "Inget gränssnitt har upptäckts ännu.",
-    "emptyHint": "Gränssnitten dyker upp när ett SNMP-mål är konfigurerat och den första IF-MIB-upptäckten har körts.",
+    "emptyHint": "Gränssnitt dyker upp av sig själva: en bekräftad enhet får automatiskt ett SNMP-mål och sedan följer den första IF-MIB-upptäckten. Bara två villkor — enheten måste vara bekräftad (en väntande frågas aldrig, dess adress är kanske inte dess egen), och en SNMP-autentiseringsuppgift måste anges en gång i Inställningar.",
     "endpointUnavailable": "Den här driftsättningen serverar ännu inte gränssnittsslutpunkten.",
     "filters": {
       "allDevices": "Alla enheter",

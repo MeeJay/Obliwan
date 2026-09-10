@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} consecutive sample(s) discarded — {{reason}}. An empty chart here means \"not measured\", not \"no traffic\".",
     "empty": "No interface has been discovered yet.",
-    "emptyHint": "Interfaces appear once an SNMP target is configured and the first IF-MIB discovery has run.",
+    "emptyHint": "Interfaces appear on their own: a confirmed device is given an SNMP target automatically and the first IF-MIB discovery follows. Two things gate it — the device must be confirmed (a pending one is never polled, because its address may not be its own), and an SNMP credential must be named once in Settings.",
     "endpointUnavailable": "This deployment does not serve the interfaces endpoint yet.",
     "filters": {
       "allDevices": "All devices",

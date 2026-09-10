@@ -204,9 +204,23 @@ export interface TransportTestResult {
   error?: string | null;
 }
 
+/**
+ * What a successful probe taught the server about the box.
+ *
+ * `filled` is only ever columns that were EMPTY. `conflicts` are columns whose
+ * stored value the box contradicted — never written, because overwriting them
+ * would make ObliWAN rewrite its own records to match whatever answered at that
+ * address, and the binding check (D5 / R4) would then pass forever.
+ */
+export interface LearnedFacts {
+  filled: Record<string, string>;
+  conflicts: Array<{ field: string; stored: string; observed: string }>;
+}
+
 export interface TestConnectionResponse {
   deviceId: number;
   results: TransportTestResult[];
+  learned?: LearnedFacts | null;
 }
 
 // ── Why the channel failed ──────────────────────────────────────────────────

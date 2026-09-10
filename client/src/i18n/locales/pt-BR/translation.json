@@ -1475,7 +1475,7 @@
     },
     "discardStreak": "{{count}} amostra(s) consecutiva(s) descartada(s) — {{reason}}. Um gráfico vazio aqui significa “não medido”, não “sem tráfego”.",
     "empty": "Nenhuma interface foi descoberta ainda.",
-    "emptyHint": "As interfaces aparecem assim que um alvo SNMP é configurado e a primeira descoberta IF-MIB roda.",
+    "emptyHint": "As interfaces aparecem sozinhas: um dispositivo confirmado recebe automaticamente um alvo SNMP e em seguida vem a primeira descoberta IF-MIB. Apenas duas condições: o dispositivo precisa estar confirmado (um pendente nunca é consultado, seu endereço pode não ser dele) e uma credencial SNMP precisa ser indicada uma vez nas Configurações.",
     "endpointUnavailable": "Esta implantação ainda não serve o endpoint das interfaces.",
     "filters": {
       "allDevices": "Todos os dispositivos",
