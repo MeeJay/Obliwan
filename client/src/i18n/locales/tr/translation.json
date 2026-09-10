@@ -1172,8 +1172,8 @@
     "presenceUnknown": "Henüz gözlenmedi",
     "presenceUp": "Tünel etkin",
     "role": {
-      "chr": "Konsantratör",
-      "cpe": "Saha cihazı"
+      "cpe": "Saha cihazı",
+      "concentrator": "Yoğunlaştırıcı"
     },
     "status": {
       "active": "Etkin",

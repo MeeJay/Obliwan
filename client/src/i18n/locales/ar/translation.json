@@ -1172,8 +1172,8 @@
     "presenceUnknown": "لم يُرصد بعد",
     "presenceUp": "النفق نشط",
     "role": {
-      "chr": "مُركِّز",
-      "cpe": "جهاز موقع"
+      "cpe": "جهاز موقع",
+      "concentrator": "مُجمِّع"
     },
     "status": {
       "active": "نشط",

@@ -1172,8 +1172,8 @@
     "presenceUnknown": "Zatím nepozorováno",
     "presenceUp": "Tunel v provozu",
     "role": {
-      "chr": "Koncentrátor",
-      "cpe": "Zařízení lokality"
+      "cpe": "Zařízení lokality",
+      "concentrator": "Koncentrátor"
     },
     "status": {
       "active": "Aktivní",

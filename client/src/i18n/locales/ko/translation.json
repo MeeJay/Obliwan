@@ -1172,8 +1172,8 @@
     "presenceUnknown": "아직 관측되지 않음",
     "presenceUp": "터널 정상",
     "role": {
-      "chr": "집중장치",
-      "cpe": "사이트 장비"
+      "cpe": "사이트 장비",
+      "concentrator": "집중 장치"
     },
     "status": {
       "active": "활성",

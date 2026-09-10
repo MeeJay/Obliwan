@@ -163,6 +163,15 @@ export function DevicesPage() {
           password: form.password,
           useTls: form.useTls,
           siteId: form.siteId ? Number(form.siteId) : null,
+          // Same fields as the credential-less path below. They were omitted
+          // here, so filling in the credentials silently threw away the model,
+          // the serial, the PPP account, the tunnel address and the role the
+          // operator had just typed.
+          role: form.role,
+          model: form.model || null,
+          serial: form.serial || null,
+          pppUsername: form.pppUsername || null,
+          tunnelIp: form.tunnelIp || null,
         });
         // Said out loud rather than left to be discovered on the first push:
         // without a serial or a system identity, `assertTargetBinding` refuses

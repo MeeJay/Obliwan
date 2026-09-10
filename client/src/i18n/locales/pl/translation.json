@@ -1172,8 +1172,8 @@
     "presenceUnknown": "Jeszcze nieobserwowane",
     "presenceUp": "Tunel działa",
     "role": {
-      "chr": "Koncentrator",
-      "cpe": "Urządzenie lokalizacji"
+      "cpe": "Urządzenie lokalizacji",
+      "concentrator": "Koncentrator"
     },
     "status": {
       "active": "Aktywne",

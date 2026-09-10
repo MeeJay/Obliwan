@@ -1172,8 +1172,8 @@
     "presenceUnknown": "Noch nicht beobachtet",
     "presenceUp": "Tunnel aktiv",
     "role": {
-      "chr": "Konzentrator",
-      "cpe": "Standortgerät"
+      "cpe": "Standortgerät",
+      "concentrator": "Konzentrator"
     },
     "status": {
       "active": "Aktiv",

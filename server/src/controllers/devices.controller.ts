@@ -10,6 +10,7 @@ import {
 } from '../services/fleet/deviceBinding.service';
 import { pppPresence } from '../services/fleet/pppPresence.service';
 import { assessDevice } from '../services/fleet/reachability.service';
+import { VaultError } from '../services/secretVault.service';
 import type {
   CreateConcentratorInput,
   CreateDeviceInput,
@@ -65,6 +66,44 @@ function translateDbError(err: unknown): AppError | null {
       409,
       'This device is still referenced by other devices (a concentrator with attached CPEs cannot be deleted)',
     );
+  }
+  return null;
+}
+
+/**
+ * Enrolment's own translator, and the reason it exists.
+ *
+ * ┌─ A 500 IS A STATEMENT ABOUT THE SERVER, AND IT WAS A LIE HERE ───────────┐
+ * │ `POST /devices/enroll-probe` used to end in a bare `next(err)`. Every     │
+ * │ failure it could have — a vault that cannot encrypt, a serial that is     │
+ * │ already somebody else's, a site in another tenant — reached the operator  │
+ * │ as `500 Internal server error`, which is the one status a human is        │
+ * │ expected to escalate. A misconfigured key and a typo'd serial produced    │
+ * │ the same three words, so neither could be acted on and both looked like   │
+ * │ the product being broken.                                                 │
+ * │                                                                          │
+ * │ The neighbouring `create` handler has translated its errors since day     │
+ * │ one; this route is the newer of the two and simply never got the same     │
+ * │ treatment. `errorHandler.ts` makes exactly this argument in its own       │
+ * │ header about foreign keys.                                                │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * `VaultError` is a 503, not a 500: the request was correct, the SERVER cannot
+ * honour it yet. Its message is safe to forward — it names the environment
+ * variable and how to generate one, and by construction it never carries a
+ * secret or a ciphertext (section 8.2).
+ */
+function translateEnrolError(err: unknown): AppError | null {
+  if (err instanceof VaultError) {
+    return new AppError(
+      503,
+      `The credential vault refused to store this password. ${err.message}`,
+    );
+  }
+  const db = translateDbError(err);
+  if (db) return db;
+  if (err instanceof Error && err.message.includes('does not exist in this tenant')) {
+    return new AppError(400, err.message);
   }
   return null;
 }
@@ -496,25 +535,45 @@ export const devicesController = {
       const device = await deviceService.createDevice(req.tenantId, {
         name: body.name,
         family,
-        role: 'cpe',
+        role: (body.role as 'cpe' | 'concentrator' | undefined) ?? 'cpe',
         siteId: body.siteId ?? null,
+        model: body.model ?? null,
+        serial: body.serial ?? null,
+        pppUsername: body.pppUsername ?? null,
+        // Where to dial today, never an identity (D5). Recorded because the
+        // operator knows it and the transport host may differ.
+        tunnelIp: body.tunnelIp ?? null,
         systemIdentity: null,
         notes: body.notes ?? null,
         // Not negotiable by the payload. A human binds it afterwards.
         status: 'pending',
       });
 
-      await deviceService.upsertTransport(req.tenantId, device.id, transport, {
-        enabled: true,
-        priority: 10,
-        host: body.host,
-        port: body.port ?? null,
-        username: body.username,
-        secret: body.password,
-        useTls: body.useTls ?? transport === 'rest',
-        tlsFingerprintSha256: null,
-      });
+      // ── The device row and its way in are ONE gesture ──────────────────────
+      // Storing the credential is the step that fails first on a fresh install
+      // (an absent or malformed OBLIWAN_ENCRYPTION_KEY makes `encrypt()`
+      // throw), and until this compensation existed the failure left behind a
+      // device nobody could dial and nobody had asked for. The operator then
+      // retried with the same name and serial and was told the SERIAL was a
+      // duplicate — of the ghost their own first attempt had created.
+      try {
+        await deviceService.upsertTransport(req.tenantId, device.id, transport, {
+          enabled: true,
+          priority: 10,
+          host: body.host,
+          port: body.port ?? null,
+          username: body.username,
+          secret: body.password,
+          useTls: body.useTls ?? transport === 'rest',
+          tlsFingerprintSha256: null,
+        });
+      } catch (err) {
+        await deviceService.deleteDevice(req.tenantId, device.id).catch(() => undefined);
+        throw err;
+      }
 
+      // Past this line a failure is a RESULT, not an error: the box was
+      // unreachable, and the row stays with its answer recorded on it.
       const test = await deviceService.testTransport(req.tenantId, device.id, transport);
       if (test.ok && (test.identity?.systemIdentity || test.identity?.serial)) {
         await deviceService.updateDevice(req.tenantId, device.id, {
@@ -536,7 +595,7 @@ export const devicesController = {
         },
       });
     } catch (err) {
-      next(err);
+      next(translateEnrolError(err) ?? err);
     }
   },
 

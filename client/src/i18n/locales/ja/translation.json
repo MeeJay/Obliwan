@@ -1172,8 +1172,8 @@
     "presenceUnknown": "未観測",
     "presenceUp": "トンネル稼働",
     "role": {
-      "chr": "コンセントレーター",
-      "cpe": "サイト機器"
+      "cpe": "サイト機器",
+      "concentrator": "コンセントレーター"
     },
     "status": {
       "active": "有効",

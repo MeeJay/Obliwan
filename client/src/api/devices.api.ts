@@ -59,6 +59,11 @@ export const devicesApi = {
   async enrollProbe(data: {
     name: string; family: DeviceFamily; host: string; username: string; password: string;
     port?: number; useTls?: boolean; siteId?: number | null; notes?: string | null;
+    // The descriptive half of the same form. It travelled nowhere until now:
+    // the operator typed a model and a serial in front of the hardware and the
+    // route dropped both on the floor.
+    role?: DeviceRole; model?: string | null; serial?: string | null;
+    pppUsername?: string | null; tunnelIp?: string | null;
   }): Promise<{ device: DeviceDetail | null; identityRead: boolean; connection: unknown }> {
     const res = await apiClient.post('/devices/enroll-probe', data);
     return res.data.data;

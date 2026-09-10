@@ -1172,8 +1172,8 @@
     "presenceUnknown": "Ännu inte observerad",
     "presenceUp": "Tunneln uppe",
     "role": {
-      "chr": "Koncentrator",
-      "cpe": "Platsenhet"
+      "cpe": "Platsenhet",
+      "concentrator": "Koncentrator"
     },
     "status": {
       "active": "Aktiv",

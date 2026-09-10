@@ -1172,8 +1172,8 @@
     "presenceUnknown": "Ainda não observado",
     "presenceUp": "Túnel ativo",
     "role": {
-      "chr": "Concentrador",
-      "cpe": "Dispositivo de site"
+      "cpe": "Dispositivo de site",
+      "concentrator": "Concentrador"
     },
     "status": {
       "active": "Ativo",

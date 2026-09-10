@@ -208,18 +208,51 @@ export function validateConfig(): string[] {
     }
   }
 
-  if (!config.encryptionKey) {
+  // ── The credential vault is not optional any more ─────────────────────────
+  //
+  // This was a WARNING, written when M1 encrypted nothing and M2 was still
+  // ahead ("it WILL be fatal at M2"). M2 shipped, and the warning outlived the
+  // condition it described. The consequence was not theoretical: a production
+  // instance with no key booted cleanly, served every page, listed the fleet —
+  // and then failed the FIRST gesture that stores a password with a bare
+  // `500 Internal server error`, because `VaultError` is neither an `AppError`
+  // nor a driver error and fell through to the generic handler. Everything
+  // looked healthy except the one thing the product is for.
+  //
+  // A fleet manager that cannot hold a credential cannot manage a fleet. It
+  // says so at boot, where an operator is already reading the logs, rather than
+  // in a toast three screens deep. This is the same treatment SESSION_SECRET
+  // gets above, for the same reason.
+  //
+  // Development keeps the warning: a contributor running the UI against
+  // fixtures has no business generating a key to look at a page.
+  if (!config.isDev) {
+    if (!config.encryptionKey) {
+      throw new Error(
+        'OBLIWAN_ENCRYPTION_KEY is not set. The credential vault cannot encrypt or '
+          + 'decrypt anything, so no device password can be stored and no device can be '
+          + 'reached. Generate one with: openssl rand -hex 32 — and keep it: losing it '
+          + 'is unrecoverable (risk R8), which is precisely why it is not derived from '
+          + 'SESSION_SECRET.',
+      );
+    }
+    if (!config.encryptionKeyValid) {
+      throw new Error(
+        'OBLIWAN_ENCRYPTION_KEY is set but is not 64 hexadecimal characters (32 bytes). '
+          + 'Every vault operation would fail at the first credential. Generate a valid '
+          + 'one with: openssl rand -hex 32',
+      );
+    }
+  } else if (!config.encryptionKey) {
     warnings.push(
-      'OBLIWAN_ENCRYPTION_KEY is not set. No device credential can be stored ' +
-        'until it is (milestone M2). Generate one with: openssl rand -hex 32',
+      'OBLIWAN_ENCRYPTION_KEY is not set. No device credential can be stored, and '
+        + 'enrolling a device with a password will be refused. '
+        + 'Generate one with: openssl rand -hex 32',
     );
   } else if (!config.encryptionKeyValid) {
-    // Not fatal in M1 (nothing is encrypted yet) but it WILL be at M2, and a
-    // silent warning now is far cheaper than an unreadable vault later.
     warnings.push(
-      'OBLIWAN_ENCRYPTION_KEY is set but is not 64 hex characters (32 bytes). ' +
-        'It will be rejected when the credential vault lands in M2. ' +
-        'Generate a valid one with: openssl rand -hex 32',
+      'OBLIWAN_ENCRYPTION_KEY is set but is not 64 hex characters (32 bytes). '
+        + 'It will be rejected by the vault. Generate a valid one with: openssl rand -hex 32',
     );
   }
 

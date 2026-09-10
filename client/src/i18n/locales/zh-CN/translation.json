@@ -1172,8 +1172,8 @@
     "presenceUnknown": "尚未观测到",
     "presenceUp": "隧道正常",
     "role": {
-      "chr": "集中器",
-      "cpe": "站点设备"
+      "cpe": "站点设备",
+      "concentrator": "集中器"
     },
     "status": {
       "active": "启用中",

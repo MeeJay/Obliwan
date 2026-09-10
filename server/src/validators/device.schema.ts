@@ -200,5 +200,18 @@ export const enrollDeviceSchema = z.object({
   useTls: z.boolean().optional(),
   siteId: z.number().int().positive().nullable().optional(),
   notes: z.string().max(4000).nullable().optional(),
+
+  // The descriptive half of the same form. These used to be absent from the
+  // schema, so an operator who typed a model, a serial, a PPP account or a
+  // tunnel address next to a credential watched all four disappear: the UI
+  // collected them, Zod stripped them, and the device landed with none. They
+  // are CLAIMS about a box (D5) — the probe below confirms or contradicts them,
+  // and the row stays `pending` either way — but a claim an operator made in
+  // front of the hardware is worth more than a blank column.
+  role: roleEnum.optional(),
+  model: z.string().max(128).nullable().optional(),
+  serial: z.string().max(128).nullable().optional(),
+  pppUsername: z.string().min(1).max(128).nullable().optional(),
+  tunnelIp: ipish.nullable().optional(),
 });
 export type EnrollDeviceInput = z.infer<typeof enrollDeviceSchema>;

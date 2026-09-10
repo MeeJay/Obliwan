@@ -1172,8 +1172,8 @@
     "presenceUnknown": "Nog niet waargenomen",
     "presenceUp": "Tunnel actief",
     "role": {
-      "chr": "Concentrator",
-      "cpe": "Locatieapparaat"
+      "cpe": "Locatieapparaat",
+      "concentrator": "Concentrator"
     },
     "status": {
       "active": "Actief",
