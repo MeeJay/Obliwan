@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Leeg laten om alleen SSO te gebruiken"
+  },
+  "snmpCred": {
+    "title": "SNMP-inloggegevens",
+    "subtitle": "Wijs er hierboven één aan en elk bevestigd apparaat wordt daarmee bevraagd — geen configuratie per apparaat.",
+    "add": "Toevoegen",
+    "create": "Aanmaken",
+    "name": "Naam",
+    "namePlaceholder": "bijv. vloot-alleen-lezen",
+    "version": "Versie",
+    "community": "Community",
+    "username": "Gebruikersnaam",
+    "securityLevel": "Beveiligingsniveau",
+    "authProtocol": "Authenticatie",
+    "authKey": "Authenticatiesleutel",
+    "privProtocol": "Versleuteling",
+    "privKey": "Versleutelingssleutel",
+    "oneWayHint": "Het geheim gaat één kant op: het wordt versleuteld in de kluis en komt nooit terug. Geen tonen, geen bewerken — je vervangt inloggegevens, je leest ze niet terug.",
+    "empty": "Nog geen SNMP-inloggegevens. Er wordt niets bevraagd tot er één is.",
+    "created": "Inloggegevens aangemaakt.",
+    "createFailed": "De inloggegevens konden niet worden aangemaakt.",
+    "deleted": "Inloggegevens verwijderd.",
+    "deleteFailed": "De inloggegevens konden niet worden verwijderd.",
+    "delete": "Verwijderen",
+    "confirmDelete": "Inloggegevens “{{name}}” verwijderen? Apparaten die ermee bevraagd worden, worden niet meer bewaakt.",
+    "hasCommunity": "community ingesteld",
+    "hasAuthKey": "sleutels ingesteld",
+    "noneOption": "Geen — maak niet automatisch doelen aan"
   }
 }

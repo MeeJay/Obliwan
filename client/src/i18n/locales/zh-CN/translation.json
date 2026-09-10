@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "留空则仅使用 SSO"
+  },
+  "snmpCred": {
+    "title": "SNMP 凭据",
+    "subtitle": "在上方指定一个，所有已确认的设备都会用它轮询——无需逐台配置。",
+    "add": "添加",
+    "create": "创建",
+    "name": "名称",
+    "namePlaceholder": "例如 fleet-read-only",
+    "version": "版本",
+    "community": "团体名",
+    "username": "用户名",
+    "securityLevel": "安全级别",
+    "authProtocol": "认证",
+    "authKey": "认证密钥",
+    "privProtocol": "加密",
+    "privKey": "加密密钥",
+    "oneWayHint": "密钥只朝一个方向流动：加密写入保险库，永不返回。没有查看，也没有编辑——凭据是替换的，不是读回来的。",
+    "empty": "尚无 SNMP 凭据。在创建之前不会轮询任何设备。",
+    "created": "凭据已创建。",
+    "createFailed": "无法创建凭据。",
+    "deleted": "凭据已删除。",
+    "deleteFailed": "无法删除凭据。",
+    "delete": "删除",
+    "confirmDelete": "删除凭据“{{name}}”？用它轮询的设备将不再受监控。",
+    "hasCommunity": "已设置团体名",
+    "hasAuthKey": "已设置密钥",
+    "noneOption": "无 — 不自动创建目标"
   }
 }

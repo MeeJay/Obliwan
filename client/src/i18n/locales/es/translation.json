@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Dejar vacío para usar solo SSO"
+  },
+  "snmpCred": {
+    "title": "Credenciales SNMP",
+    "subtitle": "Designe una arriba y todo dispositivo confirmado se sondea con ella — sin configuración por dispositivo.",
+    "add": "Añadir",
+    "create": "Crear",
+    "name": "Nombre",
+    "namePlaceholder": "p. ej. parque-solo-lectura",
+    "version": "Versión",
+    "community": "Comunidad",
+    "username": "Nombre de usuario",
+    "securityLevel": "Nivel de seguridad",
+    "authProtocol": "Autenticación",
+    "authKey": "Clave de autenticación",
+    "privProtocol": "Cifrado",
+    "privKey": "Clave de cifrado",
+    "oneWayHint": "El secreto va en un solo sentido: se cifra en la caja fuerte y no vuelve. No hay revelado ni edición — se reemplaza una credencial, no se relee.",
+    "empty": "Aún no hay credenciales SNMP. No se sondea nada hasta que exista una.",
+    "created": "Credencial creada.",
+    "createFailed": "No se ha podido crear la credencial.",
+    "deleted": "Credencial eliminada.",
+    "deleteFailed": "No se ha podido eliminar la credencial.",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Eliminar la credencial «{{name}}»? Los dispositivos sondeados con ella dejan de estar supervisados.",
+    "hasCommunity": "comunidad definida",
+    "hasAuthKey": "claves definidas",
+    "noneOption": "Ninguna — no crear objetivos automáticamente"
   }
 }

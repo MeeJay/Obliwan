@@ -4,6 +4,7 @@ import type { SettingsKey } from '@obliwan/shared';
 import { SETTINGS_DEFINITIONS } from '@obliwan/shared';
 import { settingsApi } from '@/api/settings.api';
 import { SettingField } from './SettingField';
+import { SnmpCredentialsCard } from './SnmpCredentialsCard';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -92,6 +93,17 @@ export function SettingsPanel({ scope, scopeId, title }: SettingsPanelProps) {
           />
         ))}
       </div>
+
+      {/* ── The credentials the setting above chooses from ──────────────────
+          Placed here, immediately under the settings, and only at global
+          scope: an SNMP credential is tenant-wide, so offering to create one
+          from inside a group's override panel would suggest it belongs to that
+          group. The SETTING is inheritable per group; the credential is not. */}
+      {scope === 'global' && (
+        <div className="mt-5">
+          <SnmpCredentialsCard />
+        </div>
+      )}
     </div>
   );
 }

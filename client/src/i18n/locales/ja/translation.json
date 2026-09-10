@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "SSO のみを使用する場合は空のままにします"
+  },
+  "snmpCred": {
+    "title": "SNMP 認証情報",
+    "subtitle": "上で一つ指定すれば、確認済みの機器はすべてそれで監視されます。機器ごとの設定は不要です。",
+    "add": "追加",
+    "create": "作成",
+    "name": "名前",
+    "namePlaceholder": "例: fleet-read-only",
+    "version": "バージョン",
+    "community": "コミュニティ",
+    "username": "ユーザー名",
+    "securityLevel": "セキュリティレベル",
+    "authProtocol": "認証",
+    "authKey": "認証キー",
+    "privProtocol": "暗号化",
+    "privKey": "暗号化キー",
+    "oneWayHint": "秘密は一方通行です。金庫に暗号化されて保存され、戻ってくることはありません。表示も編集もできません — 認証情報は差し替えるものであり、読み返すものではありません。",
+    "empty": "SNMP 認証情報がまだありません。作成されるまで何も監視されません。",
+    "created": "認証情報を作成しました。",
+    "createFailed": "認証情報を作成できませんでした。",
+    "deleted": "認証情報を削除しました。",
+    "deleteFailed": "認証情報を削除できませんでした。",
+    "delete": "削除",
+    "confirmDelete": "認証情報「{{name}}」を削除しますか？これで監視している機器は監視されなくなります。",
+    "hasCommunity": "コミュニティ設定済み",
+    "hasAuthKey": "キー設定済み",
+    "noneOption": "なし — ターゲットを自動作成しない"
   }
 }

@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Leave empty to stay SSO-only"
+  },
+  "snmpCred": {
+    "title": "SNMP credentials",
+    "subtitle": "Name one above and every confirmed device is polled with it — no per-device configuration.",
+    "add": "Add",
+    "create": "Create",
+    "name": "Name",
+    "namePlaceholder": "e.g. fleet-read-only",
+    "version": "Version",
+    "community": "Community",
+    "username": "User name",
+    "securityLevel": "Security level",
+    "authProtocol": "Authentication",
+    "authKey": "Authentication key",
+    "privProtocol": "Privacy",
+    "privKey": "Privacy key",
+    "oneWayHint": "The secret goes one way: it is encrypted into the vault and never comes back. There is no reveal and no edit — you replace a credential, you do not read one back.",
+    "empty": "No SNMP credential yet. Nothing is polled until one exists.",
+    "created": "Credential created.",
+    "createFailed": "The credential could not be created.",
+    "deleted": "Credential deleted.",
+    "deleteFailed": "The credential could not be deleted.",
+    "delete": "Delete",
+    "confirmDelete": "Delete the credential \"{{name}}\"? Devices polled with it stop being supervised.",
+    "hasCommunity": "community set",
+    "hasAuthKey": "keys set",
+    "noneOption": "None — do not create targets automatically"
   }
 }

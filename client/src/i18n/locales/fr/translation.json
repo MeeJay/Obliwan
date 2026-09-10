@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Laisser vide pour rester SSO uniquement"
+  },
+  "snmpCred": {
+    "title": "Identifiants SNMP",
+    "subtitle": "Désignez-en un ci-dessus et tout équipement confirmé est interrogé avec — aucune configuration par équipement.",
+    "add": "Ajouter",
+    "create": "Créer",
+    "name": "Nom",
+    "namePlaceholder": "ex. parc-lecture-seule",
+    "version": "Version",
+    "community": "Communauté",
+    "username": "Nom d’utilisateur",
+    "securityLevel": "Niveau de sécurité",
+    "authProtocol": "Authentification",
+    "authKey": "Clé d’authentification",
+    "privProtocol": "Chiffrement",
+    "privKey": "Clé de chiffrement",
+    "oneWayHint": "Le secret ne circule que dans un sens : il est chiffré dans le coffre et ne revient jamais. Pas de révélation, pas de modification — on remplace un identifiant, on ne le relit pas.",
+    "empty": "Aucun identifiant SNMP. Rien n’est interrogé tant qu’il n’en existe pas.",
+    "created": "Identifiant créé.",
+    "createFailed": "L’identifiant n’a pas pu être créé.",
+    "deleted": "Identifiant supprimé.",
+    "deleteFailed": "L’identifiant n’a pas pu être supprimé.",
+    "delete": "Supprimer",
+    "confirmDelete": "Supprimer l’identifiant « {{name}} » ? Les équipements interrogés avec lui cessent d’être supervisés.",
+    "hasCommunity": "communauté définie",
+    "hasAuthKey": "clés définies",
+    "noneOption": "Aucun — ne pas créer de cibles automatiquement"
   }
 }

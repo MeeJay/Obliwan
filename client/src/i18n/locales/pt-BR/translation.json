@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Deixe em branco para usar apenas SSO"
+  },
+  "snmpCred": {
+    "title": "Credenciais SNMP",
+    "subtitle": "Indique uma acima e todo dispositivo confirmado é sondado com ela — sem configuração por dispositivo.",
+    "add": "Adicionar",
+    "create": "Criar",
+    "name": "Nome",
+    "namePlaceholder": "ex. frota-somente-leitura",
+    "version": "Versão",
+    "community": "Comunidade",
+    "username": "Nome de usuário",
+    "securityLevel": "Nível de segurança",
+    "authProtocol": "Autenticação",
+    "authKey": "Chave de autenticação",
+    "privProtocol": "Criptografia",
+    "privKey": "Chave de criptografia",
+    "oneWayHint": "O segredo vai em um só sentido: é criptografado no cofre e nunca volta. Não há revelar nem editar — substitui-se uma credencial, não se relê.",
+    "empty": "Nenhuma credencial SNMP ainda. Nada é sondado até existir uma.",
+    "created": "Credencial criada.",
+    "createFailed": "Não foi possível criar a credencial.",
+    "deleted": "Credencial excluída.",
+    "deleteFailed": "Não foi possível excluir a credencial.",
+    "delete": "Excluir",
+    "confirmDelete": "Excluir a credencial \"{{name}}\"? Dispositivos sondados com ela deixam de ser supervisionados.",
+    "hasCommunity": "comunidade definida",
+    "hasAuthKey": "chaves definidas",
+    "noneOption": "Nenhuma — não criar alvos automaticamente"
   }
 }

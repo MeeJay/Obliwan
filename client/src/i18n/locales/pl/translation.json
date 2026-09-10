@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Pozostaw puste, aby używać tylko SSO"
+  },
+  "snmpCred": {
+    "title": "Poświadczenia SNMP",
+    "subtitle": "Wskaż jedno powyżej, a każde potwierdzone urządzenie będzie nim odpytywane — bez konfiguracji dla każdego urządzenia.",
+    "add": "Dodaj",
+    "create": "Utwórz",
+    "name": "Nazwa",
+    "namePlaceholder": "np. flota-tylko-odczyt",
+    "version": "Wersja",
+    "community": "Community",
+    "username": "Nazwa użytkownika",
+    "securityLevel": "Poziom bezpieczeństwa",
+    "authProtocol": "Uwierzytelnianie",
+    "authKey": "Klucz uwierzytelniania",
+    "privProtocol": "Szyfrowanie",
+    "privKey": "Klucz szyfrowania",
+    "oneWayHint": "Sekret idzie w jedną stronę: jest szyfrowany do sejfu i nigdy nie wraca. Brak podglądu i edycji — poświadczenie się wymienia, nie odczytuje.",
+    "empty": "Brak poświadczeń SNMP. Nic nie jest odpytywane, dopóki nie istnieje żadne.",
+    "created": "Poświadczenie utworzone.",
+    "createFailed": "Nie udało się utworzyć poświadczenia.",
+    "deleted": "Poświadczenie usunięte.",
+    "deleteFailed": "Nie udało się usunąć poświadczenia.",
+    "delete": "Usuń",
+    "confirmDelete": "Usunąć poświadczenie „{{name}}”? Urządzenia nim odpytywane przestaną być nadzorowane.",
+    "hasCommunity": "community ustawione",
+    "hasAuthKey": "klucze ustawione",
+    "noneOption": "Brak — nie twórz celów automatycznie"
   }
 }

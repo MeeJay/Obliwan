@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Yalnızca SSO kullanmak için boş bırakın"
+  },
+  "snmpCred": {
+    "title": "SNMP kimlik bilgileri",
+    "subtitle": "Yukarıdan birini belirtin; onaylanmış her cihaz onunla yoklanır — cihaz başına yapılandırma yok.",
+    "add": "Ekle",
+    "create": "Oluştur",
+    "name": "Ad",
+    "namePlaceholder": "örn. filo-salt-okunur",
+    "version": "Sürüm",
+    "community": "Community",
+    "username": "Kullanıcı adı",
+    "securityLevel": "Güvenlik düzeyi",
+    "authProtocol": "Kimlik doğrulama",
+    "authKey": "Kimlik doğrulama anahtarı",
+    "privProtocol": "Şifreleme",
+    "privKey": "Şifreleme anahtarı",
+    "oneWayHint": "Sır tek yöne gider: kasaya şifrelenir ve asla geri gelmez. Gösterme ve düzenleme yoktur — kimlik bilgisi değiştirilir, geri okunmaz.",
+    "empty": "Henüz SNMP kimlik bilgisi yok. Bir tane olana kadar hiçbir şey yoklanmaz.",
+    "created": "Kimlik bilgisi oluşturuldu.",
+    "createFailed": "Kimlik bilgisi oluşturulamadı.",
+    "deleted": "Kimlik bilgisi silindi.",
+    "deleteFailed": "Kimlik bilgisi silinemedi.",
+    "delete": "Sil",
+    "confirmDelete": "“{{name}}” kimlik bilgisi silinsin mi? Onunla yoklanan cihazlar izlenmeyi bırakır.",
+    "hasCommunity": "community ayarlı",
+    "hasAuthKey": "anahtarlar ayarlı",
+    "noneOption": "Yok — hedefleri otomatik oluşturma"
   }
 }

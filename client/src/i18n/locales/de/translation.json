@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Leer lassen, um nur SSO zu verwenden"
+  },
+  "snmpCred": {
+    "title": "SNMP-Zugangsdaten",
+    "subtitle": "Oben eines benennen und jedes bestätigte Gerät wird damit abgefragt — keine Konfiguration pro Gerät.",
+    "add": "Hinzufügen",
+    "create": "Anlegen",
+    "name": "Name",
+    "namePlaceholder": "z. B. flotte-nur-lesen",
+    "version": "Version",
+    "community": "Community",
+    "username": "Benutzername",
+    "securityLevel": "Sicherheitsstufe",
+    "authProtocol": "Authentifizierung",
+    "authKey": "Authentifizierungsschlüssel",
+    "privProtocol": "Verschlüsselung",
+    "privKey": "Verschlüsselungsschlüssel",
+    "oneWayHint": "Das Geheimnis geht nur in eine Richtung: verschlüsselt in den Tresor und niemals zurück. Kein Anzeigen, kein Bearbeiten — man ersetzt Zugangsdaten, man liest sie nicht zurück.",
+    "empty": "Noch keine SNMP-Zugangsdaten. Bis dahin wird nichts abgefragt.",
+    "created": "Zugangsdaten angelegt.",
+    "createFailed": "Die Zugangsdaten konnten nicht angelegt werden.",
+    "deleted": "Zugangsdaten gelöscht.",
+    "deleteFailed": "Die Zugangsdaten konnten nicht gelöscht werden.",
+    "delete": "Löschen",
+    "confirmDelete": "Zugangsdaten „{{name}}“ löschen? Damit abgefragte Geräte werden nicht mehr überwacht.",
+    "hasCommunity": "Community gesetzt",
+    "hasAuthKey": "Schlüssel gesetzt",
+    "noneOption": "Keine — keine Ziele automatisch anlegen"
   }
 }

@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RotateCcw } from 'lucide-react';
 import type { SettingValue, SettingsScope } from '@obliwan/shared';
 import type { SettingsKey, SettingDefinition } from '@obliwan/shared';
 import { InheritanceBadge } from './InheritanceBadge';
+import { SETTINGS_KEYS } from '@obliwan/shared';
+import { snmpApi, type SnmpCredential } from '@/api/snmp.api';
 
 interface SettingFieldProps {
   definition: SettingDefinition;
@@ -25,6 +28,25 @@ export function SettingField({
   const [isOverriding, setIsOverriding] = useState(hasOverride);
   const [localValue, setLocalValue] = useState<number>(overrideValue ?? inheritedValue.value);
   const [saving, setSaving] = useState(false);
+  const { t } = useTranslation();
+
+  // The only key whose numeric value names a ROW rather than a quantity.
+  const isCredentialPicker = definition.key === SETTINGS_KEYS.SNMP_AUTO_TARGET_CREDENTIAL;
+  const [credentials, setCredentials] = useState<SnmpCredential[]>([]);
+  useEffect(() => {
+    if (!isCredentialPicker) return;
+    void snmpApi.listCredentials().then(setCredentials).catch(() => setCredentials([]));
+  }, [isCredentialPicker]);
+
+  /** Used by the picker: a select has no blur-to-commit, it commits on change. */
+  const save = async (value: number) => {
+    setSaving(true);
+    try {
+      await onSave(definition.key, value);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleToggleOverride = async () => {
     if (isOverriding) {
@@ -80,24 +102,57 @@ export function SettingField({
 
       {/* Value input */}
       <div className="flex items-center gap-2">
-        <input
-          type="number"
-          value={isOverriding ? localValue : inheritedValue.value}
-          onChange={(e) => setLocalValue(parseInt(e.target.value, 10) || 0)}
-          onBlur={handleBlur}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleBlur();
-          }}
-          disabled={scope !== 'global' && !isOverriding}
-          min={definition.min}
-          max={definition.max}
-          className={`w-24 rounded-md border px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-accent ${
-            scope !== 'global' && !isOverriding
-              ? 'border-border bg-bg-tertiary text-text-muted cursor-not-allowed'
-              : 'border-border bg-bg-tertiary text-text-primary'
-          }`}
-        />
-        <span className="text-xs text-text-muted w-12">{definition.unit}</span>
+        {/* ── One setting is an ID, not a quantity ──────────────────────────
+            `snmp_auto_target_credential` holds an `snmp_credentials.id`. The
+            settings table stores numbers only, which is the right storage and
+            the wrong control: asking an operator to type the numeric id of a
+            credential means asking them to go and read it off another screen
+            first, and to get it right. The value on the wire is unchanged — a
+            number — but it is CHOSEN by name. */}
+        {isCredentialPicker ? (
+          <select
+            value={isOverriding ? localValue : inheritedValue.value}
+            onChange={(e) => {
+              const next = parseInt(e.target.value, 10) || 0;
+              setLocalValue(next);
+              void save(next);
+            }}
+            disabled={scope !== 'global' && !isOverriding}
+            className={`w-56 rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-accent ${
+              scope !== 'global' && !isOverriding
+                ? 'border-border bg-bg-tertiary text-text-muted cursor-not-allowed'
+                : 'border-border bg-bg-tertiary text-text-primary'
+            }`}
+          >
+            {/* 0 is not "unset", it is a decision: do not poll automatically. */}
+            <option value={0}>{t('snmpCred.noneOption')}</option>
+            {credentials.map((c) => (
+              <option key={c.id} value={c.id}>{c.name} ({c.version})</option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type="number"
+            value={isOverriding ? localValue : inheritedValue.value}
+            onChange={(e) => setLocalValue(parseInt(e.target.value, 10) || 0)}
+            onBlur={handleBlur}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleBlur();
+            }}
+            disabled={scope !== 'global' && !isOverriding}
+            min={definition.min}
+            max={definition.max}
+            className={`w-24 rounded-md border px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-accent ${
+              scope !== 'global' && !isOverriding
+                ? 'border-border bg-bg-tertiary text-text-muted cursor-not-allowed'
+                : 'border-border bg-bg-tertiary text-text-primary'
+            }`}
+          />
+        )}
+        {/* "credential id" is not a unit; the picker already says what it is. */}
+        {!isCredentialPicker && (
+          <span className="text-xs text-text-muted w-12">{definition.unit}</span>
+        )}
       </div>
 
       {/* Override toggle / reset button (not shown for global scope) */}

@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Ponechte prázdné pro použití pouze SSO"
+  },
+  "snmpCred": {
+    "title": "Přihlašovací údaje SNMP",
+    "subtitle": "Určete jedny výše a každé potvrzené zařízení bude jimi dotazováno — žádná konfigurace na zařízení.",
+    "add": "Přidat",
+    "create": "Vytvořit",
+    "name": "Název",
+    "namePlaceholder": "např. flotila-jen-cteni",
+    "version": "Verze",
+    "community": "Community",
+    "username": "Uživatelské jméno",
+    "securityLevel": "Úroveň zabezpečení",
+    "authProtocol": "Ověřování",
+    "authKey": "Ověřovací klíč",
+    "privProtocol": "Šifrování",
+    "privKey": "Šifrovací klíč",
+    "oneWayHint": "Tajemství jde jedním směrem: zašifruje se do trezoru a nikdy se nevrátí. Žádné zobrazení, žádná úprava — údaje se nahrazují, nečtou zpět.",
+    "empty": "Zatím žádné údaje SNMP. Dokud nějaké nejsou, nic se nedotazuje.",
+    "created": "Údaje vytvořeny.",
+    "createFailed": "Údaje se nepodařilo vytvořit.",
+    "deleted": "Údaje smazány.",
+    "deleteFailed": "Údaje se nepodařilo smazat.",
+    "delete": "Smazat",
+    "confirmDelete": "Smazat údaje „{{name}}“? Zařízení jimi dotazovaná přestanou být sledována.",
+    "hasCommunity": "community nastavena",
+    "hasAuthKey": "klíče nastaveny",
+    "noneOption": "Žádné — nevytvářet cíle automaticky"
   }
 }

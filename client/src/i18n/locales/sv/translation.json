@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Lämna tomt för att endast använda SSO"
+  },
+  "snmpCred": {
+    "title": "SNMP-autentiseringsuppgifter",
+    "subtitle": "Ange en ovan så pollas varje bekräftad enhet med den — ingen konfiguration per enhet.",
+    "add": "Lägg till",
+    "create": "Skapa",
+    "name": "Namn",
+    "namePlaceholder": "t.ex. flotta-endast-las",
+    "version": "Version",
+    "community": "Community",
+    "username": "Användarnamn",
+    "securityLevel": "Säkerhetsnivå",
+    "authProtocol": "Autentisering",
+    "authKey": "Autentiseringsnyckel",
+    "privProtocol": "Kryptering",
+    "privKey": "Krypteringsnyckel",
+    "oneWayHint": "Hemligheten går åt ett håll: den krypteras in i valvet och kommer aldrig tillbaka. Ingen visning, ingen redigering — man ersätter uppgifter, man läser inte tillbaka dem.",
+    "empty": "Inga SNMP-uppgifter ännu. Inget pollas förrän det finns en.",
+    "created": "Uppgifter skapade.",
+    "createFailed": "Uppgifterna kunde inte skapas.",
+    "deleted": "Uppgifter borttagna.",
+    "deleteFailed": "Uppgifterna kunde inte tas bort.",
+    "delete": "Ta bort",
+    "confirmDelete": "Ta bort uppgifterna ”{{name}}”? Enheter som pollas med dem övervakas inte längre.",
+    "hasCommunity": "community satt",
+    "hasAuthKey": "nycklar satta",
+    "noneOption": "Ingen — skapa inte mål automatiskt"
   }
 }

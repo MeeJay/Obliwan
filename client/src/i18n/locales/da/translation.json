@@ -2621,5 +2621,32 @@
   },
   "sso": {
     "passwordOptionalPlaceholder": "Lad stå tomt for kun at bruge SSO"
+  },
+  "snmpCred": {
+    "title": "SNMP-legitimationsoplysninger",
+    "subtitle": "Udpeg en ovenfor, og hver bekræftet enhed forespørges med den — ingen konfiguration pr. enhed.",
+    "add": "Tilføj",
+    "create": "Opret",
+    "name": "Navn",
+    "namePlaceholder": "f.eks. flaade-kun-laes",
+    "version": "Version",
+    "community": "Community",
+    "username": "Brugernavn",
+    "securityLevel": "Sikkerhedsniveau",
+    "authProtocol": "Godkendelse",
+    "authKey": "Godkendelsesnøgle",
+    "privProtocol": "Kryptering",
+    "privKey": "Krypteringsnøgle",
+    "oneWayHint": "Hemmeligheden går én vej: den krypteres ind i boksen og kommer aldrig tilbage. Ingen visning, ingen redigering — man udskifter legitimationsoplysninger, man læser dem ikke tilbage.",
+    "empty": "Ingen SNMP-legitimationsoplysninger endnu. Intet forespørges, før der findes en.",
+    "created": "Legitimationsoplysninger oprettet.",
+    "createFailed": "Legitimationsoplysningerne kunne ikke oprettes.",
+    "deleted": "Legitimationsoplysninger slettet.",
+    "deleteFailed": "Legitimationsoplysningerne kunne ikke slettes.",
+    "delete": "Slet",
+    "confirmDelete": "Slet legitimationsoplysningerne \"{{name}}\"? Enheder, der forespørges med dem, overvåges ikke længere.",
+    "hasCommunity": "community sat",
+    "hasAuthKey": "nøgler sat",
+    "noneOption": "Ingen — opret ikke mål automatisk"
   }
 }
