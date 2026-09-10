@@ -888,7 +888,21 @@
     "reachTitle": "Tilgængelighed (valgfrit)",
     "reachHint": "Udfyld dem, og ObliWAN ringer op nu, læser identiteten og lægger legitimationsoplysningen i boksen. Lad dem stå tomme for kun at oprette en række, ingen ringer op. Uanset hvad havner enheden i karantæne, indtil et menneske tilknytter den.",
     "enrolledIdentityRead": "Tilmeldt. Enheden svarede og oplyste sin identitet; den er i karantæne, indtil du tilknytter den.",
-    "enrolledNoIdentity": "Registreret, men enheden oplyste HVERKEN serienummer eller systemidentitet. Enhver skrivning afvises, indtil en er læst — tjek legitimationsoplysningen og gentag forbindelsestesten."
+    "enrolledNoIdentity": "Registreret, men enheden oplyste HVERKEN serienummer eller systemidentitet. Enhver skrivning afvises, indtil en er læst — tjek legitimationsoplysningen og gentag forbindelsestesten.",
+    "testNoChannel": "Denne enhed har ingen konfigureret kanal, så der er intet at teste. Tilføj en legitimation under fanen Indstillinger (Transporter).",
+    "testAllChannelsDisabled": "Alle kanaler på denne enhed er deaktiveret. Aktivér en under fanen Indstillinger (Transporter).",
+    "diagnose": "Diagnosticér",
+    "diagnoseRunning": "Diagnosticerer…",
+    "diagnoseFailed": "Diagnosen kunne ikke køres.",
+    "diagnoseHint": "Undersøger dette mærkes porte, den lokale rute og ICMP. Tager nogle sekunder; ikke automatisk, da den åbner flere sockets til udstyret.",
+    "diagnosePorts": "TCP-undersøgelse af {{host}}",
+    "portState": {
+      "open": "åben",
+      "refused": "afvist",
+      "reset": "nulstillet",
+      "unreachable": "uopnåelig",
+      "timeout": "tavs"
+    }
   },
   "diff": {
     "copied": "Kopieret",

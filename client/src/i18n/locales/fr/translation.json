@@ -888,7 +888,21 @@
     "reachTitle": "Joignabilité (facultatif)",
     "reachHint": "Renseignez-les et ObliWAN compose maintenant, lit l’identité et met l’identifiant au coffre. Laissez vide pour n’enregistrer qu’une fiche que personne ne composera. Dans les deux cas l’équipement arrive en quarantaine jusqu’à ce qu’un humain le rattache.",
     "enrolledIdentityRead": "Enrôlé. L’équipement a répondu et donné son identité ; il est en quarantaine jusqu’à son rattachement.",
-    "enrolledNoIdentity": "Enregistré, mais l’équipement n’a rendu NI numéro de série NI identité système. Toute écriture sera refusée tant qu’aucun des deux n’est lu — vérifiez l’identifiant et relancez le test de connexion."
+    "enrolledNoIdentity": "Enregistré, mais l’équipement n’a rendu NI numéro de série NI identité système. Toute écriture sera refusée tant qu’aucun des deux n’est lu — vérifiez l’identifiant et relancez le test de connexion.",
+    "testNoChannel": "Cet équipement n'a aucun canal configuré, il n'y a donc rien à tester. Ajoutez un identifiant dans l'onglet Réglages (Transports).",
+    "testAllChannelsDisabled": "Tous les canaux de cet équipement sont désactivés. Réactivez-en un dans l'onglet Réglages (Transports).",
+    "diagnose": "Diagnostiquer",
+    "diagnoseRunning": "Diagnostic en cours…",
+    "diagnoseFailed": "Le diagnostic n’a pas pu être lancé.",
+    "diagnoseHint": "Sonde les ports de cette marque, la route locale et l’ICMP. Quelques secondes ; pas automatique, car cela ouvre plusieurs sockets vers l’équipement.",
+    "diagnosePorts": "Sonde TCP de {{host}}",
+    "portState": {
+      "open": "ouvert",
+      "refused": "refusé",
+      "reset": "coupé",
+      "unreachable": "injoignable",
+      "timeout": "silencieux"
+    }
   },
   "diff": {
     "copied": "Copié",

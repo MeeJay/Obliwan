@@ -888,7 +888,21 @@
     "reachTitle": "Raggiungibilità (facoltativo)",
     "reachHint": "Compilali e ObliWAN contatta subito il dispositivo, ne legge l’identità e ripone la credenziale nella cassaforte. Lasciali vuoti per registrare solo una scheda che nessuno contatterà. In entrambi i casi il dispositivo resta in quarantena finché un umano non lo associa.",
     "enrolledIdentityRead": "Registrato. Il dispositivo ha risposto e comunicato la propria identità; resta in quarantena finché non lo associ.",
-    "enrolledNoIdentity": "Registrato, ma il dispositivo non ha fornito NÉ numero di serie NÉ identità di sistema. Ogni scrittura sarà rifiutata finché non se ne legge una — verifica la credenziale e ripeti il test di connessione."
+    "enrolledNoIdentity": "Registrato, ma il dispositivo non ha fornito NÉ numero di serie NÉ identità di sistema. Ogni scrittura sarà rifiutata finché non se ne legge una — verifica la credenziale e ripeti il test di connessione.",
+    "testNoChannel": "Questo dispositivo non ha alcun canale configurato, quindi non c'è nulla da testare. Aggiungi una credenziale nella scheda Impostazioni (Trasporti).",
+    "testAllChannelsDisabled": "Tutti i canali di questo dispositivo sono disattivati. Attivane uno nella scheda Impostazioni (Trasporti).",
+    "diagnose": "Diagnostica",
+    "diagnoseRunning": "Diagnosi in corso…",
+    "diagnoseFailed": "Impossibile eseguire la diagnosi.",
+    "diagnoseHint": "Sonda le porte di questa marca, la rotta locale e ICMP. Richiede qualche secondo; non è automatico perché apre più socket verso l’apparato.",
+    "diagnosePorts": "Sonda TCP di {{host}}",
+    "portState": {
+      "open": "aperta",
+      "refused": "rifiutata",
+      "reset": "reset",
+      "unreachable": "irraggiungibile",
+      "timeout": "silenziosa"
+    }
   },
   "diff": {
     "copied": "Copiato",

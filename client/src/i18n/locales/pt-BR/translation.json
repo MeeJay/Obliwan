@@ -888,7 +888,21 @@
     "reachTitle": "Acessibilidade (opcional)",
     "reachHint": "Preencha e o ObliWAN disca agora, lê a identidade e guarda a credencial no cofre. Deixe vazio para registrar apenas uma ficha que ninguém discará. De qualquer forma o dispositivo fica em quarentena até que um humano o vincule.",
     "enrolledIdentityRead": "Inscrito. O dispositivo respondeu e informou sua identidade; fica em quarentena até você vinculá-lo.",
-    "enrolledNoIdentity": "Registrado, mas o dispositivo não informou NEM número de série NEM identidade de sistema. Toda escrita será recusada até que uma seja lida — verifique a credencial e repita o teste de conexão."
+    "enrolledNoIdentity": "Registrado, mas o dispositivo não informou NEM número de série NEM identidade de sistema. Toda escrita será recusada até que uma seja lida — verifique a credencial e repita o teste de conexão.",
+    "testNoChannel": "Este dispositivo não tem nenhum canal configurado, portanto não há nada a testar. Adicione uma credencial na aba Configurações (Transportes).",
+    "testAllChannelsDisabled": "Todos os canais deste dispositivo estão desativados. Ative um na aba Configurações (Transportes).",
+    "diagnose": "Diagnosticar",
+    "diagnoseRunning": "Diagnosticando…",
+    "diagnoseFailed": "Não foi possível executar o diagnóstico.",
+    "diagnoseHint": "Sonda as portas desta marca, a rota local e o ICMP. Leva alguns segundos; não é automático porque abre vários sockets para o equipamento.",
+    "diagnosePorts": "Sondagem TCP de {{host}}",
+    "portState": {
+      "open": "aberta",
+      "refused": "recusada",
+      "reset": "reiniciada",
+      "unreachable": "inalcançável",
+      "timeout": "silenciosa"
+    }
   },
   "diff": {
     "copied": "Copiado",

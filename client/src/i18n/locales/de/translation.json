@@ -888,7 +888,21 @@
     "reachTitle": "Erreichbarkeit (optional)",
     "reachHint": "Ausgefüllt wählt ObliWAN das Gerät jetzt an, liest seine Identität und legt die Zugangsdaten im Tresor ab. Leer gelassen entsteht nur ein Eintrag, den niemand anwählt. In beiden Fällen landet das Gerät in Quarantäne, bis ein Mensch es zuordnet.",
     "enrolledIdentityRead": "Aufgenommen. Das Gerät hat geantwortet und seine Identität gemeldet; es bleibt in Quarantäne, bis Sie es zuordnen.",
-    "enrolledNoIdentity": "Erfasst, aber das Gerät meldete WEDER Seriennummer NOCH Systemidentität. Jeder Schreibzugriff wird verweigert, bis eine davon gelesen wurde — prüfen Sie die Zugangsdaten und wiederholen Sie den Verbindungstest."
+    "enrolledNoIdentity": "Erfasst, aber das Gerät meldete WEDER Seriennummer NOCH Systemidentität. Jeder Schreibzugriff wird verweigert, bis eine davon gelesen wurde — prüfen Sie die Zugangsdaten und wiederholen Sie den Verbindungstest.",
+    "testNoChannel": "Für dieses Gerät ist kein Kanal konfiguriert, es gibt also nichts zu testen. Fügen Sie im Reiter Einstellungen (Transporte) eine Zugangsdaten hinzu.",
+    "testAllChannelsDisabled": "Alle Kanäle dieses Geräts sind deaktiviert. Aktivieren Sie einen im Reiter Einstellungen (Transporte).",
+    "diagnose": "Diagnose",
+    "diagnoseRunning": "Diagnose läuft…",
+    "diagnoseFailed": "Die Diagnose konnte nicht ausgeführt werden.",
+    "diagnoseHint": "Prüft die Ports dieser Marke, die lokale Route und ICMP. Dauert einige Sekunden; nicht automatisch, da mehrere Sockets zum Gerät geöffnet werden.",
+    "diagnosePorts": "TCP-Prüfung von {{host}}",
+    "portState": {
+      "open": "offen",
+      "refused": "abgewiesen",
+      "reset": "zurückgesetzt",
+      "unreachable": "nicht erreichbar",
+      "timeout": "stumm"
+    }
   },
   "diff": {
     "copied": "Kopiert",

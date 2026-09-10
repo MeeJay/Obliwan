@@ -120,6 +120,15 @@ router.post(
   devicesController.testConnection,
 );
 
+/** The follow-up question to a failed test: why. Same capability — it opens
+ *  sockets to a customer's equipment, and the target comes from the device's
+ *  own rows, never from the caller. */
+router.post(
+  '/:id/diagnose',
+  requireCapability(CAPABILITIES.DEVICE_WRITE),
+  devicesController.diagnose,
+);
+
 /** Fresh-connection identity proof (D5 / R4). Available now so the door is
  *  exercised before M6 puts writes behind it. */
 router.post(

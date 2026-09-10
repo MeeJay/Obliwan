@@ -888,7 +888,21 @@
     "reachTitle": "Erişilebilirlik (isteğe bağlı)",
     "reachHint": "Doldurun; ObliWAN cihazı şimdi arar, kimliğini okur ve kimlik bilgisini kasaya koyar. Boş bırakırsanız yalnızca kimsenin aramayacağı bir kayıt oluşur. Her durumda cihaz, bir insan bağlayana kadar karantinada kalır.",
     "enrolledIdentityRead": "Kaydedildi. Cihaz yanıt verdi ve kimliğini bildirdi; siz bağlayana kadar karantinada.",
-    "enrolledNoIdentity": "Kaydedildi, ancak cihaz NE seri numarası NE de sistem kimliği bildirdi. Biri okunana kadar her yazma reddedilecek — kimlik bilgisini kontrol edip bağlantı testini yineleyin."
+    "enrolledNoIdentity": "Kaydedildi, ancak cihaz NE seri numarası NE de sistem kimliği bildirdi. Biri okunana kadar her yazma reddedilecek — kimlik bilgisini kontrol edip bağlantı testini yineleyin.",
+    "testNoChannel": "Bu cihazda yapılandırılmış kanal yok, bu yüzden test edilecek bir şey de yok. Ayarlar sekmesinden (Taşımalar) bir kimlik bilgisi ekleyin.",
+    "testAllChannelsDisabled": "Bu cihazdaki tüm kanallar devre dışı. Ayarlar sekmesinden (Taşımalar) birini etkinleştirin.",
+    "diagnose": "Tanıla",
+    "diagnoseRunning": "Tanılanıyor…",
+    "diagnoseFailed": "Tanılama çalıştırılamadı.",
+    "diagnoseHint": "Bu markanın portlarını, yerel rotayı ve ICMP’yi yoklar. Birkaç saniye sürer; cihaza birden çok soket açtığı için otomatik değildir.",
+    "diagnosePorts": "{{host}} TCP yoklaması",
+    "portState": {
+      "open": "açık",
+      "refused": "reddedildi",
+      "reset": "sıfırlandı",
+      "unreachable": "ulaşılamaz",
+      "timeout": "sessiz"
+    }
   },
   "diff": {
     "copied": "Kopyalandı",

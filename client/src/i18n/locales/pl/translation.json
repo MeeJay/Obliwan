@@ -888,7 +888,21 @@
     "reachTitle": "Osiągalność (opcjonalnie)",
     "reachHint": "Wypełnij, a ObliWAN połączy się teraz, odczyta tożsamość i umieści poświadczenie w sejfie. Pozostaw puste, aby zapisać tylko wpis, do którego nikt się nie połączy. Tak czy inaczej urządzenie trafia do kwarantanny, dopóki człowiek go nie powiąże.",
     "enrolledIdentityRead": "Zarejestrowano. Urządzenie odpowiedziało i podało swoją tożsamość; pozostaje w kwarantannie do czasu powiązania.",
-    "enrolledNoIdentity": "Zapisano, ale urządzenie nie podało ANI numeru seryjnego, ANI tożsamości systemowej. Każdy zapis będzie odrzucany, dopóki jedna z nich nie zostanie odczytana — sprawdź poświadczenie i powtórz test połączenia."
+    "enrolledNoIdentity": "Zapisano, ale urządzenie nie podało ANI numeru seryjnego, ANI tożsamości systemowej. Każdy zapis będzie odrzucany, dopóki jedna z nich nie zostanie odczytana — sprawdź poświadczenie i powtórz test połączenia.",
+    "testNoChannel": "To urządzenie nie ma skonfigurowanego kanału, więc nie ma czego testować. Dodaj poświadczenie na karcie Ustawienia (Transporty).",
+    "testAllChannelsDisabled": "Wszystkie kanały tego urządzenia są wyłączone. Włącz jeden na karcie Ustawienia (Transporty).",
+    "diagnose": "Diagnozuj",
+    "diagnoseRunning": "Diagnozowanie…",
+    "diagnoseFailed": "Nie udało się uruchomić diagnostyki.",
+    "diagnoseHint": "Sonduje porty tej marki, trasę lokalną i ICMP. Trwa kilka sekund; nie jest automatyczne, bo otwiera kilka gniazd do urządzenia.",
+    "diagnosePorts": "Sondowanie TCP {{host}}",
+    "portState": {
+      "open": "otwarty",
+      "refused": "odrzucony",
+      "reset": "zresetowany",
+      "unreachable": "nieosiągalny",
+      "timeout": "milczy"
+    }
   },
   "diff": {
     "copied": "Skopiowano",

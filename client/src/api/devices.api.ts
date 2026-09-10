@@ -6,6 +6,7 @@ import type {
   DeviceInput,
   DeviceTransport,
   DeviceTransportInput,
+  DeviceDiagnosis,
   TestConnectionResponse,
   TransportTestResult,
 } from '@/types/fleet';
@@ -145,6 +146,17 @@ export const devicesApi = {
    * a fabricated "OK", which is the one outcome that would be worse than an
    * error.
    */
+  /**
+   * The follow-up to a failed test. Deliberately a separate call rather than
+   * something the test always does: it opens half a dozen sockets and may run
+   * a traceroute, which is a cost an operator should choose to pay, not one
+   * charged to every routine check.
+   */
+  async diagnose(deviceId: number): Promise<DeviceDiagnosis> {
+    const res = await apiClient.post<ApiResponse<DeviceDiagnosis>>(`/devices/${deviceId}/diagnose`);
+    return res.data.data!;
+  },
+
   async testConnection(deviceId: number): Promise<TransportTestResult[]> {
     const res = await apiClient.post<ApiResponse<TestConnectionResponse | TransportTestResult[]>>(
       `/devices/${deviceId}/test-connection`,

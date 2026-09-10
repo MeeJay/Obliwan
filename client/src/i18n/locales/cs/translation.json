@@ -888,7 +888,21 @@
     "reachTitle": "Dostupnost (volitelné)",
     "reachHint": "Vyplňte je a ObliWAN se nyní připojí, přečte identitu a uloží přihlašovací údaj do trezoru. Ponechte prázdné a vznikne jen záznam, ke kterému se nikdo nepřipojí. Tak či tak zařízení skončí v karanténě, dokud je člověk nepřiřadí.",
     "enrolledIdentityRead": "Zaregistrováno. Zařízení odpovědělo a uvedlo svou identitu; zůstává v karanténě, dokud je nepřiřadíte.",
-    "enrolledNoIdentity": "Zaznamenáno, ale zařízení neuvedlo ANI sériové číslo, ANI systémovou identitu. Každý zápis bude odmítnut, dokud jedna z nich nebude načtena — zkontrolujte přihlašovací údaj a zopakujte test připojení."
+    "enrolledNoIdentity": "Zaznamenáno, ale zařízení neuvedlo ANI sériové číslo, ANI systémovou identitu. Každý zápis bude odmítnut, dokud jedna z nich nebude načtena — zkontrolujte přihlašovací údaj a zopakujte test připojení.",
+    "testNoChannel": "Toto zařízení nemá nakonfigurovaný žádný kanál, takže není co testovat. Přidejte přihlašovací údaje na kartě Nastavení (Transporty).",
+    "testAllChannelsDisabled": "Všechny kanály tohoto zařízení jsou vypnuté. Zapněte některý na kartě Nastavení (Transporty).",
+    "diagnose": "Diagnostikovat",
+    "diagnoseRunning": "Probíhá diagnostika…",
+    "diagnoseFailed": "Diagnostiku se nepodařilo spustit.",
+    "diagnoseHint": "Zkouší porty této značky, lokální trasu a ICMP. Trvá několik sekund; není automatická, protože otevírá několik spojení k zařízení.",
+    "diagnosePorts": "TCP sonda {{host}}",
+    "portState": {
+      "open": "otevřený",
+      "refused": "odmítnutý",
+      "reset": "resetovaný",
+      "unreachable": "nedostupný",
+      "timeout": "mlčí"
+    }
   },
   "diff": {
     "copied": "Zkopírováno",

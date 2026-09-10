@@ -15,6 +15,7 @@ import {
   ScrollText,
   Settings as SettingsIcon,
   ShieldAlert,
+  Stethoscope,
   Trash2,
   KeyRound,
 } from 'lucide-react';
@@ -43,7 +44,9 @@ import { DeviceConfigTab } from '@/components/config/DeviceConfigTab';
 import { DeviceDriftTab } from '@/components/config/DeviceDriftTab';
 import { DeviceChangesTab } from '@/components/change/DeviceChangesTab';
 import { DeviceAcsTab } from '@/components/acs/DeviceAcsTab';
-import type { DeviceDetail, DeviceTransport, TransportTestResult } from '@/types/fleet';
+import type {
+  DeviceDetail, DeviceDiagnosis, DeviceTransport, TransportTestResult,
+} from '@/types/fleet';
 import toast from 'react-hot-toast';
 
 // ── Tabs ────────────────────────────────────────────────────────────────────
@@ -116,6 +119,82 @@ function CapabilityNotice() {
   );
 }
 
+/**
+ * Why the channel failed, laid out worst-question-first.
+ *
+ * The verdict comes at the top and in prose, because it is the only part most
+ * operators need: the port table below is the evidence for it, not a substitute
+ * for reading it. The ports are shown with their MEANING (`8728 RouterOS API`)
+ * rather than as bare numbers — the person diagnosing a site at 2am should not
+ * also have to remember which MikroTik service lives on which port.
+ *
+ * `refused` is rendered as a POSITIVE signal, which looks wrong for half a
+ * second and is right: a refusal is the host talking. It proves the box exists,
+ * is routed and is reachable, and narrows the fault to one service. A timeout
+ * on the same port would be strictly worse news.
+ */
+function DiagnosisPanel({ d }: { d: DeviceDiagnosis }) {
+  const { t } = useTranslation();
+
+  const stateStyle: Record<string, string> = {
+    open: 'border-status-up/30 bg-status-up/10 text-status-up',
+    refused: 'border-status-warn/40 bg-status-warn/10 text-status-warn',
+    reset: 'border-status-warn/40 bg-status-warn/10 text-status-warn',
+    unreachable: 'border-status-down/40 bg-status-down/10 text-status-down',
+    timeout: 'border-status-down/40 bg-status-down/10 text-status-down',
+  };
+
+  const outcomeStyle: Record<string, string> = {
+    ok: 'text-status-up',
+    fail: 'text-status-down',
+    unknown: 'text-text-muted',
+    skipped: 'text-text-muted',
+  };
+
+  return (
+    <div className="mt-3 border-t border-border pt-3">
+      <div className="mb-3 flex items-start gap-2">
+        {d.hostAnswered
+          ? <Stethoscope size={16} className="mt-0.5 shrink-0 text-status-warn" />
+          : <ShieldAlert size={16} className="mt-0.5 shrink-0 text-status-down" />}
+        <p className="text-sm text-text-primary">{d.verdict}</p>
+      </div>
+
+      <p className="mb-2 text-xs uppercase tracking-wide text-text-muted">
+        {t('devices.diagnosePorts', { host: d.target.host })}
+      </p>
+      <div className="mb-3 flex flex-wrap gap-1.5">
+        {d.ports.map((p) => (
+          <span
+            key={p.port}
+            title={`${p.service} — ${p.ms} ms`}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px]',
+              stateStyle[p.state] ?? 'border-border text-text-muted',
+            )}
+          >
+            <span className="font-mono">{p.port}</span>
+            <span className="opacity-70">{p.service}</span>
+            <span className="font-medium">{t(`devices.portState.${p.state}`)}</span>
+          </span>
+        ))}
+      </div>
+
+      <ul className="space-y-1.5">
+        {d.steps.map((s, i) => (
+          <li key={`${s.step}-${i}`} className="text-xs">
+            <span className={cn('font-medium', outcomeStyle[s.outcome] ?? 'text-text-muted')}>
+              {s.label}
+            </span>
+            {s.ms !== null && <span className="ml-1.5 font-mono text-text-muted">{s.ms} ms</span>}
+            <span className="ml-1.5 text-text-secondary">{s.detail}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function Card({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   return (
     <section className={cn('rounded-lg border border-border bg-bg-secondary p-4', className)}>
@@ -147,6 +226,8 @@ export function DeviceDetailPage() {
   const [transportsUnavailable, setTransportsUnavailable] = useState(false);
   const [testResults, setTestResults] = useState<TransportTestResult[] | null>(null);
   const [testing, setTesting] = useState(false);
+  const [diagnosis, setDiagnosis] = useState<DeviceDiagnosis | null>(null);
+  const [diagnosing, setDiagnosing] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -202,13 +283,39 @@ export function DeviceDetailPage() {
     ? sites.find((s) => s.id === device.siteId)?.name ?? `#${device.siteId}`
     : null;
 
+  /**
+   * Deliberately NOT automatic on a failed test. It opens half a dozen sockets
+   * and may run a traceroute; charging that to every routine check would make
+   * the cheap question expensive. The operator asks the second question when
+   * the first one disappoints them.
+   */
+  const handleDiagnose = async () => {
+    setDiagnosing(true);
+    setDiagnosis(null);
+    try {
+      setDiagnosis(await devicesApi.diagnose(device.id));
+    } catch (err) {
+      const message = (err as { response?: { data?: { error?: string } } }).response?.data?.error;
+      toast.error(message ?? t('devices.diagnoseFailed'));
+    } finally {
+      setDiagnosing(false);
+    }
+  };
+
   const handleTestConnection = async () => {
     setTesting(true);
     setTestResults(null);
+    setDiagnosis(null);
     try {
       const results = await devicesApi.testConnection(device.id);
       setTestResults(results);
-      if (results.length === 0) toast(t('devices.testNoResult'));
+      if (results.length === 0) {
+        toast(
+          !transports || transports.length === 0
+            ? t('devices.testNoChannel')
+            : t('devices.testAllChannelsDisabled'),
+        );
+      }
       else if (results.every((r) => r.ok)) toast.success(t('devices.testAllOk'));
       else toast.error(t('devices.testSomeFailed'));
     } catch (err) {
@@ -329,7 +436,17 @@ export function DeviceDetailPage() {
             {t('devices.testResults')}
           </h2>
           {testResults.length === 0 ? (
-            <p className="text-sm text-text-muted">{t('devices.testNoResult')}</p>
+            // An empty result is not "the test came back blank" — the device
+            // simply has no channel to test, and saying so names the fix. The
+            // generic sentence sent an operator looking for a network problem
+            // that did not exist: a device created without a credential (or one
+            // whose credential failed to store) has no `device_transports` row
+            // at all, so the loop had nothing to walk.
+            <p className="text-sm text-text-muted">
+              {!transports || transports.length === 0
+                ? t('devices.testNoChannel')
+                : t('devices.testAllChannelsDisabled')}
+            </p>
           ) : (
             <ul className="space-y-1.5">
               {testResults.map((r, i) => (
@@ -351,6 +468,19 @@ export function DeviceDetailPage() {
               ))}
             </ul>
           )}
+
+          {/* A failed test raises exactly one question, so offer exactly that. */}
+          {testResults.some((r) => !r.ok) && canWrite && (
+            <div className="mt-3 border-t border-border pt-3">
+              <Button size="sm" variant="secondary" onClick={() => void handleDiagnose()} disabled={diagnosing}>
+                <Stethoscope size={14} className={cn('mr-1.5', diagnosing && 'animate-pulse')} />
+                {diagnosing ? t('devices.diagnoseRunning') : t('devices.diagnose')}
+              </Button>
+              <p className="mt-1.5 text-xs text-text-muted">{t('devices.diagnoseHint')}</p>
+            </div>
+          )}
+
+          {diagnosis && <DiagnosisPanel d={diagnosis} />}
         </div>
       )}
 

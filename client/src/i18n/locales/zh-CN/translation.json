@@ -888,7 +888,21 @@
     "reachTitle": "可达性（可选）",
     "reachHint": "填写后，ObliWAN 立即拨号、读取身份并将凭据存入保险库。留空则仅登记一条无人拨号的记录。两种情况下，设备都会进入隔离区，直到有人完成绑定。",
     "enrolledIdentityRead": "已登记。设备已响应并报告身份；在你完成绑定前处于隔离状态。",
-    "enrolledNoIdentity": "已记录，但设备既未报告序列号也未报告系统标识。在读取到其中之一之前，所有写入都会被拒绝——请检查凭据并重新测试连接。"
+    "enrolledNoIdentity": "已记录，但设备既未报告序列号也未报告系统标识。在读取到其中之一之前，所有写入都会被拒绝——请检查凭据并重新测试连接。",
+    "testNoChannel": "此设备未配置任何通道，因此没有可测试的内容。请在“设置”选项卡（传输）中添加凭据。",
+    "testAllChannelsDisabled": "此设备的所有通道均已禁用。请在“设置”选项卡（传输）中启用一个。",
+    "diagnose": "诊断",
+    "diagnoseRunning": "诊断中…",
+    "diagnoseFailed": "无法执行诊断。",
+    "diagnoseHint": "探测该品牌的端口、本地路由和 ICMP。需要几秒；因为会向设备打开多个连接，所以不自动执行。",
+    "diagnosePorts": "{{host}} 的 TCP 探测",
+    "portState": {
+      "open": "开放",
+      "refused": "拒绝",
+      "reset": "重置",
+      "unreachable": "不可达",
+      "timeout": "无响应"
+    }
   },
   "diff": {
     "copied": "已复制",

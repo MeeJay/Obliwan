@@ -888,7 +888,21 @@
     "reachTitle": "Reachability (optional)",
     "reachHint": "Fill these in and ObliWAN dials the device now, reads its identity and stores the credential in the vault. Leave them empty to record a row nobody will dial. Either way the device lands in quarantine until a human binds it.",
     "enrolledIdentityRead": "Enrolled. The device answered and reported its identity; it is in quarantine until you bind it.",
-    "enrolledNoIdentity": "Recorded, but the device reported NO serial and no system identity. Every write to it will be refused until one is read — check the credential and retry the connection test."
+    "enrolledNoIdentity": "Recorded, but the device reported NO serial and no system identity. Every write to it will be refused until one is read — check the credential and retry the connection test.",
+    "testNoChannel": "This device has no channel configured, so there is nothing to test. Add a credential in the Settings tab (Transports).",
+    "testAllChannelsDisabled": "Every channel on this device is disabled. Enable one in the Settings tab (Transports).",
+    "diagnose": "Diagnose",
+    "diagnoseRunning": "Diagnosing…",
+    "diagnoseFailed": "The diagnosis could not be run.",
+    "diagnoseHint": "Probes this brand’s ports, the local route and ICMP. Takes a few seconds; not automatic, because it opens several sockets to the equipment.",
+    "diagnosePorts": "TCP probe of {{host}}",
+    "portState": {
+      "open": "open",
+      "refused": "refused",
+      "reset": "reset",
+      "unreachable": "unreachable",
+      "timeout": "silent"
+    }
   },
   "diff": {
     "copied": "Copied",

@@ -11,6 +11,7 @@ import {
 import { pppPresence } from '../services/fleet/pppPresence.service';
 import { assessDevice } from '../services/fleet/reachability.service';
 import { VaultError } from '../services/secretVault.service';
+import { diagnoseDevice } from '../services/fleet/diagnose.service';
 import type {
   CreateConcentratorInput,
   CreateDeviceInput,
@@ -378,6 +379,29 @@ export const devicesController = {
     } catch (err) {
       if (err instanceof Error && err.message.includes('does not exist')) {
         return next(new AppError(404, 'Device not found'));
+      }
+      next(err);
+    }
+  },
+
+  /**
+   * "It timed out — why?"
+   *
+   * DEVICE_WRITE, the same capability as the test it follows: this opens
+   * sockets to a customer's equipment, which is an operator act, not a read.
+   * The address is never taken from the request — see the service's header.
+   */
+  async diagnose(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const id = parseId(req.params.id);
+      const result = await diagnoseDevice(req.tenantId, id);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('does not exist in this tenant')) {
+        return next(new AppError(404, 'Device not found'));
+      }
+      if (err instanceof Error && err.message.includes('no address to diagnose')) {
+        return next(new AppError(409, err.message));
       }
       next(err);
     }

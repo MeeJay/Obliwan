@@ -209,6 +209,40 @@ export interface TestConnectionResponse {
   results: TransportTestResult[];
 }
 
+// ── Why the channel failed ──────────────────────────────────────────────────
+
+/** `refused` is the interesting one: the host sent a packet saying no, which
+ *  proves it exists and is routed. `timeout` proves nothing at all. */
+export type DiagnosticPortState = 'open' | 'refused' | 'reset' | 'unreachable' | 'timeout';
+
+export interface DiagnosticPort {
+  port: number;
+  /** What this port means on this brand, so the operator need not know. */
+  service: string;
+  state: DiagnosticPortState;
+  ms: number;
+}
+
+export interface DiagnosticStep {
+  step: 'dns' | 'route' | 'tcp' | 'icmp' | 'traceroute';
+  label: string;
+  /** `unknown` means the tool was missing or refused — NOT that it found
+   *  nothing. Blurring the two sends an operator to the wrong place. */
+  outcome: 'ok' | 'fail' | 'unknown' | 'skipped';
+  detail: string;
+  ms: number | null;
+}
+
+export interface DeviceDiagnosis {
+  deviceId: number;
+  target: { host: string; port: number | null; transport: string };
+  ports: DiagnosticPort[];
+  steps: DiagnosticStep[];
+  /** The synthesised sentence. This is what the operator reads first. */
+  verdict: string;
+  hostAnswered: boolean;
+}
+
 // ── PPP presence history ────────────────────────────────────────────────────
 
 export interface PppSession {

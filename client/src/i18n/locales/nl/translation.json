@@ -888,7 +888,21 @@
     "reachTitle": "Bereikbaarheid (optioneel)",
     "reachHint": "Ingevuld belt ObliWAN het apparaat nu, leest de identiteit en bewaart de referentie in de kluis. Leeg gelaten ontstaat slechts een regel die niemand belt. Hoe dan ook komt het apparaat in quarantaine tot een mens het koppelt.",
     "enrolledIdentityRead": "Geregistreerd. Het apparaat antwoordde en meldde zijn identiteit; het blijft in quarantaine tot u het koppelt.",
-    "enrolledNoIdentity": "Vastgelegd, maar het apparaat meldde GEEN serienummer en geen systeemidentiteit. Elke schrijfactie wordt geweigerd tot er één is gelezen — controleer de referentie en herhaal de verbindingstest."
+    "enrolledNoIdentity": "Vastgelegd, maar het apparaat meldde GEEN serienummer en geen systeemidentiteit. Elke schrijfactie wordt geweigerd tot er één is gelezen — controleer de referentie en herhaal de verbindingstest.",
+    "testNoChannel": "Dit apparaat heeft geen kanaal geconfigureerd, dus er valt niets te testen. Voeg een inloggegeven toe op het tabblad Instellingen (Transporten).",
+    "testAllChannelsDisabled": "Alle kanalen van dit apparaat zijn uitgeschakeld. Schakel er een in op het tabblad Instellingen (Transporten).",
+    "diagnose": "Diagnose",
+    "diagnoseRunning": "Diagnose bezig…",
+    "diagnoseFailed": "De diagnose kon niet worden uitgevoerd.",
+    "diagnoseHint": "Test de poorten van dit merk, de lokale route en ICMP. Duurt enkele seconden; niet automatisch omdat het meerdere sockets naar de apparatuur opent.",
+    "diagnosePorts": "TCP-test van {{host}}",
+    "portState": {
+      "open": "open",
+      "refused": "geweigerd",
+      "reset": "reset",
+      "unreachable": "onbereikbaar",
+      "timeout": "stil"
+    }
   },
   "diff": {
     "copied": "Gekopieerd",

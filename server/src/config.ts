@@ -41,10 +41,35 @@ function readRole(): ObliwanRole {
  * Expected format: 64 hex characters (32 bytes). Generate with
  * `openssl rand -hex 32`.
  */
-function readEncryptionKey(): { raw: string | null; valid: boolean } {
+/**
+ * Read the vault key and say WHAT is wrong with it, never what it is.
+ *
+ * "not 64 hexadecimal characters" describes two completely different mistakes
+ * — a key of the wrong length, and a key generated in the wrong alphabet — and
+ * an operator staring at a 44-character base64 string reads that message as
+ * "but it IS a key". `openssl rand -base64 32` and a password generator both
+ * produce something that looks exactly like a secret and is not hex.
+ *
+ * `flaw` therefore carries the shape of the error and NOTHING derived from the
+ * value beyond its length: not the offending character, not its position, not a
+ * prefix. A diagnostic that quotes the secret is a diagnostic that ends up in a
+ * log aggregator.
+ *
+ * Non-hex is not a pedantry: `Buffer.from(key, 'hex')` does not throw on a bad
+ * alphabet, it stops at the first invalid pair and silently returns a SHORTER
+ * key. A base64 key beginning "3v" yields one byte.
+ */
+function readEncryptionKey(): {
+  raw: string | null;
+  valid: boolean;
+  flaw: 'absent' | 'not-hex' | 'wrong-length' | null;
+} {
   const raw = (process.env.OBLIWAN_ENCRYPTION_KEY || '').trim();
-  if (!raw) return { raw: null, valid: false };
-  return { raw, valid: /^[0-9a-fA-F]{64}$/.test(raw) };
+  if (!raw) return { raw: null, valid: false, flaw: 'absent' };
+  if (/^[0-9a-fA-F]{64}$/.test(raw)) return { raw, valid: true, flaw: null };
+  // Charset first: it is the mistake that reads as correct.
+  const flaw = /^[0-9a-fA-F]*$/.test(raw) ? 'wrong-length' : 'not-hex';
+  return { raw, valid: false, flaw };
 }
 
 const role = readRole();
@@ -73,6 +98,10 @@ export const config = {
   // Credential vault (A3) — see readEncryptionKey() above.
   encryptionKey: encryptionKey.raw,
   encryptionKeyValid: encryptionKey.valid,
+  /** Which mistake, so the message can name it. Never the value. */
+  encryptionKeyFlaw: encryptionKey.flaw,
+  /** Length only — enough to tell 44-char base64 from a truncated hex key. */
+  encryptionKeyLength: encryptionKey.raw?.length ?? 0,
 
   // CORS
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
@@ -169,6 +198,30 @@ export const config = {
  * Throws on a fatal misconfiguration; returns the non-fatal warnings so the
  * caller can log them through pino rather than console.
  */
+/** Name the mistake. Reports the key's LENGTH and nothing else about it. */
+function encryptionKeyFlawMessage(): string {
+  const tail =
+    'Generate one with: openssl rand -hex 32 — or, without openssl: '
+    + 'node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))". '
+    + 'Nothing is lost by replacing a key the vault has always refused: it never '
+    + 'encrypted anything, so this is a correction, not a rotation (risk R8).';
+
+  if (config.encryptionKeyFlaw === 'not-hex') {
+    return (
+      `OBLIWAN_ENCRYPTION_KEY is ${config.encryptionKeyLength} characters long and `
+      + 'contains characters outside the hexadecimal alphabet (0-9 and a-f only). It '
+      + 'looks like a secret, which is why this is easy to miss: `openssl rand -base64 32` '
+      + 'and password generators both produce one that is not hex. The vault needs base 16, '
+      + `because Buffer.from(key, 'hex') does not reject a bad alphabet — it stops at the `
+      + `first invalid pair and silently returns a much shorter key. ${tail}`
+    );
+  }
+  return (
+    `OBLIWAN_ENCRYPTION_KEY is valid hexadecimal but ${config.encryptionKeyLength} `
+    + `characters long; the vault needs exactly 64 (32 bytes, AES-256). ${tail}`
+  );
+}
+
 export function validateConfig(): string[] {
   const warnings: string[] = [];
 
@@ -236,13 +289,7 @@ export function validateConfig(): string[] {
           + 'SESSION_SECRET.',
       );
     }
-    if (!config.encryptionKeyValid) {
-      throw new Error(
-        'OBLIWAN_ENCRYPTION_KEY is set but is not 64 hexadecimal characters (32 bytes). '
-          + 'Every vault operation would fail at the first credential. Generate a valid '
-          + 'one with: openssl rand -hex 32',
-      );
-    }
+    if (!config.encryptionKeyValid) throw new Error(encryptionKeyFlawMessage());
   } else if (!config.encryptionKey) {
     warnings.push(
       'OBLIWAN_ENCRYPTION_KEY is not set. No device credential can be stored, and '
@@ -250,10 +297,7 @@ export function validateConfig(): string[] {
         + 'Generate one with: openssl rand -hex 32',
     );
   } else if (!config.encryptionKeyValid) {
-    warnings.push(
-      'OBLIWAN_ENCRYPTION_KEY is set but is not 64 hex characters (32 bytes). '
-        + 'It will be rejected by the vault. Generate a valid one with: openssl rand -hex 32',
-    );
+    warnings.push(encryptionKeyFlawMessage());
   }
 
   return warnings;

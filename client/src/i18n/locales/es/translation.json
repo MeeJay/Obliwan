@@ -888,7 +888,21 @@
     "reachTitle": "Accesibilidad (opcional)",
     "reachHint": "Rellénelos y ObliWAN marcará el dispositivo ahora, leerá su identidad y guardará la credencial en la caja fuerte. Déjelos vacíos para registrar solo una ficha que nadie marcará. En ambos casos el dispositivo queda en cuarentena hasta que un humano lo vincule.",
     "enrolledIdentityRead": "Inscrito. El dispositivo respondió e informó su identidad; queda en cuarentena hasta que lo vincule.",
-    "enrolledNoIdentity": "Registrado, pero el dispositivo no informó NI número de serie NI identidad de sistema. Toda escritura será rechazada hasta leer una — revise la credencial y repita la prueba de conexión."
+    "enrolledNoIdentity": "Registrado, pero el dispositivo no informó NI número de serie NI identidad de sistema. Toda escritura será rechazada hasta leer una — revise la credencial y repita la prueba de conexión.",
+    "testNoChannel": "Este dispositivo no tiene ningún canal configurado, así que no hay nada que probar. Añada una credencial en la pestaña Ajustes (Transportes).",
+    "testAllChannelsDisabled": "Todos los canales de este dispositivo están desactivados. Active uno en la pestaña Ajustes (Transportes).",
+    "diagnose": "Diagnosticar",
+    "diagnoseRunning": "Diagnosticando…",
+    "diagnoseFailed": "No se ha podido ejecutar el diagnóstico.",
+    "diagnoseHint": "Sondea los puertos de esta marca, la ruta local e ICMP. Tarda unos segundos; no es automático porque abre varios sockets hacia el equipo.",
+    "diagnosePorts": "Sondeo TCP de {{host}}",
+    "portState": {
+      "open": "abierto",
+      "refused": "rechazado",
+      "reset": "reiniciado",
+      "unreachable": "inalcanzable",
+      "timeout": "silencioso"
+    }
   },
   "diff": {
     "copied": "Copiado",
