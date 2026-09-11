@@ -43,10 +43,25 @@ const SEVERITIES: LogSeverity[] = [
   'emerg', 'alert', 'crit', 'err', 'warning', 'notice', 'info', 'debug',
 ];
 
+/** A device with no NTP has a fantasy clock; a device that sent no timestamp
+ *  has none at all. Neither may render as the words "Invalid Date". */
+function when(primary: string, fallback: string | null): string | null {
+  for (const v of [primary, fallback]) {
+    if (!v) continue;
+    const d = new Date(v);
+    if (!Number.isNaN(d.getTime())) return d.toLocaleString();
+  }
+  return null;
+}
 /** More than a minute apart is a real disagreement, not clock jitter. */
 function clocksDisagree(a: string, b: string | null): boolean {
-  if (!b) return false;
-  return Math.abs(new Date(a).getTime() - new Date(b).getTime()) > 60_000;
+  if (!a || !b) return false;
+  const ta = new Date(a).getTime();
+  const tb = new Date(b).getTime();
+  // An unparseable device clock is not a disagreement: the row already shows
+  // our own ingest time instead, so there are not two values to reconcile.
+  if (Number.isNaN(ta) || Number.isNaN(tb)) return false;
+  return Math.abs(ta - tb) > 60_000;
 }
 
 export function DeviceLogsTab({ deviceId }: { deviceId: number }) {
@@ -87,21 +102,21 @@ export function DeviceLogsTab({ deviceId }: { deviceId: number }) {
           value={severity}
           onChange={(e) => setSeverity(e.target.value as LogSeverity | '')}
         >
-          <option value="">{t('logs.allSeverities', { defaultValue: 'All severities' })}</option>
+          <option value="">{t('logs.filters.allSeverities')}</option>
           {SEVERITIES.map((s) => (
             <option key={s} value={s}>{t(`logs.severity.${s}`, { defaultValue: s })}</option>
           ))}
         </select>
         <input
           className="min-w-[14rem] flex-1 rounded-md border border-border bg-bg-secondary px-2 py-1.5 text-sm text-text-primary"
-          placeholder={t('logs.searchPlaceholder', { defaultValue: 'Search in messages…' })}
+          placeholder={t('logs.searchPlaceholder')}
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') void load(); }}
         />
         <Button size="sm" variant="secondary" onClick={() => void load()}>
           <RotateCw size={14} className={cn('mr-1.5', loading && 'animate-spin')} />
-          {t('common.refresh', { defaultValue: 'Refresh' })}
+          {t('devices.refresh')}
         </Button>
       </div>
 
@@ -134,27 +149,25 @@ export function DeviceLogsTab({ deviceId }: { deviceId: number }) {
           <table className="w-full text-sm">
             <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
               <tr>
-                <th className="px-3 py-2 font-medium">{t('logs.when', { defaultValue: 'When' })}</th>
-                <th className="px-3 py-2 font-medium">{t('logs.severityLabel', { defaultValue: 'Severity' })}</th>
-                <th className="px-3 py-2 font-medium">{t('logs.source', { defaultValue: 'Source' })}</th>
-                <th className="px-3 py-2 font-medium">{t('logs.message', { defaultValue: 'Message' })}</th>
+                <th className="px-3 py-2 font-medium">{t('logs.columns.time')}</th>
+                <th className="px-3 py-2 font-medium">{t('logs.columns.severity')}</th>
+                <th className="px-3 py-2 font-medium">{t('logs.columns.source')}</th>
+                <th className="px-3 py-2 font-medium">{t('logs.columns.message')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {rows.map((l) => (
                 <tr key={l.id}>
                   <td className="whitespace-nowrap px-3 py-2 align-top font-mono text-xs text-text-muted">
-                    {new Date(l.timestamp).toLocaleString()}
+                    {when(l.timestamp, l.receivedAt) ?? <span className="text-text-muted">—</span>}
                     {/* The device's clock and ours disagree — say so rather
                         than quietly placing the event on one of the two. */}
                     {clocksDisagree(l.timestamp, l.receivedAt) && (
                       <span
                         className="block text-[10px] text-status-warn"
-                        title={t('logs.clockSkewHint', {
-                          defaultValue: 'The equipment clock differs from ours; both are shown.',
-                        })}
+                        title={t('logs.clockSkewHint')}
                       >
-                        {t('logs.received', { defaultValue: 'received' })}{' '}
+                        {t('logs.columns.time')}{' '}
                         {new Date(l.receivedAt!).toLocaleString()}
                       </span>
                     )}
@@ -168,7 +181,7 @@ export function DeviceLogsTab({ deviceId }: { deviceId: number }) {
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 align-top text-xs text-text-secondary">
-                    {t(`logs.sourceKind.${l.source}`, { defaultValue: l.source })}
+                    {t(`logs.source.${l.source}`, { defaultValue: l.source })}
                     {l.facility && (
                       <span className="ml-1.5 font-mono text-[10px] text-text-muted">{l.facility}</span>
                     )}

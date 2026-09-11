@@ -371,12 +371,20 @@ export const devicesController = {
       // reached is asking an operator to retype, by hand, facts the hardware
       // had already reported. Blanks only — see `learnDeviceFacts`.
       let learned: Awaited<ReturnType<typeof learnDeviceFacts>> | null = null;
+      let learnError: string | null = null;
       if (results.some((r) => r.ok)) {
         try {
           learned = await learnDeviceFacts(req.tenantId, id);
         } catch (err) {
           // A failed second round trip must not turn a SUCCESSFUL test into an
           // error: the operator asked "can we reach it", and the answer is yes.
+          //
+          // But it must not vanish either. This used to end at `logger.warn`,
+          // which meant the identity fields stayed empty on a device the server
+          // had just talked to and NOTHING on any screen said why — the exact
+          // shape of "the product is silently broken". The message is already
+          // redacted by the driver layer, so it is safe to forward.
+          learnError = err instanceof Error ? err.message.slice(0, 300) : String(err).slice(0, 300);
           logger.warn({ err, deviceId: id }, 'Could not learn device facts after a successful test');
         }
       }
@@ -388,6 +396,10 @@ export const devicesController = {
           learned: learned && (Object.keys(learned.filled).length > 0 || learned.conflicts.length > 0)
             ? learned
             : null,
+          // Non-null only when the identity read FAILED on a device the test
+          // reached. Surfaced rather than logged: empty identity fields with no
+          // explanation is the shape of a product that is silently broken.
+          learnError,
           results: results.map((r) => ({
             transport: r.transport,
             ok: r.ok,

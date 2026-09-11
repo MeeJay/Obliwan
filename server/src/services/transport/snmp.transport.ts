@@ -295,7 +295,24 @@ export function asInt(vb: SnmpVarbind | undefined): number | null {
  *  ifAlias means "no alias", not "the alias is the empty string". */
 export function asText(vb: SnmpVarbind | undefined): string | null {
   if (!vb || vb.missing || vb.value === null) return null;
-  const s = String(vb.value).replace(/[\u0000-\u001f\u007f]/g, '').trim();
+
+  // An OCTET STRING is bytes, and SNMP never says which encoding. SNMPv2-TC
+  // calls DisplayString ASCII; every fleet with a French, German or Spanish
+  // port comment disagrees. A RouterOS comment typed through an older Winbox
+  // arrives as Latin-1 ("Decodeur" with an accented e is 44 E9 63 6F...),
+  // which is not valid UTF-8, so a plain toString() turns it into U+FFFD and
+  // the operator reads D?codeur beside a port they named themselves.
+  //
+  // The fallback is decided on the OUTPUT, never on a guess about the agent:
+  // valid UTF-8 can never produce U+FFFD, so this only fires on bytes UTF-8
+  // could not represent and cannot corrupt a correctly encoded string.
+  // Latin-1 is a total decoding - every byte maps to a code point - so it
+  // never throws and never yields another replacement character.
+  let text = String(vb.value);
+  if (text.indexOf(String.fromCharCode(0xFFFD)) !== -1 && vb.bytes && vb.bytes.length > 0) {
+    text = vb.bytes.toString('latin1');
+  }
+  const s = text.replace(/[\u0000-\u001f\u007f]/g, '').trim();
   return s.length > 0 ? s : null;
 }
 
