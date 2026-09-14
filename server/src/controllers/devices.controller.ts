@@ -14,6 +14,7 @@ import { pppPresence } from '../services/fleet/pppPresence.service';
 import { assessDevice } from '../services/fleet/reachability.service';
 import { VaultError } from '../services/secretVault.service';
 import { diagnoseDevice } from '../services/fleet/diagnose.service';
+import { assessUplink } from '../services/fleet/uplink.service';
 import type {
   CreateConcentratorInput,
   CreateDeviceInput,
@@ -437,6 +438,23 @@ export const devicesController = {
       if (err instanceof Error && err.message.includes('no address to diagnose')) {
         return next(new AppError(409, err.message));
       }
+      next(err);
+    }
+  },
+
+  /**
+   * Which WAN is this site actually on — measured, not configured.
+   *
+   * DEVICE_READ: it opens no socket and touches no equipment. Everything it
+   * answers comes from samples and snapshots already collected, which is also
+   * why it can answer instantly for 500 devices.
+   */
+  async uplink(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const verdict = await assessUplink(req.tenantId, parseId(req.params.id));
+      if (!verdict) throw new AppError(404, 'Device not found');
+      res.json({ success: true, data: verdict });
+    } catch (err) {
       next(err);
     }
   },

@@ -71,6 +71,9 @@ router.post(
 
 router.get('/:id', requireCapability(CAPABILITIES.DEVICE_READ), devicesController.getById);
 router.get('/:id/sessions', requireCapability(CAPABILITIES.DEVICE_READ), devicesController.sessions);
+/** Which uplink carries the traffic. A read: it consults samples, never the
+ *  equipment. */
+router.get('/:id/uplink', requireCapability(CAPABILITIES.DEVICE_READ), devicesController.uplink);
 router.get(
   '/:id/reachability',
   requireCapability(CAPABILITIES.DEVICE_READ),

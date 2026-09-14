@@ -2725,5 +2725,14 @@
     "saved": "Supervision SNMP mise à jour.",
     "saveFailed": "Impossible de mettre à jour la supervision SNMP.",
     "failures": "{{count}} échec(s) consécutif(s)."
+  },
+  "uplink": {
+    "title": "Uplink actif",
+    "configured": "Le routage dit",
+    "observed": "Le trafic passe par",
+    "awaitingSecondSample": "en attente du second relevé",
+    "window": "Moyenne sur les {{minutes}} dernières minutes. Un débit est une dérivée : le premier relevé donne un compteur, le second donne un chiffre.",
+    "egress": "Vu sortir depuis",
+    "asnDisabled": "recherche ASN désactivée (ASN_LOOKUP_ENABLED)"
   }
 }

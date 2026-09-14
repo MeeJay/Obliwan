@@ -47,6 +47,7 @@ import { DeviceAcsTab } from '@/components/acs/DeviceAcsTab';
 import { DeviceBackupsTab } from '@/components/config/DeviceBackupsTab';
 import { DeviceLogsTab } from '@/components/telemetry/DeviceLogsTab';
 import { DeviceSnmpCard } from '@/components/telemetry/DeviceSnmpCard';
+import { DeviceUplinkCard } from '@/components/telemetry/DeviceUplinkCard';
 import type {
   DeviceDetail, DeviceDiagnosis, DeviceTransport, TransportTestResult,
 } from '@/types/fleet';
@@ -512,6 +513,7 @@ export function DeviceDetailPage() {
       {/* ── Overview ── */}
       {tab === 'overview' && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <DeviceUplinkCard deviceId={device.id} />
           <Card title={t('devices.sections.identity')}>
             <dl className="grid grid-cols-2 gap-4">
               <Field label={t('devices.fields.brand')} value={t(`fleet.brand.${device.brand}`)} />

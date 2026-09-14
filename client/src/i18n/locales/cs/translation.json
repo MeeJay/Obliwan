@@ -2663,5 +2663,14 @@
     "saved": "SNMP supervision updated.",
     "saveFailed": "Could not update SNMP supervision.",
     "failures": "{{count}} consecutive failure(s)."
+  },
+  "uplink": {
+    "title": "Active uplink",
+    "configured": "Routing says",
+    "observed": "Traffic is on",
+    "awaitingSecondSample": "awaiting a second sample",
+    "window": "Mean over the last {{minutes}} minutes. A throughput is a derivative: the first poll gives a counter, the second gives a number.",
+    "egress": "Seen leaving from",
+    "asnDisabled": "ASN lookup disabled (ASN_LOOKUP_ENABLED)"
   }
 }

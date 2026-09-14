@@ -48,6 +48,18 @@ export const ROUTEROS_TLS_PORT = 8729;
 // ============================================================================
 
 /** A request exceeded its own budget. The tag has been `/cancel`-ed. */
+/** RFC 1918 / CGNAT / loopback. Everything else is the open internet. */
+function isPrivateAddress(host: string): boolean {
+  const o = host.split(".").map(Number);
+  if (o.length !== 4 || o.some((n) => !Number.isInteger(n))) return false;
+  if (o[0] === 10 || o[0] === 127) return true;
+  if (o[0] === 172 && o[1] >= 16 && o[1] <= 31) return true;
+  if (o[0] === 192 && o[1] === 168) return true;
+  if (o[0] === 100 && o[1] >= 64 && o[1] <= 127) return true;
+  if (o[0] === 169 && o[1] === 254) return true;
+  return false;
+}
+
 export class RouterOsTimeoutError extends Error {
   readonly kind = 'timeout';
   readonly command: string;
@@ -347,7 +359,9 @@ export class RouterOsConnection extends EventEmitter {
       } else {
         logger.warn(
           { target: this.target, label: this.opts.label },
-          'RouterOS API in cleartext on 8728 (risk R9): credentials cross the transit network unprotected. Prefer 8729 with a pinned fingerprint.',
+          isPrivateAddress(String(this.target).split(":")[0])
+            ? 'RouterOS API in cleartext on 8728 (risk R9): credentials cross the transit network unprotected. Prefer 8729 with a pinned fingerprint.'
+            : 'RouterOS API in cleartext on 8728 to a PUBLIC address (risk R9): the username and password of this router cross the OPEN INTERNET in the clear, on every poll, and anyone on the path can read them. This is not a transit-network risk, it is an exposed credential. Switch the device to api-ssl on 8729 and enable TLS on its channel — ObliWAN pins the fingerprint on first use.'
         );
         const socket = net.createConnection({
           host: this.opts.host,
