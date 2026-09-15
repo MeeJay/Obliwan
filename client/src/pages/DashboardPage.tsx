@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Router, MapPin, GitCompareArrows, PlayCircle } from 'lucide-react';
+import { Router, MapPin, GitCompareArrows, PlayCircle, SignalLow } from 'lucide-react';
+import { CAPABILITIES, type SimFleetSummary } from '@obliwan/shared';
 import { systemApi, type SystemInfo } from '@/api/system.api';
 import { devicesApi } from '@/api/devices.api';
 import { sitesApi } from '@/api/sites.api';
+import { simApi } from '@/api/sim.api';
+import { useAuthStore } from '@/store/authStore';
 
 /**
  * The fleet dashboard.
@@ -57,9 +60,12 @@ function StatCard({ label, icon, value, to, detail }: TileProps) {
 
 export function DashboardPage() {
   const { t } = useTranslation();
+  const hasCapability = useAuthStore((store) => store.hasCapability);
+  const canReadSim = hasCapability(CAPABILITIES.SIM_READ);
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
   const [devices, setDevices] = useState<{ total: number; pending: number; quarantined: number } | null>(null);
   const [sites, setSites] = useState<number | null>(null);
+  const [sim, setSim] = useState<SimFleetSummary | null>(null);
 
   useEffect(() => {
     systemApi.getInfo().then(setSystemInfo).catch(() => setSystemInfo(null));
@@ -76,7 +82,11 @@ export function DashboardPage() {
       .catch(() => setDevices(null));
 
     sitesApi.list({}).then((l) => setSites(l.length)).catch(() => setSites(null));
-  }, []);
+
+    // Swallowed on failure like every other tile here: an unreachable API must
+    // render as "—", never as a fleet of zero.
+    if (canReadSim) simApi.summary().then(setSim).catch(() => setSim(null));
+  }, [canReadSim]);
 
   // Quarantine before pending: a device that FAILED an identity assertion (R4)
   // is a different kind of urgent from one merely waiting to be placed.
@@ -89,6 +99,19 @@ export function DashboardPage() {
         : null;
 
   const fleetIsEmpty = devices !== null && devices.total === 0;
+
+  /**
+   * The 4G tile.
+   *
+   * Shown only to a session holding SIM_READ, and only once the fleet actually
+   * has a SIM line — an MSP with no mobile lines should not carry a permanent
+   * "0" for a subsystem it does not use. `lowLines + unknownLines` is the
+   * number worth putting on the first screen: a line nobody can read is not a
+   * healthy line, and folding the two together here would be the same lie the
+   * mobile dashboard refuses to tell.
+   */
+  const simAttention =
+    sim === null ? null : sim.lowLines + sim.unknownLines;
 
   return (
     <div className="p-6">
@@ -131,6 +154,22 @@ export function DashboardPage() {
           detail={t('dashboard.openRuns', { defaultValue: 'see detail' })}
           to="/changes"
         />
+        {/* 4G. Hidden entirely when the fleet has no SIM line: a permanent zero
+            for a subsystem nobody uses is noise on the first screen an operator
+            sees. */}
+        {canReadSim && sim !== null && sim.totalLines > 0 ? (
+          <StatCard
+            label={t('dashboard.mobile', { defaultValue: 'Mobile data' })}
+            icon={<SignalLow size={16} />}
+            value={simAttention}
+            detail={t('dashboard.mobileDetail', {
+              low: sim.lowLines,
+              unknown: sim.unknownLines,
+              defaultValue: '{{low}} low, {{unknown}} unreadable',
+            })}
+            to="/mobile"
+          />
+        ) : null}
       </div>
 
       {fleetIsEmpty && (

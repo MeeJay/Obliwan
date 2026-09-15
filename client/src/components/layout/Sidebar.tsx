@@ -30,12 +30,14 @@ import {
   Lock,
   LogOut,
   MapPin,
+  Nfc,
   PackageOpen,
   Pin,
   PinOff,
   PlayCircle,
   Radar,
   RadioTower,
+  Receipt,
   Rocket,
   Router,
   ScrollText,
@@ -44,8 +46,10 @@ import {
   Server,
   Settings,
   ShieldCheck,
+  Signal,
   SquareStack,
   Users,
+  Wallet,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
@@ -259,6 +263,16 @@ export function Sidebar() {
     // (D2) and says so in its first panel — the entry is NOT a claim that the
     // ACS reaches the whole fleet.
     { label: t('nav.acs'),            path: '/acs',         icon: <RadioTower size={18} />,       capability: CAPABILITIES.ACS_ADMIN },
+    // ── Mobile data lines (F9) ──
+    // SIM_READ and not DEVICE_READ: a SIM is commercial inventory carrying an
+    // MSISDN and a cost, and a role that may see the routers need not see what
+    // the lines cost. Four entries rather than one screen with tabs — the
+    // low-balance alert deep-links to /mobile/lines/:id, and the report is what
+    // an operator opens on its own at the end of a month.
+    { label: t('nav.mobile'),         path: '/mobile',           icon: <Signal size={18} />,      capability: CAPABILITIES.SIM_READ },
+    { label: t('nav.mobileLines'),    path: '/mobile/lines',     icon: <Nfc size={18} />,         capability: CAPABILITIES.SIM_READ },
+    { label: t('nav.mobileRecharges'), path: '/mobile/recharges', icon: <Wallet size={18} />,     capability: CAPABILITIES.SIM_READ },
+    { label: t('nav.mobileReport'),   path: '/mobile/report',    icon: <Receipt size={18} />,     capability: CAPABILITIES.SIM_READ },
     { label: t('nav.alerts'),         path: '/alerts',      icon: <BellRing size={18} /> },
     { label: t('nav.logs'),           path: '/logs',        icon: <ScrollText size={18} />,       capability: CAPABILITIES.DEVICE_READ },
     // ── admin section ──
@@ -267,6 +281,9 @@ export function Sidebar() {
     { label: t('nav.users'),         path: '/admin/users',         icon: <Users size={18} />,       adminOnly: true },
     { label: t('nav.workspaces'),    path: '/admin/tenants',       icon: <Building2 size={18} />,   adminOnly: true },
     { label: t('nav.notifications'), path: '/admin/notifications', icon: <Send size={18} />,        adminOnly: true },
+    // Platform role, not a capability: these rows hold a partner credential and
+    // have no tenant_id (migration 032, decision 2).
+    { label: t('nav.mobileAccounts'), path: '/admin/mobile-accounts', icon: <Nfc size={18} />,     adminOnly: true },
     { label: t('nav.backups'),        path: '/backups',     icon: <Archive size={18} />,          capability: CAPABILITIES.CONFIG_READ },
     { label: t('nav.audit'),         path: '/admin/audit',         icon: <ShieldCheck size={18} />, adminOnly: true },
     { label: t('nav.importExport'),  path: '/admin/import-export', icon: <PackageOpen size={18} />, adminOnly: true },

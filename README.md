@@ -16,14 +16,15 @@
 
 > ### Status — feature-complete, entering production
 >
-> **What is built:** milestones M1 through M12 and features F1 through F8. The
+> **What is built:** milestones M1 through M12 and features F1 through F9. The
 > inventory and credential vault, the four vendor drivers, the five transports,
 > SNMP telemetry, the Normalized Config Model, snapshots and semantic drift,
 > templates and inherited variables, plan compilation, safe apply with an
 > on-device dead-man rollback, the Management-Path Guard, waved rollouts, syslog
 > ingestion and drift attribution, the Fleet Query DSL, the TR-069 ACS, the
-> intent compiler, template mining, and the eight evidence and operations
-> features described below. 30 migrations, 37 pages, the full deployment chain.
+> intent compiler, template mining, the eight evidence and operations features
+> described below, and the 4G/SIM fleet with its low-data alerting and
+> re-invoicing report. 35 migrations, 47 pages, the full deployment chain.
 >
 > **What is not done:** nothing in the milestone plan. M1 through M13 and F1
 > through F8 are built. What remains is field validation — see below.
@@ -33,6 +34,14 @@
 > adversarial audits that found and closed 24 critical defects. Roll it out the
 > way it rolls out changes — a few standalone devices first, then the fleet
 > behind the concentrator.
+>
+> **ObliWAN never buys anything by itself.** The 4G feature detects a SIM
+> running out of data, proposes a top-up, and waits for a human to approve it;
+> the purchase happens on the mobile partner's portal and is recorded here so it
+> reaches the re-invoicing report. The execution adapter registry is empty on
+> purpose — no partner top-up endpoint has been confirmed, and a product that
+> claims it can spend money and then cannot is worse than one that says it
+> proposes.
 
 ---
 

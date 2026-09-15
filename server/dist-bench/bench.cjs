@@ -111,6 +111,23 @@ var require_capabilities = __commonJS({
       // ── ACS TR-069 (M10) ───────────────────────────────────────────────────
       /** Manage CPEs, the CWMP task queue, parameter maps and firmware files. */
       ACS_ADMIN: "acs.admin",
+      // ── Mobile data lines / SIM fleet (F9) ─────────────────────────────────
+      /** See SIM lines, their remaining data, and the re-invoicing report. */
+      SIM_READ: "sim.read",
+      /**
+       * Assign a line to a tenant, a site or a router, set its low-data threshold
+       * and opt it into automatic top-ups. Changes WHAT gets proposed; never buys.
+       */
+      SIM_MANAGE: "sim.manage",
+      /**
+       * Approve a top-up proposal, or record one bought on the partner's portal.
+       *
+       * This is the only capability in the whole vocabulary that authorises a
+       * purchase. It is deliberately NOT implied by SIM_MANAGE: deciding that a
+       * line should be watched is an inventory act, deciding that money leaves the
+       * company is not — the same split as CHANGE_APPLY against CHANGE_APPROVE.
+       */
+      SIM_RECHARGE: "sim.recharge",
       // ── Secrets (M2 — arbitrage A3) ────────────────────────────────────────
       /** Create / rotate / delete credentials in the vault. Never reveals them. */
       CREDENTIAL_MANAGE: "credential.manage",
@@ -145,6 +162,7 @@ var require_capabilities = __commonJS({
       "drift",
       "telemetry",
       "acs",
+      "mobile",
       "secrets",
       "admin"
     ];
@@ -166,6 +184,11 @@ var require_capabilities = __commonJS({
       { key: exports2.CAPABILITIES.SNMP_READ, domain: "telemetry", label: "Read telemetry", description: "View interfaces, counters, time series and thresholds", sensitive: false },
       { key: exports2.CAPABILITIES.SNMP_ADMIN, domain: "telemetry", label: "Manage SNMP", description: "Manage SNMP targets, credentials and thresholds", sensitive: true },
       { key: exports2.CAPABILITIES.ACS_ADMIN, domain: "acs", label: "Manage ACS", description: "Manage CPEs, CWMP tasks, parameter maps and firmware", sensitive: true },
+      { key: exports2.CAPABILITIES.SIM_READ, domain: "mobile", label: "Read SIM fleet", description: "View mobile lines, remaining data and the re-invoicing report", sensitive: false },
+      { key: exports2.CAPABILITIES.SIM_MANAGE, domain: "mobile", label: "Manage SIM fleet", description: "Assign lines, set data thresholds and opt lines into top-ups", sensitive: false },
+      // `sensitive` because holding it means being able to commit spend, which is
+      // the one consequence in this vocabulary that no rollback undoes.
+      { key: exports2.CAPABILITIES.SIM_RECHARGE, domain: "mobile", label: "Approve top-ups", description: "Approve a data top-up, or record one bought on the partner portal", sensitive: true },
       { key: exports2.CAPABILITIES.CREDENTIAL_MANAGE, domain: "secrets", label: "Manage credentials", description: "Create, rotate and delete vault credentials", sensitive: true },
       { key: exports2.CAPABILITIES.SECRET_READ, domain: "secrets", label: "Reveal secrets", description: "Display a stored secret in clear text", sensitive: true },
       { key: exports2.CAPABILITIES.GROUP_WRITE, domain: "admin", label: "Manage groups", description: "Create, edit, delete and move device groups", sensitive: false },
@@ -197,6 +220,12 @@ var require_capabilities = __commonJS({
       [exports2.CAPABILITIES.TEMPLATE_WRITE]: [exports2.CAPABILITIES.TEMPLATE_READ],
       [exports2.CAPABILITIES.DRIFT_MANAGE]: [exports2.CAPABILITIES.DRIFT_READ],
       [exports2.CAPABILITIES.SNMP_ADMIN]: [exports2.CAPABILITIES.SNMP_READ],
+      // Assigning a line presupposes seeing the fleet you are assigning from.
+      [exports2.CAPABILITIES.SIM_MANAGE]: [exports2.CAPABILITIES.SIM_READ],
+      // Approving a top-up presupposes reading the balance that justifies it. The
+      // reverse is deliberately NOT true, and neither is SIM_MANAGE ⇒ SIM_RECHARGE:
+      // an inventory grant must never turn into a spending grant by implication.
+      [exports2.CAPABILITIES.SIM_RECHARGE]: [exports2.CAPABILITIES.SIM_READ],
       // Revealing a secret presupposes being allowed to manage the credential it
       // belongs to. The reverse is deliberately NOT true: rotating a password is an
       // ordinary operational act, reading one is not (§7 / A3).
@@ -228,7 +257,8 @@ var require_capabilities = __commonJS({
           exports2.CAPABILITIES.DEVICE_READ,
           exports2.CAPABILITIES.TEMPLATE_READ,
           exports2.CAPABILITIES.DRIFT_READ,
-          exports2.CAPABILITIES.SNMP_READ
+          exports2.CAPABILITIES.SNMP_READ,
+          exports2.CAPABILITIES.SIM_READ
         ]
       },
       {
@@ -244,7 +274,8 @@ var require_capabilities = __commonJS({
           exports2.CAPABILITIES.DRIFT_READ,
           exports2.CAPABILITIES.DRIFT_MANAGE,
           exports2.CAPABILITIES.QUERY_RUN,
-          exports2.CAPABILITIES.SNMP_READ
+          exports2.CAPABILITIES.SNMP_READ,
+          exports2.CAPABILITIES.SIM_READ
         ]
       },
       {
@@ -266,7 +297,12 @@ var require_capabilities = __commonJS({
           exports2.CAPABILITIES.QUERY_RUN,
           exports2.CAPABILITIES.SNMP_READ,
           exports2.CAPABILITIES.SNMP_ADMIN,
-          exports2.CAPABILITIES.CREDENTIAL_MANAGE
+          exports2.CAPABILITIES.CREDENTIAL_MANAGE,
+          exports2.CAPABILITIES.SIM_READ,
+          exports2.CAPABILITIES.SIM_MANAGE
+          // SIM_RECHARGE is deliberately absent from every builtin set. It commits
+          // spend, so it is granted the way CHANGE_APPROVE is — named explicitly by
+          // whoever hands it out, never inherited from "is an engineer".
         ]
       }
     ];
@@ -309,6 +345,16 @@ var require_settings = __commonJS({
       SNMP_POLL_INTERVAL: "snmp_poll_interval",
       SNMP_TIMEOUT: "snmp_timeout",
       SNMP_RETRIES: "snmp_retries",
+      /**
+       * The `snmp_credentials` row new devices are polled with — 0 means "do not
+       * create targets automatically".
+       *
+       * ONE setting rather than an on/off plus a credential, because the pair has
+       * an invalid combination — enabled with no credential — that would present as
+       * "supervision is on and nothing is ever polled". Here that state cannot be
+       * written down: 0 IS off, and any other value names the credential.
+       */
+      SNMP_AUTO_TARGET_CREDENTIAL: "snmp_auto_target_credential",
       // ── Configuration collection & drift (M4) ──────────────────────────────
       /** Minutes between two config snapshots of the same device. */
       SNAPSHOT_INTERVAL: "snapshot_interval",
@@ -321,6 +367,27 @@ var require_settings = __commonJS({
       APPLY_SOAK_SECONDS: "apply_soak_seconds",
       /** Maximum change jobs executed concurrently across the fleet. */
       MAX_CONCURRENT_JOBS: "max_concurrent_jobs",
+      // ── Mobile data lines / SIM fleet (F9) ─────────────────────────────────
+      /** Minutes between two sweeps of a partner account's lines and balances. */
+      SIM_SYNC_INTERVAL: "sim_sync_interval",
+      /**
+       * Default low-data threshold, in MEGABYTES, for a line with no override.
+       *
+       * MB rather than GB because settings are integers and a 0.5 GB threshold has
+       * to be representable — and because `sim_lines.low_threshold_mb` is in the
+       * same unit, so the comparison that decides whether a top-up is proposed
+       * never crosses a conversion. 1024 = 1 Go, the value the field prototype ran.
+       */
+      SIM_LOW_DATA_THRESHOLD: "sim_low_data_threshold",
+      /**
+       * Hours before the same still-low line is announced again.
+       *
+       * Distinct from the top-up idempotency key, which allows exactly ONE proposal
+       * per low episode and never repeats. This is about the reminder: a proposal
+       * nobody has acted on for three days should say so again, and every four
+       * hours is how an operator learns to filter the channel out.
+       */
+      SIM_ALERT_REMIND_HOURS: "sim_alert_remind_hours",
       // ── Retention ──────────────────────────────────────────────────────────
       /** Days of raw interface samples kept before rollups only. */
       TIMESERIES_RETENTION_DAYS: "timeseries_retention_days",
@@ -335,6 +402,7 @@ var require_settings = __commonJS({
       "snmp",
       "configuration",
       "change",
+      "mobile",
       "retention"
     ];
     exports2.SETTINGS_DEFINITIONS = [
@@ -405,6 +473,20 @@ var require_settings = __commonJS({
         max: 10
       },
       {
+        key: exports2.SETTINGS_KEYS.SNMP_AUTO_TARGET_CREDENTIAL,
+        category: "snmp",
+        label: "Automatic SNMP target credential",
+        description: "Poll every confirmed device with this SNMP credential, without configuring one target per device. 0 disables automatic targets. Inheritable per group, so one customer can be polled with its own community.",
+        type: "number",
+        unit: "credential id",
+        // 0, and not a working default: a community string is a shared secret, and
+        // guessing one for a customer's fleet is not a default anybody may pick on
+        // an operator's behalf. The fleet is polled once a human names it — once.
+        default: 0,
+        min: 0,
+        max: 2147483647
+      },
+      {
         key: exports2.SETTINGS_KEYS.SNAPSHOT_INTERVAL,
         category: "configuration",
         label: "Snapshot interval",
@@ -460,6 +542,50 @@ var require_settings = __commonJS({
         max: 100
       },
       {
+        key: exports2.SETTINGS_KEYS.SIM_SYNC_INTERVAL,
+        category: "mobile",
+        label: "SIM sync interval",
+        // PLATFORM-WIDE, and the description says so because the field appears in
+        // every workspace's settings screen while the sweep reads only the master
+        // workspace's value (`services/sim/index.ts`). Partner accounts have no
+        // tenant, so there is one sweep for the whole installation — an operator
+        // editing this in their own workspace and seeing nothing change would
+        // reasonably conclude the setting is broken.
+        description: "How often each partner account is polled for lines and remaining data. Platform-wide: partner accounts are not per-workspace, so only the main workspace's value is used.",
+        type: "number",
+        unit: "minutes",
+        // Four hours. Data depletion is a phenomenon of days, and one sweep costs
+        // one request PER LINE against a partner API with no published rate limit —
+        // 300 lines every 15 minutes is 28 800 calls a day and a banned account,
+        // which would present as a fleet that stopped being watched. The floor of
+        // 30 minutes is there so a hurried operator cannot turn this into a spider.
+        default: 240,
+        min: 30,
+        max: 1440
+      },
+      {
+        key: exports2.SETTINGS_KEYS.SIM_LOW_DATA_THRESHOLD,
+        category: "mobile",
+        label: "Low data threshold",
+        description: "Default remaining data below which a line is reported low (per-line override available)",
+        type: "number",
+        unit: "MB",
+        default: 1024,
+        min: 0,
+        max: 1e7
+      },
+      {
+        key: exports2.SETTINGS_KEYS.SIM_ALERT_REMIND_HOURS,
+        category: "mobile",
+        label: "Low data reminder",
+        description: "How long before a line that is still low is announced again",
+        type: "number",
+        unit: "hours",
+        default: 24,
+        min: 1,
+        max: 720
+      },
+      {
         key: exports2.SETTINGS_KEYS.TIMESERIES_RETENTION_DAYS,
         category: "retention",
         label: "Time-series retention",
@@ -500,11 +626,17 @@ var require_settings = __commonJS({
       [exports2.SETTINGS_KEYS.SNMP_POLL_INTERVAL]: 60,
       [exports2.SETTINGS_KEYS.SNMP_TIMEOUT]: 5e3,
       [exports2.SETTINGS_KEYS.SNMP_RETRIES]: 2,
+      // 0 = off. See the key's comment: a community string is not guessable on an
+      // operator's behalf, so supervision waits for one human decision.
+      [exports2.SETTINGS_KEYS.SNMP_AUTO_TARGET_CREDENTIAL]: 0,
       [exports2.SETTINGS_KEYS.SNAPSHOT_INTERVAL]: 1440,
       [exports2.SETTINGS_KEYS.DRIFT_INTERVAL]: 1440,
       [exports2.SETTINGS_KEYS.COMMIT_CONFIRM_TIMEOUT]: 600,
       [exports2.SETTINGS_KEYS.APPLY_SOAK_SECONDS]: 300,
       [exports2.SETTINGS_KEYS.MAX_CONCURRENT_JOBS]: 5,
+      [exports2.SETTINGS_KEYS.SIM_SYNC_INTERVAL]: 240,
+      [exports2.SETTINGS_KEYS.SIM_LOW_DATA_THRESHOLD]: 1024,
+      [exports2.SETTINGS_KEYS.SIM_ALERT_REMIND_HOURS]: 24,
       [exports2.SETTINGS_KEYS.TIMESERIES_RETENTION_DAYS]: 90,
       [exports2.SETTINGS_KEYS.CONFIG_RETENTION_DAYS]: 365,
       [exports2.SETTINGS_KEYS.AUDIT_RETENTION_DAYS]: 730
@@ -11423,6 +11555,242 @@ var require_lifecycle = __commonJS({
   }
 });
 
+// ../shared/dist/sim.js
+var require_sim = __commonJS({
+  "../shared/dist/sim.js"(exports2) {
+    "use strict";
+    Object.defineProperty(exports2, "__esModule", { value: true });
+    exports2.simRechargeCompletionSchema = exports2.simRechargeDecisionSchema = exports2.simManualRechargeSchema = exports2.simLineUpdateSchema = exports2.simCredentialInputSchema = exports2.simAccountInputSchema = exports2.simMsisdnSchema = exports2.SIM_RECHARGE_TRIGGERS = exports2.SIM_BILLABLE_STATUSES = exports2.SIM_RECHARGE_TRANSITIONS = exports2.SIM_RECHARGE_STATUSES = exports2.UNKNOWN_ZONE = exports2.SIM_LINE_STATUSES = exports2.SIM_ACCOUNT_STATUSES = exports2.SIM_AUTH_MODES = exports2.SIM_PLATFORM_CATALOG = exports2.SIM_PLATFORMS = exports2.MB_PER_GB = void 0;
+    exports2.gbToMb = gbToMb;
+    exports2.mbToGb = mbToGb;
+    exports2.formatData = formatData;
+    exports2.isSimPlatform = isSimPlatform;
+    exports2.simPlatformInfo = simPlatformInfo;
+    exports2.canonicalZone = canonicalZone;
+    exports2.evaluateBalance = evaluateBalance;
+    exports2.stalenessHorizonMs = stalenessHorizonMs;
+    exports2.isReadingStale = isReadingStale;
+    exports2.worstZone = worstZone;
+    exports2.lineVerdict = lineVerdict;
+    exports2.effectiveThresholdMb = effectiveThresholdMb;
+    exports2.canRechargeTransition = canRechargeTransition;
+    exports2.isRechargeTerminal = isRechargeTerminal;
+    exports2.isRechargeBillable = isRechargeBillable;
+    exports2.rechargeIdempotencyKey = rechargeIdempotencyKey;
+    exports2.suggestsPlanChange = suggestsPlanChange;
+    var zod_1 = require_zod();
+    exports2.MB_PER_GB = 1024;
+    function gbToMb(gb) {
+      if (gb === null || gb === void 0)
+        return null;
+      if (typeof gb !== "number") {
+        const trimmed = String(gb).trim();
+        if (trimmed === "")
+          return null;
+        const n = Number(trimmed.replace(",", "."));
+        return Number.isFinite(n) && n >= 0 ? Math.round(n * exports2.MB_PER_GB) : null;
+      }
+      return Number.isFinite(gb) && gb >= 0 ? Math.round(gb * exports2.MB_PER_GB) : null;
+    }
+    function mbToGb(mb) {
+      if (mb === null || mb === void 0)
+        return null;
+      return mb / exports2.MB_PER_GB;
+    }
+    function formatData(mb) {
+      if (mb === null || mb === void 0)
+        return "\u2014";
+      if (mb < exports2.MB_PER_GB)
+        return `${Math.round(mb)} Mo`;
+      return `${(mb / exports2.MB_PER_GB).toFixed(mb < 10 * exports2.MB_PER_GB ? 2 : 1)} Go`;
+    }
+    exports2.SIM_PLATFORMS = ["phenix", "cfast"];
+    exports2.SIM_PLATFORM_CATALOG = [
+      {
+        platform: "phenix",
+        label: "Phenix Partner",
+        // `file` is NOT listed, and that is the honest state: no importer exists.
+        // Declaring an ingestion kind the product cannot perform is the same lie
+        // this catalogue exists to prevent, one level down — see the note on
+        // `SimIngestionKind`.
+        ingestion: ["pull"],
+        readImplemented: true,
+        rechargeImplemented: false,
+        note: "Inventory and per-zone balances are read from the partner API. No top-up endpoint is known, so a recharge is proposed here and bought on the portal."
+      },
+      {
+        platform: "cfast",
+        label: "CFAST",
+        // `pull`, corrected from `push` against CFAST's own public developer
+        // portal, which documents an OAuth2 REST API and an event catalogue with
+        // no consumption event in it.
+        //
+        // Stating the partner's real shape does NOT arm the sweep: `isPollable` on
+        // the server requires `readImplemented` as well, and it is false below. The
+        // two fields answer different questions — what the partner offers, and
+        // what ObliWAN has built — and conflating them is what made the first
+        // draft encode a guess as a capability.
+        ingestion: ["pull"],
+        readImplemented: false,
+        rechargeImplemented: false,
+        // Rendered verbatim in the UI, so it must not offer an escape hatch the
+        // product does not have: there is no importer for any partner.
+        note: "Not implemented. CFAST documents a polled REST API publicly, but no endpoint returning the data REMAINING on a line has been found there, and no account has been read. An account can be created and hold assignments; nothing reads balances for it yet."
+      }
+    ];
+    var PLATFORM_BY_KEY = new Map(exports2.SIM_PLATFORM_CATALOG.map((p) => [p.platform, p]));
+    function isSimPlatform(value) {
+      return typeof value === "string" && PLATFORM_BY_KEY.has(value);
+    }
+    function simPlatformInfo(platform) {
+      const info = PLATFORM_BY_KEY.get(platform);
+      if (!info)
+        throw new Error(`SIM_PLATFORM_CATALOG is missing the platform: ${platform}`);
+      return info;
+    }
+    exports2.SIM_AUTH_MODES = ["password", "token"];
+    exports2.SIM_ACCOUNT_STATUSES = ["active", "disabled", "auth_failed"];
+    exports2.SIM_LINE_STATUSES = ["active", "suspended", "unknown"];
+    exports2.UNKNOWN_ZONE = "unknown";
+    function canonicalZone(raw) {
+      const z = (raw ?? "").replace(/\s+/g, " ").trim();
+      return z === "" ? exports2.UNKNOWN_ZONE : z;
+    }
+    function evaluateBalance(restMb, thresholdMb) {
+      if (restMb === null || !Number.isFinite(restMb))
+        return "unknown";
+      return restMb <= thresholdMb ? "low" : "ok";
+    }
+    function stalenessHorizonMs(syncIntervalMinutes) {
+      return Math.max(1, syncIntervalMinutes) * 6e4 * 3;
+    }
+    function isReadingStale(observedAt, freshness) {
+      const t = Date.parse(observedAt);
+      if (!Number.isFinite(t))
+        return true;
+      return freshness.now - t > freshness.maxAgeMs;
+    }
+    function worstZone(zones, freshness) {
+      let worst = null;
+      let worstRest = Number.POSITIVE_INFINITY;
+      for (const z of zones) {
+        if (z.restMb === null)
+          continue;
+        if (freshness && isReadingStale(z.observedAt, freshness))
+          continue;
+        if (z.restMb < worstRest) {
+          worst = z;
+          worstRest = z.restMb;
+        }
+      }
+      return worst;
+    }
+    function lineVerdict(zones, thresholdMb, freshness) {
+      const zone = worstZone(zones, freshness);
+      if (!zone) {
+        const stale = !!freshness && zones.length > 0 && zones.some((z) => z.restMb !== null && isReadingStale(z.observedAt, freshness));
+        return { verdict: "unknown", zone: null, stale };
+      }
+      return { verdict: evaluateBalance(zone.restMb, thresholdMb), zone, stale: false };
+    }
+    function effectiveThresholdMb(lineOverrideMb, globalDefaultMb) {
+      return lineOverrideMb === null || lineOverrideMb === void 0 ? globalDefaultMb : lineOverrideMb;
+    }
+    exports2.SIM_RECHARGE_STATUSES = [
+      "proposed",
+      "approved",
+      "executed",
+      "recorded",
+      "rejected",
+      "failed",
+      "expired"
+    ];
+    exports2.SIM_RECHARGE_TRANSITIONS = {
+      proposed: ["approved", "rejected", "expired"],
+      // An approval authorises the spend; it does not perform it.
+      approved: ["executed", "recorded", "failed"],
+      // A failed execution may still turn out to have been done by hand.
+      failed: ["recorded"],
+      executed: [],
+      recorded: [],
+      rejected: [],
+      expired: []
+    };
+    function canRechargeTransition(from, to) {
+      return exports2.SIM_RECHARGE_TRANSITIONS[from].includes(to);
+    }
+    function isRechargeTerminal(status) {
+      return exports2.SIM_RECHARGE_TRANSITIONS[status].length === 0;
+    }
+    exports2.SIM_BILLABLE_STATUSES = ["executed", "recorded"];
+    function isRechargeBillable(status) {
+      return exports2.SIM_BILLABLE_STATUSES.includes(status);
+    }
+    exports2.SIM_RECHARGE_TRIGGERS = ["threshold", "manual"];
+    function rechargeIdempotencyKey(simId, zone, lowSince) {
+      const z = zone.trim().toLowerCase() || exports2.UNKNOWN_ZONE;
+      return `${simId}:${z}:${lowSince}`;
+    }
+    function suggestsPlanChange(row) {
+      if (row.monthsWithRecharge >= 3)
+        return true;
+      if (row.basePlanMb !== null && row.basePlanMb > 0 && row.totalMb !== null && row.monthsWithRecharge > 0) {
+        return row.totalMb / row.monthsWithRecharge >= row.basePlanMb;
+      }
+      return false;
+    }
+    var msisdnSchema = zod_1.z.string().trim().min(6).max(20).regex(/^\+?[0-9]{6,19}$/, "MSISDN must be digits, optionally prefixed with +");
+    exports2.simMsisdnSchema = msisdnSchema;
+    exports2.simAccountInputSchema = zod_1.z.object({
+      platform: zod_1.z.enum(exports2.SIM_PLATFORMS),
+      name: zod_1.z.string().trim().min(1).max(120),
+      baseUrl: zod_1.z.string().trim().url().max(255).nullable().optional(),
+      partnerRef: zod_1.z.string().trim().max(64).nullable().optional(),
+      authMode: zod_1.z.enum(exports2.SIM_AUTH_MODES),
+      skipOperators: zod_1.z.array(zod_1.z.string().trim().min(1).max(60)).max(32).optional(),
+      monthlyRechargeCap: zod_1.z.number().int().min(0).max(1e5).nullable().optional(),
+      monthlyCostCapCents: zod_1.z.number().int().min(0).max(1e8).nullable().optional()
+    });
+    exports2.simCredentialInputSchema = zod_1.z.discriminatedUnion("authMode", [
+      zod_1.z.object({
+        authMode: zod_1.z.literal("password"),
+        username: zod_1.z.string().trim().min(1).max(190),
+        password: zod_1.z.string().min(1).max(512)
+      }),
+      zod_1.z.object({
+        authMode: zod_1.z.literal("token"),
+        token: zod_1.z.string().trim().min(20).max(8192)
+      })
+    ]);
+    exports2.simLineUpdateSchema = zod_1.z.object({
+      tenantId: zod_1.z.number().int().positive().nullable().optional(),
+      siteId: zod_1.z.number().int().positive().nullable().optional(),
+      deviceId: zod_1.z.number().int().positive().nullable().optional(),
+      iccid: zod_1.z.string().trim().regex(/^[0-9]{18,22}$/, "ICCID must be 18 to 22 digits").nullable().optional(),
+      label: zod_1.z.string().trim().max(190).nullable().optional(),
+      lowThresholdMb: zod_1.z.number().int().min(0).max(1e7).nullable().optional(),
+      autoRechargeEnabled: zod_1.z.boolean().optional(),
+      rechargePlanMb: zod_1.z.number().int().min(1).max(1e7).nullable().optional()
+    });
+    exports2.simManualRechargeSchema = zod_1.z.object({
+      simId: zod_1.z.number().int().positive(),
+      zone: zod_1.z.string().trim().min(1).max(80),
+      planMb: zod_1.z.number().int().min(1).max(1e7).nullable().optional(),
+      note: zod_1.z.string().trim().max(2e3).nullable().optional()
+    });
+    exports2.simRechargeDecisionSchema = zod_1.z.object({
+      note: zod_1.z.string().trim().max(2e3).nullable().optional()
+    });
+    exports2.simRechargeCompletionSchema = zod_1.z.object({
+      costCents: zod_1.z.number().int().min(0).max(1e8).nullable().optional(),
+      currency: zod_1.z.string().trim().length(3).regex(/^[A-Za-z]{3}$/, "Currency must be a 3-letter ISO 4217 code").nullable().optional(),
+      billingReference: zod_1.z.string().trim().max(190).nullable().optional(),
+      planMb: zod_1.z.number().int().min(1).max(1e7).nullable().optional(),
+      note: zod_1.z.string().trim().max(2e3).nullable().optional()
+    }).refine((v) => v.costCents === null || v.costCents === void 0 || !!v.currency, { message: "A cost needs a currency", path: ["currency"] });
+  }
+});
+
 // ../shared/dist/index.js
 var require_dist = __commonJS({
   "../shared/dist/index.js"(exports2) {
@@ -11465,6 +11833,7 @@ var require_dist = __commonJS({
     __exportStar(require_identity(), exports2);
     __exportStar(require_sla(), exports2);
     __exportStar(require_lifecycle(), exports2);
+    __exportStar(require_sim(), exports2);
   }
 });
 
@@ -71559,8 +71928,10 @@ function readRole() {
 }
 function readEncryptionKey() {
   const raw = (process.env.OBLIWAN_ENCRYPTION_KEY || "").trim();
-  if (!raw) return { raw: null, valid: false };
-  return { raw, valid: /^[0-9a-fA-F]{64}$/.test(raw) };
+  if (!raw) return { raw: null, valid: false, flaw: "absent" };
+  if (/^[0-9a-fA-F]{64}$/.test(raw)) return { raw, valid: true, flaw: null };
+  const flaw = /^[0-9a-fA-F]*$/.test(raw) ? "wrong-length" : "not-hex";
+  return { raw, valid: false, flaw };
 }
 var role = readRole();
 var encryptionKey = readEncryptionKey();
@@ -71584,6 +71955,10 @@ var config = {
   // Credential vault (A3) — see readEncryptionKey() above.
   encryptionKey: encryptionKey.raw,
   encryptionKeyValid: encryptionKey.valid,
+  /** Which mistake, so the message can name it. Never the value. */
+  encryptionKeyFlaw: encryptionKey.flaw,
+  /** Length only — enough to tell 44-char base64 from a truncated hex key. */
+  encryptionKeyLength: encryptionKey.raw?.length ?? 0,
   // CORS
   clientOrigin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
   // HTTPS — set to "true" if behind an HTTPS reverse proxy

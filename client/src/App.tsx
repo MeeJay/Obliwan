@@ -51,6 +51,12 @@ const SsoEnrollPage = lazy(() => import('@/pages/SsoEnrollPage').then((m) => ({ 
 const AcsPage = lazy(() => import('@/pages/AcsPage').then((m) => ({ default: m.AcsPage })));
 const IntentPage = lazy(() => import('@/pages/IntentPage').then((m) => ({ default: m.IntentPage })));
 const BaselinePage = lazy(() => import('@/pages/BaselinePage').then((m) => ({ default: m.BaselinePage })));
+const MobileDashboardPage = lazy(() => import('@/pages/MobileDashboardPage').then((m) => ({ default: m.MobileDashboardPage })));
+const MobileLinesPage = lazy(() => import('@/pages/MobileLinesPage').then((m) => ({ default: m.MobileLinesPage })));
+const MobileLineDetailPage = lazy(() => import('@/pages/MobileLineDetailPage').then((m) => ({ default: m.MobileLineDetailPage })));
+const MobileRechargesPage = lazy(() => import('@/pages/MobileRechargesPage').then((m) => ({ default: m.MobileRechargesPage })));
+const MobileReportPage = lazy(() => import('@/pages/MobileReportPage').then((m) => ({ default: m.MobileReportPage })));
+const AdminSimAccountsPage = lazy(() => import('@/pages/AdminSimAccountsPage').then((m) => ({ default: m.AdminSimAccountsPage })));
 
 // Apply saved theme immediately to avoid flash of unstyled content
 initTheme();
@@ -173,6 +179,25 @@ export default function App() {
               <Route path="/intent" element={<IntentPage />} />
             </Route>
 
+            {/* Mobile data lines (F9) -> SIM_READ.
+                A SIM is commercial inventory carrying an MSISDN and a cost, not
+                a router, so it is NOT gated on DEVICE_READ: a role that may see
+                the fleet need not see what its lines cost. The screens then
+                check SIM_MANAGE before editing a line and SIM_RECHARGE before
+                approving or recording a top-up — the only capability in this
+                product that commits a purchase.
+
+                The partner ACCOUNTS screen is not here: it holds credentials
+                and is platform-scoped, so it lives under /admin behind the
+                platform admin guard, like tenants and audit. */}
+            <Route element={<ProtectedRoute requiredCapability={CAPABILITIES.SIM_READ} />}>
+              <Route path="/mobile" element={<MobileDashboardPage />} />
+              <Route path="/mobile/lines" element={<MobileLinesPage />} />
+              <Route path="/mobile/lines/:id" element={<MobileLineDetailPage />} />
+              <Route path="/mobile/recharges" element={<MobileRechargesPage />} />
+              <Route path="/mobile/report" element={<MobileReportPage />} />
+            </Route>
+
             {/* ACS / TR-069 (M10, C10) -> ACS_ADMIN, as §4.1 requires.
                 CPEs, the CWMP task queue, the parameter map and firmware — the
                 four things that capability's description names. Coverage is
@@ -226,6 +251,13 @@ export default function App() {
               <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/import-export" element={<ImportExportPage />} />
               <Route path="/admin/tenants" element={<AdminTenantsPage />} />
+              {/* Mobile partner accounts (F9). Behind the PLATFORM admin role
+                  and not a capability: the rows hold a partner credential and
+                  have no tenant_id, so one write changes what every tenant is
+                  shown — and SETTINGS_MANAGE is granted to the admin of ANY
+                  tenant through TENANT_ROLE_CAPABILITIES, which is the exact
+                  shape of the defect F5 shipped on ip_asn_ranges. */}
+              <Route path="/admin/mobile-accounts" element={<AdminSimAccountsPage />} />
               <Route path="/admin/settings" element={<SettingsPage />} />
             </Route>
           </Route>

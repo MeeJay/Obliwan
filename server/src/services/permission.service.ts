@@ -98,6 +98,14 @@ export const TENANT_ROLE_CAPABILITIES: Record<'admin' | 'member', Capability[]> 
     CAPABILITIES.IMPORT_RUN,
     CAPABILITIES.CHANGE_APPROVE,
     CAPABILITIES.ACS_ADMIN,
+    // Approving a data top-up is a tenant-local operational decision about that
+    // customer's own lines, and the alternative — routing every 5 € top-up to a
+    // platform admin — is how an operator ends up with a dead site and an
+    // unread proposal. It is named here explicitly rather than reaching the
+    // admin through `builtinSet('engineer')`, for the same reason
+    // CHANGE_APPROVE is: a grant that commits money must be visible in the
+    // matrix that grants it.
+    CAPABILITIES.SIM_RECHARGE,
   ]),
   // Plain member = the seeded `operator` set, verbatim. Read plus day-to-day
   // fleet work: no template authoring, no change.apply, no admin domain.

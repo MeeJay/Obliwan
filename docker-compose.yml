@@ -18,6 +18,24 @@
 #      UNREACHABLE with no useful error.
 #
 # ─────────────────────────────────────────────────────────────────────────────
+# ONE SUBSYSTEM GOES TO THE PUBLIC INTERNET, NOT THROUGH THE TUNNEL (F9)
+# ─────────────────────────────────────────────────────────────────────────────
+# The 4G / SIM fleet sweep reads the MOBILE PARTNERS' web APIs — Phenix Partner
+# on https://phenix-mb-api.netcom-group.fr by default. That is ordinary
+# outbound HTTPS to the internet, and it is the ONLY part of ObliWAN that does
+# not ride the L2TP tunnel.
+#
+#   => An installation whose egress is restricted to the tunnel subnet will see
+#      every partner account go stale with a connection error in
+#      `sim_sync_runs`, while the routers themselves stay perfectly reachable.
+#      Allow outbound 443 to the partner hosts, or the SIM balances are never
+#      read and nothing warns that a site is about to run out of data.
+#
+# No inbound port is needed for F9 today. If CFAST is ever integrated through
+# its partner WEBHOOKS, that changes — it would need an inbound path, and that
+# decision belongs in this header when it is taken.
+#
+# ─────────────────────────────────────────────────────────────────────────────
 # DELIBERATE DEVIATION FROM THE Obli* SUITE TOPOLOGY
 # ─────────────────────────────────────────────────────────────────────────────
 # Everywhere else in the suite, ONLY the nginx client publishes a port and the

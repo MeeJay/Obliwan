@@ -54,6 +54,28 @@ export const SETTINGS_KEYS = {
   /** Maximum change jobs executed concurrently across the fleet. */
   MAX_CONCURRENT_JOBS: 'max_concurrent_jobs',
 
+  // ── Mobile data lines / SIM fleet (F9) ─────────────────────────────────
+  /** Minutes between two sweeps of a partner account's lines and balances. */
+  SIM_SYNC_INTERVAL: 'sim_sync_interval',
+  /**
+   * Default low-data threshold, in MEGABYTES, for a line with no override.
+   *
+   * MB rather than GB because settings are integers and a 0.5 GB threshold has
+   * to be representable — and because `sim_lines.low_threshold_mb` is in the
+   * same unit, so the comparison that decides whether a top-up is proposed
+   * never crosses a conversion. 1024 = 1 Go, the value the field prototype ran.
+   */
+  SIM_LOW_DATA_THRESHOLD: 'sim_low_data_threshold',
+  /**
+   * Hours before the same still-low line is announced again.
+   *
+   * Distinct from the top-up idempotency key, which allows exactly ONE proposal
+   * per low episode and never repeats. This is about the reminder: a proposal
+   * nobody has acted on for three days should say so again, and every four
+   * hours is how an operator learns to filter the channel out.
+   */
+  SIM_ALERT_REMIND_HOURS: 'sim_alert_remind_hours',
+
   // ── Retention ──────────────────────────────────────────────────────────
   /** Days of raw interface samples kept before rollups only. */
   TIMESERIES_RETENTION_DAYS: 'timeseries_retention_days',
@@ -71,6 +93,7 @@ export const SETTING_CATEGORIES = [
   'snmp',
   'configuration',
   'change',
+  'mobile',
   'retention',
 ] as const;
 
@@ -228,6 +251,53 @@ export const SETTINGS_DEFINITIONS: SettingDefinition[] = [
     max: 100,
   },
   {
+    key: SETTINGS_KEYS.SIM_SYNC_INTERVAL,
+    category: 'mobile',
+    label: 'SIM sync interval',
+    // PLATFORM-WIDE, and the description says so because the field appears in
+    // every workspace's settings screen while the sweep reads only the master
+    // workspace's value (`services/sim/index.ts`). Partner accounts have no
+    // tenant, so there is one sweep for the whole installation — an operator
+    // editing this in their own workspace and seeing nothing change would
+    // reasonably conclude the setting is broken.
+    description:
+      'How often each partner account is polled for lines and remaining data. ' +
+      'Platform-wide: partner accounts are not per-workspace, so only the main ' +
+      "workspace's value is used.",
+    type: 'number',
+    unit: 'minutes',
+    // Four hours. Data depletion is a phenomenon of days, and one sweep costs
+    // one request PER LINE against a partner API with no published rate limit —
+    // 300 lines every 15 minutes is 28 800 calls a day and a banned account,
+    // which would present as a fleet that stopped being watched. The floor of
+    // 30 minutes is there so a hurried operator cannot turn this into a spider.
+    default: 240,
+    min: 30,
+    max: 1440,
+  },
+  {
+    key: SETTINGS_KEYS.SIM_LOW_DATA_THRESHOLD,
+    category: 'mobile',
+    label: 'Low data threshold',
+    description: 'Default remaining data below which a line is reported low (per-line override available)',
+    type: 'number',
+    unit: 'MB',
+    default: 1024,
+    min: 0,
+    max: 10_000_000,
+  },
+  {
+    key: SETTINGS_KEYS.SIM_ALERT_REMIND_HOURS,
+    category: 'mobile',
+    label: 'Low data reminder',
+    description: 'How long before a line that is still low is announced again',
+    type: 'number',
+    unit: 'hours',
+    default: 24,
+    min: 1,
+    max: 720,
+  },
+  {
     key: SETTINGS_KEYS.TIMESERIES_RETENTION_DAYS,
     category: 'retention',
     label: 'Time-series retention',
@@ -277,6 +347,9 @@ export const HARDCODED_DEFAULTS: Record<SettingsKey, number> = {
   [SETTINGS_KEYS.COMMIT_CONFIRM_TIMEOUT]: 600,
   [SETTINGS_KEYS.APPLY_SOAK_SECONDS]: 300,
   [SETTINGS_KEYS.MAX_CONCURRENT_JOBS]: 5,
+  [SETTINGS_KEYS.SIM_SYNC_INTERVAL]: 240,
+  [SETTINGS_KEYS.SIM_LOW_DATA_THRESHOLD]: 1024,
+  [SETTINGS_KEYS.SIM_ALERT_REMIND_HOURS]: 24,
   [SETTINGS_KEYS.TIMESERIES_RETENTION_DAYS]: 90,
   [SETTINGS_KEYS.CONFIG_RETENTION_DAYS]: 365,
   [SETTINGS_KEYS.AUDIT_RETENTION_DAYS]: 730,

@@ -38,6 +38,7 @@ import weatherRoutes from './weather.routes';
 import identityRoutes from './identity.routes';
 import slaRoutes from './sla.routes';
 import lifecycleRoutes from './lifecycle.routes';
+import simRoutes from './sim.routes';
 import rolloutsRoutes from './rollouts.routes';
 import logsRoutes from './logs.routes';
 import queryRoutes from './query.routes';
@@ -207,6 +208,17 @@ tenantRouter.use('/weather', weatherRoutes);
 tenantRouter.use('/identity', identityRoutes);
 tenantRouter.use('/sla', slaRoutes);
 tenantRouter.use('/lifecycle', lifecycleRoutes);
+
+// -- Mobile data lines / SIM fleet (F9) ---------------------------------------
+// The partner ACCOUNTS under this prefix are platform-scoped and hold a
+// credential, so `/sim/accounts/*` is guarded by requireRole('admin') inside the
+// router — not by a capability, which `TENANT_ROLE_CAPABILITIES` would hand to
+// the admin of any tenant. Everything else is tenant-scoped on SIM_READ /
+// SIM_MANAGE / SIM_RECHARGE, and SIM_RECHARGE is the only capability in this
+// product that commits a purchase.
+//
+// D3 is not engaged: nothing here opens a session on an equipment.
+tenantRouter.use('/sim', simRoutes);
 
 router.use('/', tenantRouter);
 

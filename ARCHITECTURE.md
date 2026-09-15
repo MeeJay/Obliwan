@@ -989,3 +989,281 @@ test et son verdict. Un point sans preuve est un point non fait.
 *à l'exécution* pour prouver que les gardes sont en amont du branchement, listé chaque requête avec son
 scope, et **trouvé deux vocabulaires à zéro appelant qu'il a câblés au lieu de les laisser** — le motif
 n° 2, attrapé avant l'audit au lieu de l'être après.
+
+### 11.2 Deux motifs ajoutés par F9
+
+| # | Motif | Où il a mordu |
+|---|---|---|
+| 11 | **Une valeur absente coercée en zéro** | `gbToMb(' ')` rendait 0 parce que `Number(' ')` vaut 0 : un champ partenaire rempli d'espaces déclenchait une urgence sur tout le parc. Variante du `?? 0` du prototype, réintroduite par une garde qui ne testait que `=== ''`. |
+| 12 | **Une feature complète qu'aucun écran ne peut mettre en marche** | F9 était intégralement construit, testé et câblé — et aucune page ne permettait d'affecter une ligne SIM à un client. Sur une installation neuve rien ne sortait du pool, donc aucune alerte, aucune proposition, aucune facturation. Tout compilait. |
+| 13 | **Un message d'erreur qui prescrit une opération inexistante** | `assertExecutionAllowed` refusait de dépenser sur un mois non valorisé en disant « valorisez-les d'abord ». `recorded` étant terminal et aucun `PATCH` n'existant, le coût ne pouvait être saisi qu'une fois : le remède prescrit n'existait pas. |
+| 14 | **Une garde appliquée à l'instant du parsing et jamais ensuite** | « Absent ≠ zéro » n'était vrai qu'au moment où le connecteur lit un champ. En base, une valeur devenait immortelle : `observed_at` était stocké, typé, transporté jusqu'au client, et **consulté par aucune décision** — un parc non lu depuis six semaines s'affichait `ok`. |
+
+**Le contrôle que le motif 13 impose** : tout message d'erreur qui dit à un opérateur *quoi faire*
+doit nommer une opération qui existe, et la revue doit le vérifier en cherchant la route.
+
+**Le contrôle que le motif 14 impose** : pour toute colonne d'horodatage stockée, chercher ses
+lecteurs. Une colonne écrite partout et lue par aucune décision est soit inutile, soit — bien plus
+souvent — la moitié manquante d'une règle que le produit croit appliquer.
+
+**Le contrôle que le motif 12 impose** : à chaque feature, dérouler le **parcours complet de première
+utilisation sur une installation vide**, étape par étape, et vérifier pour chacune qu'il existe un
+écran, que la capacité est attribuable, que la route existe *et qu'elle est montée*. Une feature dont
+une étape n'a pas d'écran n'est pas une feature à finir plus tard : c'est une feature qui ne sert à
+rien, et elle a l'air terminée.
+
+### 11.3 Un verdict manquant n'est pas un verdict négatif
+
+Lors de la première revue adversariale de F9, 103 agents sur 145 ont échoué sur une limite de session.
+Le script d'orchestration calculait « confirmée » comme *au moins deux réfutateurs n'ont pas réfuté* —
+donc une trouvaille dont les trois réfutateurs avaient échoué tombait dans le seau **« rejetée »**.
+
+Quarante trouvailles sont arrivées ainsi, dont un bug critique, une fuite inter-tenant et le défaut qui
+rendait la feature inerte. Aucune n'avait été examinée.
+
+**Règle** : tout harnais de revue doit distinguer trois états — *tient*, *réfutée*, **non jugée** — et
+ne jamais replier le troisième sur le deuxième. Le repli par défaut d'un vérificateur individuel reste
+« réfutée quand il doute » ; le repli d'un vérificateur *absent* est « non jugée ».
+
+---
+
+## 12. F9 — Le parc de cartes SIM 4G (Phenix Partner + CFAST)
+
+Arbitrée le 2026-09-14. Première feature dont **le risque principal n'est pas de casser un
+équipement mais de dépenser de l'argent**, et la conception en découle entièrement.
+
+### 12.1 Le problème
+
+Une part croissante des routeurs du parc sort en 4G — en lien principal sur les sites sans cuivre,
+en secours LTE sur les autres (c'est exactement ce que `uplink.service` de F5 rapporte déjà). La
+ligne derrière la SIM est achetée chez un partenaire mobile, elle porte une enveloppe de données, et
+**quand l'enveloppe est vide le site tombe d'une façon qu'aucune supervision de routeur ne voit
+venir** : le tunnel se ferme, K7 rend `SITE_DOWN`, et la cause réelle est une facture.
+
+Deux plateformes : **Phenix Partner** et **CFAST**. Sur CFAST, deux comptes distincts.
+
+### 12.2 Les cinq décisions de la feature
+
+| # | Décision | Pourquoi |
+|---|---|---|
+| **1** | Toute quantité de données est un **entier de mégaoctets**, jamais un flottant de Go. | Un seuil comparé en flottants bascule selon l'ordre des sommes. Le facteur 1 Go = 1024 Mo est une convention d'affichage : il s'annule, puisque le restant et le seuil sont dans la même unité. |
+| **2** | **Une valeur absente est `null`, et `null` n'est jamais `0`.** | C'est *la* décision de la feature. Le prototype de terrain lisait `(float) ($row['restValueGo'] ?? 0)` : un champ renommé par le partenaire devient « 0 Go restant » **sur toutes les lignes à la fois** — une urgence parfaitement plausible et entièrement fausse, et c'est précisément la lecture qui déclenche un achat. `evaluateBalance` rend `unknown`, et `unknown` ne dépense jamais. |
+| **3** | Une plateforme **déclare ce qu'elle sait faire, comme donnée** (`SIM_PLATFORM_CATALOG`). | Même forme que `ACS_BRAND_COVERAGE` et pour la même raison : un écran qui laisse croire qu'ObliWAN surveille un partenaire qu'il ne sait pas lire est le mode de défaillance de cette feature. L'UI lit ce tableau ; CFAST y est `readImplemented: false`. |
+| **4** | Une recharge est une **machine à états à table de transitions explicite**, et `executed` (achetée par la machine) est un état **distinct** de `recorded` (achetée à la main). | Une recharge ne se défait pas. Un rapport de refacturation qui ne sait pas dire lequel des deux a acheté n'est pas auditable — et il ne pourra plus le dire si on fusionne les deux états. |
+| **5** | **Une proposition par épisode de manque**, garantie par la base. | `sim_balances.low_since` marque l'épisode ; il est posé à la première passe sous le seuil, laissé intact tant que la ligne reste basse, effacé au retour au-dessus. `sim_recharges.idempotency_key` en dérive et porte un index UNIQUE. Sans lui, un balayage toutes les quatre heures propose six recharges par jour pour une ligne — et en achèterait six le jour où un adaptateur existe. |
+
+### 12.3 Le registre d'exécution est **vide, exprès**
+
+`SIM_RECHARGE_ADAPTERS = {}`. C'est la construction de `PEER_RECOVERY_ADAPTERS` (§0/D3) et la même
+raison : **une entrée rend `executed` atteignable**, c'est-à-dire rend ObliWAN capable d'acheter
+tout seul, sur un vrai compte, avec de l'argent réel que rien ne rend.
+
+Aujourd'hui il est vide parce que **aucun endpoint de recharge partenaire n'a été observé**. L'API
+Phenix, reconstituée depuis le bundle Angular de son extranet, authentifie, liste les lignes et lit
+la consommation — elle n'achète pas. Écrire un adaptateur contre une URL devinée produirait une
+feature qui annonce un succès et laisse le site mort.
+
+Tout l'amont est construit et fonctionne : détection, proposition, approbation à quatre yeux,
+plafonds, audit, rapport. Une recharge approuvée s'achète sur le portail et se **consigne** ici.
+
+**La barre pour ajouter une entrée** : un endpoint confirmé contre un vrai compte, une histoire
+d'idempotence qui survit à un retry, et un contrôle de plafond prouvé *en amont* de l'appel.
+
+### 12.4 Ce que les plafonds gardent, précisément
+
+`monthly_recharge_cap` et `monthly_cost_cap_cents` gardent **l'exécution machine, et rien d'autre**.
+`NULL` vaut REFUS, pas illimité : le jour où un adaptateur arrive, il ne peut rien acheter tant que
+personne n'a écrit un plafond.
+
+Ils ne gardent **pas** une proposition (qui ne coûte rien et qui est justement ce qui prévient un
+humain) et ne gardent **pas** la consignation d'une recharge achetée à la main : c'est un fait
+accompli, et refuser de l'écrire parce qu'il dépasse un plafond produit une facture qui ne
+correspond pas à la réalité. L'écran de proposition **affiche** la consommation du mois face aux
+plafonds à la place.
+
+### 12.5 Le piège OTP, qui est un problème produit et pas un bug
+
+Un compte Phenix peut exiger un code à usage unique. `authenticate` échoue alors et le seul chemin
+est `authenticateWithCodeConfirmation`, **qui demande un humain** — or un balayage à 04:00 n'en a
+pas.
+
+Le mode `password` est donc supporté et honnêtement étiqueté « ne marche que sans OTP » ; le mode
+`token` est celui qui survit. L'`exp` du jeton est lu et persisté pour prévenir **avant** sa mort :
+un jeton expiré sans surveillance ressemble exactement à un parc en bonne santé sans nouvelles.
+
+### 12.6 Le coût, et la question que le rapport pose
+
+Recharger coûte plus cher au gigaoctet que l'enveloppe qu'on recharge. Le rapport ne se contente
+donc pas de lister les recharges : il croise, par ligne, le **forfait actuel** et le **volume
+rechargé**, et compte les **mois distincts** de la période qui ont porté au moins une recharge.
+
+C'est la récurrence qui décide, pas le nombre de recharges : six recharges dans un seul mars
+difficile est un incident ; une recharge dans chacun des six mois est un forfait mal dimensionné.
+`suggestsPlanChange` est délibérément conservateur (trois mois distincts, ou un volume rechargé qui
+atteint l'enveloppe) et **ne se déclenche jamais sur un forfait inconnu**.
+
+ObliWAN ne renégocie rien et ne change aucun forfait. Il rend le dossier visible et cite ses lignes.
+
+### 12.7 Cloisonnement
+
+`sim_accounts` **n'a pas de `tenant_id`** : un contrat partenaire est un fait sur l'entreprise qui
+exploite ObliWAN, pas sur un client — même forme que `ip_asn_ranges` (021/décision 3) et
+`lifecycle_models` (027/décision 2). La conséquence est la moitié importante : une écriture ici
+change ce que **tous** les tenants voient, et la ligne porte un **credential**. Elle ne peut donc pas
+être derrière une capacité scopée tenant — `SETTINGS_MANAGE` est accordée à l'admin de *n'importe
+quel* tenant par `TENANT_ROLE_CAPABILITIES`, ce qui est exactement le défaut livré par F5 sur
+`ip_asn_ranges`, et ici ce serait pire : repointer `base_url` sur un hôte contrôlé et récolter le
+credential à la passe suivante. Tout `/sim/accounts/*` est donc derrière `requireRole('admin')`.
+
+`sim_lines.tenant_id` est **nullable** et `NULL` signifie « pool » : une ligne que le partenaire a
+rapportée et que personne n'a rattachée à un client. C'est un état réel, stocké tel quel, visible
+seulement du tenant maître — et c'est une file de travail, parce que **chaque ligne au pool est une
+SIM payée et facturée à personne**.
+
+Plusieurs comptes sur la même plateforme sont la normale (CFAST en a deux) : l'unicité porte sur
+`(platform, lower(name))`, chaque ligne porte son `account_id`, et les inventaires ne se mélangent
+jamais.
+
+### 12.8 Ce qui n'est pas fait, et le rattachement ligne ↔ routeur
+
+L'API Phenix rend `msisdn`, `operateur` et `codeClient` — **pas d'ICCID**. La colonne existe,
+nullable, avec un index unique **partiel** (`WHERE iccid IS NOT NULL`, pour que deux lignes sans
+numéro de série ne soient jamais « le même inconnu »). Le rattachement se fait à la main via
+`device_id` aujourd'hui ; quand le parc sera enrôlé dans l'ACS, TR-069 expose le numéro de série SIM
+d'un CPE cellulaire et le rapprochement devient automatique. C'est la seule couture prévue à cet
+effet, et elle est posée maintenant parce que c'est le moment où elle est gratuite.
+
+CFAST n'est **pas implémenté**, et ce paragraphe a dû être **corrigé** : sa première version
+raisonnait à partir d'une capture d'écran du portail et en tirait `ingestion: ['push']`. Le
+raisonnement était « le portail a un menu Webhooks, donc l'intégrateur reçoit ». CFAST publie en
+réalité un **portail développeur public** (`developers.cfast.fr`, sans authentification), et il dit
+autre chose.
+
+Ce qui est **lu** dans cette documentation : CFAST n'est ni un opérateur ni une plateforme SIM,
+c'est un **BSS télécom** (devis-à-encaissement, provisioning, valorisation de CDR) ; l'intégration
+est **interrogée**, OAuth2 / OIDC contre `v2.cfast.fr` ; les webhooks existent et **leur catalogue
+d'événements est publié en entier** — CRUD d'entités, statuts de commande, facturation, et
+**aucun** événement de consommation, de quota ou de seuil. Un webhook CFAST peut dire qu'une ligne a
+été reprovisionnée ; il ne peut jamais dire qu'une ligne manque de data. Trois contraintes
+supplémentaires : les callbacks sont **non signés** (seule authenticité documentée, une liste
+blanche d'IP source — inutilisable ici, le bridge Docker NATe l'adresse, A6), la limite est de
+**2 requêtes/seconde** globales par compte, et CFAST **intègre Phenix comme fournisseur** — donc les
+deux comptes CFAST pourraient bien porter *les mêmes lignes* que le compte Phenix déjà lu.
+
+Ce qui n'est **pas** su, et qui bloque : **l'existence même d'un volume restant exposé**. Aucun
+endpoint documenté ne rend un volume inclus ou restant ; la surface la plus proche rend des
+**alertes déjà déclenchées** — un journal d'alertes, pas un solde — et une ligne en bonne santé n'y
+renvoie peut-être rien, ce qui vaut `unknown` et jamais `0`. Si la réponse est non, F9 ne tourne pas
+sur CFAST. Manquent aussi les identifiants, délivrés par le support par courriel.
+
+`ingestion` déclare donc désormais `['pull']`, la forme réelle du partenaire. Cette correction a
+imposé une seconde correction, plus importante : `isPollable` ne testait que `ingestion`, si bien
+que **corriger une description aurait changé un comportement** — un connecteur qui refuse toute
+lecture se serait retrouvé composé toutes les quatre heures, produisant une erreur que personne ne
+peut résoudre et une bannière « comptes partenaires en échec » allumée en permanence sur tous les
+tableaux de bord. `isPollable` exige maintenant `ingestion.includes('pull')` **et**
+`readImplemented`. Une plateforme devient interrogeable quand quelqu'un écrit le connecteur, jamais
+comme effet de bord d'une description plus honnête.
+
+`file` ne figure dans la déclaration d'**aucun** connecteur, et c'est délibéré : aucun importeur
+n'existe pour aucun partenaire. Le mode reste dans le vocabulaire parce que l'interface a été
+écrite autour de trois formes d'ingestion — ce n'est pas une promesse. Déclarer une forme que le
+produit ne sait pas exécuter serait exactement le mensonge que le catalogue de plateformes existe
+pour empêcher, un cran plus bas.
+
+Le dossier de preuves, chaque affirmation marquée *lue* ou *inférée*, avec la liste ordonnée de ce
+qu'il reste à capturer depuis le portail et un courriel prêt à envoyer au support : **`docs/cfast.md`**.
+
+### 12.9 Ce que la vérification a prouvé, et ce qu'elle n'a pas pu
+
+Deux harnais, dans la méthode du §8.3.
+
+`f9-rules.verify.ts` — **sans base de données**, 138 contrôles. Les règles pures et **le fil** : le
+connecteur Phenix tourne contre `fakePhenixApi`, un faux serveur protocolaire qui parle **dix
+dialectes**, dont un où **tous les champs de solde sont renommés**, un qui répond une enveloppe
+inconnue, un qui renvoie 429, et un qui déclare plus de lignes qu'il n'en rend. Le connecteur doit
+rendre `null`, une **erreur**, une erreur sans MSISDN, et une troncature signalée — jamais un zéro,
+jamais un parc vide, jamais un parc plus petit.
+
+`f9-sim.verify.ts` — **contre un PostgreSQL 16 réel**, 141 contrôles, rejouable. Les CHECK et les
+index de la 032 qui doivent **refuser**, les clés étrangères composites, les épisodes du balayage,
+l'isolation tenant, le déplacement d'une ligne entre clients et le rapport.
+
+**Vingt-six défauts trouvés et corrigés** au fil de deux revues adversariales et des deux harnais,
+détaillés avec leurs preuves dans `docs/verif-f9.md`. Les deux qu'aucun typecheck ne pouvait voir :
+
+1. `authHeaders` était défini et **n'avait aucun appelant** (motif n° 2) : les deux lectures
+   partaient sans `Authorization`, donc Phenix aurait répondu 401 sur chaque ligne en production.
+   Attrapé à la première exécution du faux serveur.
+2. **knex réécrit `?` dans un `raw()`** comme un placeholder de binding. Le CHECK
+   `msisdn ~ '^\+?[0-9]{6,19}$'` atteignait PostgreSQL sous la forme `'^\+$1[0-9]{6,19}$'` — une
+   contrainte qui s'installe en silence puis **refuse tout MSISDN**. Le premier balayage contre une
+   vraie base n'a inséré aucune ligne. Écrit désormais `[+]{0,1}`. *Toute regex dans un `raw()` sur
+   ce projet porte le même piège.*
+
+Les trois plus coûteux trouvés par la revue adversariale :
+
+3. `gbToMb(' ')` rendait **0** — `Number(' ')` vaut 0, pas NaN — donc un champ partenaire rempli
+   d'espaces déclenchait l'urgence fleet-wide que la décision 2 existe pour empêcher.
+4. `expireStale()` effaçait le marqueur d'épisode **sans vérifier que c'était le sien**, produisant
+   deux propositions vivantes pour une seule pénurie.
+5. **Aucun écran ne pouvait affecter une ligne à un client**, donc sur une installation neuve rien
+   ne sortait jamais du pool et la moitié détection/approbation/facturation de F9 était
+   inatteignable depuis le produit. C'est la trouvaille la plus instructive du lot : tout compilait,
+   tout était testé, et la feature ne servait à rien.
+
+**Leçon de méthode**, inscrite au §11.1 : lors de la première revue, 103 agents sur 145 ont échoué
+sur une limite de session, et le script repliait « non jugé » sur « rejeté » — quarante trouvailles,
+dont trois de celles ci-dessus, sont arrivées comme rejetées alors qu'elles n'avaient jamais été
+examinées. **Un verdict manquant n'est pas un verdict négatif.** Le script de re-revue marque
+désormais `unjudged` explicitement.
+
+**Seconde passe, sur le code corrigé** — 45 agents, aucun échec, 18 trouvailles qui tiennent, zéro
+non jugée. Deux enseignements qui valent au-delà de F9 :
+
+6. **Une dimension « régression » dédiée gagne sa place.** La trouvaille critique de cette passe
+   était un défaut que la correction de la passe précédente avait *introduite* : l'index unique
+   fonctionnel sur `lower(zone)` ne s'accordait plus avec une lecture restée sensible à la casse,
+   et chaque passe minait un nouvel épisode, donc une nouvelle proposition, indéfiniment. La
+   correction était juste dans son intention ; c'est son interaction avec le code existant qui ne
+   l'était pas.
+7. **Un critique de complétude trouve ce qu'aucune dimension ne peut trouver.** Les cinq points du
+   critique — dont le message d'erreur prescrivant une opération inexistante et la garde qui ne
+   s'applique qu'au parsing — sont tous des **absences**. Une revue par dimension suit des chemins ;
+   une absence n'en a pas.
+
+Ce qui n'est prouvé **nulle part** : quoi que ce soit sur la vraie API Phenix. Les noms de champs du
+faux serveur sont la même supposition que fait le connecteur, lue dans le même bundle. Ce qui *est*
+prouvé, c'est que **se tromper sur ces noms dégrade en « inconnu » et non en « vide »** — la
+propriété qui compte le jour où la supposition se révèle fausse.
+
+### 12.10 Surface : écrans, routes, capacités
+
+§4.2 est la liste de pages du cahier des charges d'origine ; les features F1-F9 documentent leurs
+écrans dans leur propre section. Voici celle de F9.
+
+| Écran | Route | Garde | Ce qu'il fait |
+|---|---|---|---|
+| Dashboard 4G | `/mobile` | `SIM_READ` | Cinq tuiles — dont **illisibles** à côté de **comptes en échec**, qui se lisent ensemble —, lignes basses, file d'approbation, **coût par site sur six mois**, matrice de couverture par partenaire. |
+| Lignes SIM | `/mobile/lines` | `SIM_READ` | Inventaire, filtres verdict / affectation, le **pool** comme filtre de premier rang. |
+| Détail d'une ligne | `/mobile/lines/:id` | `SIM_READ` | Zones, seuil, **sélecteur d'espace client** (vue maître), rattachement site/routeur, ICCID, historique. Édition sous `SIM_MANAGE`. |
+| Recharges | `/mobile/recharges` | `SIM_READ` | File d'approbation et historique. Approuver / refuser / consigner / **valoriser** sous `SIM_RECHARGE`. |
+| Coûts mobiles | `/mobile/report` | `SIM_READ` | Refacturation et dimensionnement : forfait actuel *vs* rechargé, mois distincts, export CSV. |
+| Comptes partenaires | `/admin/mobile-accounts` | rôle admin **plateforme** — `requiredRole="admin"` côté routeur, `requireRole('admin')` sur **chaque** route `/sim/accounts`, lecture comprise | Création, édition, identifiants, OTP, test, balayage manuel, journal, **plafonds de dépense**. |
+
+L'alerte de manque pointe sur `/mobile/lines/:id` : c'est le deep-link qui justifie une page de
+détail plutôt qu'un tiroir.
+
+**Réglages** (`SETTINGS_DEFINITIONS`, rendus par le panneau existant) : `SIM_SYNC_INTERVAL`
+(minutes, défaut 240 — **valeur de l'espace principal uniquement**, les comptes partenaires n'ayant
+pas de tenant), `SIM_LOW_DATA_THRESHOLD` (Mo, défaut 1024, surchargeable par ligne),
+`SIM_ALERT_REMIND_HOURS` (défaut 24).
+
+**Capacités** : `SIM_READ` · `SIM_MANAGE` (affectation et politique — ne dépense rien) ·
+`SIM_RECHARGE` (**la seule capacité du produit qui engage un achat**, non impliquée par
+`SIM_MANAGE`, absente de tous les jeux prédéfinis, nommée explicitement dans
+`TENANT_ROLE_CAPABILITIES.admin`).
+
+**Sortie réseau** : F9 est le seul sous-système qui sort vers l'**internet public** et non par le
+tunnel L2TP. Une egress restreinte au sous-réseau du tunnel donne des soldes périmés pendant que les
+routeurs restent parfaitement joignables — documenté dans l'en-tête de `docker-compose.yml`.

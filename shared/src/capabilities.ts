@@ -73,6 +73,24 @@ export const CAPABILITIES = {
   /** Manage CPEs, the CWMP task queue, parameter maps and firmware files. */
   ACS_ADMIN: 'acs.admin',
 
+  // ── Mobile data lines / SIM fleet (F9) ─────────────────────────────────
+  /** See SIM lines, their remaining data, and the re-invoicing report. */
+  SIM_READ: 'sim.read',
+  /**
+   * Assign a line to a tenant, a site or a router, set its low-data threshold
+   * and opt it into automatic top-ups. Changes WHAT gets proposed; never buys.
+   */
+  SIM_MANAGE: 'sim.manage',
+  /**
+   * Approve a top-up proposal, or record one bought on the partner's portal.
+   *
+   * This is the only capability in the whole vocabulary that authorises a
+   * purchase. It is deliberately NOT implied by SIM_MANAGE: deciding that a
+   * line should be watched is an inventory act, deciding that money leaves the
+   * company is not — the same split as CHANGE_APPLY against CHANGE_APPROVE.
+   */
+  SIM_RECHARGE: 'sim.recharge',
+
   // ── Secrets (M2 — arbitrage A3) ────────────────────────────────────────
   /** Create / rotate / delete credentials in the vault. Never reveals them. */
   CREDENTIAL_MANAGE: 'credential.manage',
@@ -111,6 +129,7 @@ export const CAPABILITY_DOMAINS = [
   'drift',
   'telemetry',
   'acs',
+  'mobile',
   'secrets',
   'admin',
 ] as const;
@@ -158,6 +177,12 @@ export const CAPABILITY_CATALOG: readonly CapabilityInfo[] = [
   { key: CAPABILITIES.SNMP_ADMIN, domain: 'telemetry', label: 'Manage SNMP', description: 'Manage SNMP targets, credentials and thresholds', sensitive: true },
 
   { key: CAPABILITIES.ACS_ADMIN, domain: 'acs', label: 'Manage ACS', description: 'Manage CPEs, CWMP tasks, parameter maps and firmware', sensitive: true },
+
+  { key: CAPABILITIES.SIM_READ, domain: 'mobile', label: 'Read SIM fleet', description: 'View mobile lines, remaining data and the re-invoicing report', sensitive: false },
+  { key: CAPABILITIES.SIM_MANAGE, domain: 'mobile', label: 'Manage SIM fleet', description: 'Assign lines, set data thresholds and opt lines into top-ups', sensitive: false },
+  // `sensitive` because holding it means being able to commit spend, which is
+  // the one consequence in this vocabulary that no rollback undoes.
+  { key: CAPABILITIES.SIM_RECHARGE, domain: 'mobile', label: 'Approve top-ups', description: 'Approve a data top-up, or record one bought on the partner portal', sensitive: true },
 
   { key: CAPABILITIES.CREDENTIAL_MANAGE, domain: 'secrets', label: 'Manage credentials', description: 'Create, rotate and delete vault credentials', sensitive: true },
   { key: CAPABILITIES.SECRET_READ, domain: 'secrets', label: 'Reveal secrets', description: 'Display a stored secret in clear text', sensitive: true },
@@ -212,6 +237,12 @@ export const CAPABILITY_IMPLIES: Readonly<Partial<Record<Capability, readonly Ca
   [CAPABILITIES.TEMPLATE_WRITE]: [CAPABILITIES.TEMPLATE_READ],
   [CAPABILITIES.DRIFT_MANAGE]: [CAPABILITIES.DRIFT_READ],
   [CAPABILITIES.SNMP_ADMIN]: [CAPABILITIES.SNMP_READ],
+  // Assigning a line presupposes seeing the fleet you are assigning from.
+  [CAPABILITIES.SIM_MANAGE]: [CAPABILITIES.SIM_READ],
+  // Approving a top-up presupposes reading the balance that justifies it. The
+  // reverse is deliberately NOT true, and neither is SIM_MANAGE ⇒ SIM_RECHARGE:
+  // an inventory grant must never turn into a spending grant by implication.
+  [CAPABILITIES.SIM_RECHARGE]: [CAPABILITIES.SIM_READ],
   // Revealing a secret presupposes being allowed to manage the credential it
   // belongs to. The reverse is deliberately NOT true: rotating a password is an
   // ordinary operational act, reading one is not (§7 / A3).
@@ -260,6 +291,7 @@ export const BUILTIN_PERMISSION_SETS: ReadonlyArray<{
       CAPABILITIES.TEMPLATE_READ,
       CAPABILITIES.DRIFT_READ,
       CAPABILITIES.SNMP_READ,
+      CAPABILITIES.SIM_READ,
     ],
   },
   {
@@ -276,6 +308,7 @@ export const BUILTIN_PERMISSION_SETS: ReadonlyArray<{
       CAPABILITIES.DRIFT_MANAGE,
       CAPABILITIES.QUERY_RUN,
       CAPABILITIES.SNMP_READ,
+      CAPABILITIES.SIM_READ,
     ],
   },
   {
@@ -298,6 +331,11 @@ export const BUILTIN_PERMISSION_SETS: ReadonlyArray<{
       CAPABILITIES.SNMP_READ,
       CAPABILITIES.SNMP_ADMIN,
       CAPABILITIES.CREDENTIAL_MANAGE,
+      CAPABILITIES.SIM_READ,
+      CAPABILITIES.SIM_MANAGE,
+      // SIM_RECHARGE is deliberately absent from every builtin set. It commits
+      // spend, so it is granted the way CHANGE_APPROVE is — named explicitly by
+      // whoever hands it out, never inherited from "is an engineer".
     ],
   },
 ];

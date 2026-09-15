@@ -69,3 +69,10 @@ export * from './sla';
 // End-of-life inventory (F8). "End of support unknown" is an honest answer;
 // "supported" for a model absent from the catalogue is not.
 export * from './lifecycle';
+
+// Mobile data lines — the SIM fleet behind the LTE uplinks (F9). Carries the
+// platform coverage matrix as DATA, like ACS_BRAND_COVERAGE, so a screen cannot
+// imply ObliWAN is watching a partner it cannot read; and it is the one place
+// the rule "an absent reading is unknown, never zero" is written, because zero
+// is the reading that spends money.
+export * from './sim';

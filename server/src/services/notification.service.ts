@@ -830,6 +830,52 @@ export const notificationService = {
   },
 
   /**
+   * Send a TENANT-level notification — global bindings only, no group chain.
+   *
+   * ┌─ WHY THIS EXISTS RATHER THAN REUSING sendForGroup ────────────────────┐
+   * │ Some things a tenant must hear about are not attached to a device or  │
+   * │ to a device group at all. The first is F9: a SIM line runs out of     │
+   * │ data. A line is attached to a SITE and sometimes to a router, but it  │
+   * │ is inventory the MSP bought from a mobile partner — it has no place   │
+   * │ in the device-group tree, and inventing one to reuse `sendForGroup`   │
+   * │ would put a fake group in every customer's hierarchy.                 │
+   * │                                                                      │
+   * │ So the chain is just step 1 of `resolveChannelsForDevice`: the        │
+   * │ tenant's global bindings. `_enabledChannels` still applies the same   │
+   * │ visibility rule, so a channel un-shared from this tenant stops firing │
+   * │ here exactly as it does everywhere else.                              │
+   * └──────────────────────────────────────────────────────────────────────┘
+   */
+  async sendForTenant(tenantId: number, eventType: string, payload: NotificationPayload): Promise<void> {
+    const globalBindings = await this.getBindings(tenantId, 'global', null);
+    const channelIds = Array.from(this._applyBindings(new Set<number>(), globalBindings));
+    if (channelIds.length === 0) return;
+
+    const enrichedPayload: NotificationPayload = { ...payload, appName: config.appName };
+    const channels = await this._enabledChannels(tenantId, channelIds);
+
+    for (const row of channels) {
+      const channel = rowToChannel(row);
+      const plugin = getPlugin(channel.type);
+      if (!plugin) {
+        logger.warn(`No plugin for notification type "${channel.type}"`);
+        continue;
+      }
+      try {
+        const resolvedConfig = await this.resolveChannelConfig(channel, row.tenant_id);
+        await plugin.send(resolvedConfig, enrichedPayload);
+        await this.logNotification(row, null, eventType, true);
+      } catch (error) {
+        const errMsg = error instanceof Error ? error.message : 'Unknown error';
+        // One channel's failure must not stop the others — same rule as the
+        // group loop above (AUDIT-CORR §5.5).
+        await this.logNotification(row, null, eventType, false, errMsg);
+        logger.error(`Tenant notification failed: ${channel.name} (${channel.type}): ${errMsg}`);
+      }
+    }
+  },
+
+  /**
    * AUDIT-CORR §1.5 — the channel name and type are DENORMALISED into the row,
    * because `notification_log.channel_id` is now ON DELETE SET NULL: deleting a
    * misbehaving channel must not erase the 40 failure lines that explain why it

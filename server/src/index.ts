@@ -18,6 +18,7 @@ import { changeExecutorReadiness, runJob } from './services/change/apply.service
 import { startAcsRuntime, stopAcsRuntime } from './cwmp';
 import { startEvidenceRuntime, stopEvidenceRuntime } from './services/attestation/runtime';
 import { startWeatherRuntime, stopWeatherRuntime } from './services/weather';
+import { startSimRuntime, stopSimRuntime } from './services/sim';
 import { sweepInterventionLinks } from './services/intervention';
 import { sweepAftermath } from './services/change/aftermath.service';
 import { leaderElection as leader } from './services/leaderElection';
@@ -239,6 +240,28 @@ async function main() {
     logger.error(err, 'Weather runtime failed to arm — no operator-incident correlation on this process');
   }
 
+  // 6f-bis. Mobile data lines (F9). Leadership is gated INSIDE
+  //     `startSimRuntime`, like every other runtime here.
+  //
+  //     What this arms is a sweep that reads a PARTNER'S web API, one request
+  //     per line, on an API that publishes no rate limit. Two replicas polling
+  //     it would double that load for no extra information and risk being
+  //     throttled into silence — and silence, on this feature, is
+  //     indistinguishable from good news.
+  //
+  //     It is also the only runtime that can create a top-up PROPOSAL. It
+  //     cannot create a purchase: `SIM_RECHARGE_ADAPTERS` is empty on purpose
+  //     (`services/sim/types.ts`), so nothing armed here can spend money.
+  try {
+    startSimRuntime();
+  } catch (err) {
+    logger.error(
+      err,
+      'SIM runtime failed to arm — remaining mobile data will not be read and no low-balance '
+        + 'alert will be raised on this process',
+    );
+  }
+
   // 6g. The two periodic sweeps that F3 and F4 shipped WITHOUT a caller.
   //
   //     They were delivered as plain exported functions, which is the sixth time
@@ -327,6 +350,7 @@ async function main() {
     try { await stopSnmpRuntime(); } catch { /* already down */ }
     try { stopEvidenceRuntime(); } catch { /* already down */ }
     try { await stopWeatherRuntime(); } catch { /* already down */ }
+    try { await stopSimRuntime(); } catch { /* already down */ }
     if (featureSweepTimer) { clearInterval(featureSweepTimer); featureSweepTimer = null; }
     try { await stopFleetRuntime(); } catch { /* already down */ }
 
